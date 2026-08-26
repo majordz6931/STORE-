@@ -76,6 +76,10 @@
     <section class="section" id="shop">
       <h3 data-i18n="offers">العروض المتاحة</h3>
       <p class="sub" data-i18n="offersSub">اختر المنتج وأضفه للسلة ثم أكمل الطلب.</p>
+      <div class="search-box">
+        <input type="text" id="searchInput" data-i18n-ph="searchPlaceholder" placeholder="ابحث عن منتج..." />
+        <span class="search-icon">🔍</span>
+      </div>
       <div class="grid" id="products"></div>
     </section>
 
@@ -100,6 +104,8 @@
         <a class="btn" id="footerDiscord" href="https://discord.gg/WrK7ttvq5g" target="_blank" rel="noopener" data-i18n="openDiscord">افتح ديسكورد</a>
       </div>
     </section>
+
+    <section class="section" id="myOrders"></section>
   </main>
 
   <footer>
@@ -131,6 +137,14 @@
           <b data-i18n="payNet">BNB Smart Chain (BEP20)</b>
           <p class="sub" data-i18n="payHint">حوّل المبلغ ثم ارفع السكرين.</p>
           <p class="pay-amount"><span data-i18n="total">الإجمالي:</span> <b id="payAmount">$0</b></p>
+          <div class="coupon-row" id="couponRow">
+            <label data-i18n="applyCoupon">كود خصم</label>
+            <div style="display:flex;gap:6px">
+              <input id="couponCode" data-i18n-ph="couponPlaceholder" placeholder="أدخل كود الخصم" />
+              <button class="btn outline" type="button" id="couponApply" data-i18n="couponApply">تطبيق</button>
+            </div>
+            <p id="couponMsg" style="font-size:12px;min-height:18px"></p>
+          </div>
           <label data-i18n="payTo">عنوان المحفظة</label>
           <div class="addr-row">
             <code id="walletAddr">0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3</code>

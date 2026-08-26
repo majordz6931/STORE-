@@ -1,5 +1,5 @@
 (function () {
-  var KEY = "major360_db_v3";
+  var KEY = "major360_db_v4";
   var WALLET = "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3";
 
   var DEFAULT = {
@@ -7,7 +7,13 @@
     siteName: "MAJOR AM 360",
     wallet: WALLET,
     network: "BSC — BNB Smart Chain (BEP20)",
+    theme: "dark",
     admins: [{ user: "MAJOR", pass: "yemavava91@@@@@#####" }],
+    coupons: [
+      { code: "MAJOR10", type: "percent", value: 10, used: 0, max: 100, expires: "" },
+      { code: "VIP25", type: "percent", value: 25, used: 0, max: 50, expires: "" },
+      { code: "WELCOME5", type: "fixed", value: 5, used: 0, max: 200, expires: "" }
+    ],
     products: [
       { id: "c1", cat: "cyber", name: "حماية الحسابات — باقة أساسية", nameEn: "Account protection — Basic", price: 9.99, emoji: "🛡️", desc: "تعزيز حماية الحسابات والإعدادات الأمنية.", descEn: "Strengthen account protection and security settings." },
       { id: "c2", cat: "cyber", name: "حماية متقدمة + استشارة", nameEn: "Advanced protection + consult", price: 24.99, emoji: "🔐", desc: "حماية متقدمة مع استشارة عبر الديسكورد.", descEn: "Advanced protection with Discord consultation." },
@@ -42,6 +48,7 @@
       if (!db.orders) db.orders = [];
       if (!db.chats) db.chats = [];
       if (!db.users) db.users = [];
+      if (!db.coupons) db.coupons = DEFAULT.coupons.slice();
       if (!db.discord) db.discord = DEFAULT.discord;
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;

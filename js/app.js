@@ -2,36 +2,16 @@
   var db = MajorDB.load();
   var cart = JSON.parse(localStorage.getItem("major360_cart") || "[]");
   var filter = "all";
+  var searchQuery = "";
+  var appliedCoupon = null;
   var chatId = sessionStorage.getItem("major360_chat") || "";
   var lastSeen = 0;
 
   function t(k) { return MajorI18n.t(k); }
-
   function money(n) { return "$" + Number(n).toFixed(2); }
-
-  function pname(p) {
-    return (MajorI18n.getLang() === "en") ? (p.nameEn || p.name) : p.name;
-  }
-  function pdesc(p) {
-    return (MajorI18n.getLang() === "en") ? (p.descEn || p.desc || "") : (p.desc || "");
-  }
-
-  function toast(msg) {
-    var el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    setTimeout(function () { el.classList.remove("show"); }, 2200);
-  }
-
-  function saveCart() {
-    localStorage.setItem("major360_cart", JSON.stringify(cart));
-    var n = cart.reduce(function (s, i) { return s + i.qty; }, 0);
-    document.getElementById("cartCount").textContent = n;
-  }
-
-  function catName(c) {
-    return { cyber: "🛡️ Cyber Security Tools", streamer: "📺 Streamer Tools", gaming: "🎮 Gaming Tools" }[c] || c;
-  }
+  function pname(p) { return (MajorI18n.getLang() === "en") ? (p.nameEn || p.name) : p.name; }
+  function pdesc(p) { return (MajorI18n.getLang() === "en") ? (p.descEn || p.desc || "") : (p.desc || ""); }
+  function catName(c) { return { cyber: "🛡️ Cyber Security Tools", streamer: "📺 Streamer Tools", gaming: "🎮 Gaming Tools" }[c] || c; }
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (m) {
@@ -39,26 +19,49 @@
     });
   }
 
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function saveCart() {
+    localStorage.setItem("major360_cart", JSON.stringify(cart));
+    var n = cart.reduce(function (s, i) { return s + i.qty; }, 0);
+    var el = document.getElementById("cartCount");
+    if (el) el.textContent = n;
+  }
+
   function renderProducts() {
     var grid = document.getElementById("products");
-    var list = db.products.filter(function (p) { return filter === "all" || p.cat === filter; });
+    if (!grid) return;
+    var q = searchQuery.toLowerCase().trim();
+    var list = db.products.filter(function (p) {
+      if (filter !== "all" && p.cat !== filter) return false;
+      if (!q) return true;
+      return (p.name + " " + p.nameEn + " " + p.desc + " " + (p.descEn || "")).toLowerCase().indexOf(q) !== -1;
+    });
     if (!list.length) {
-      grid.innerHTML = '<p class="sub">' + t("noProducts") + "</p>";
+      grid.innerHTML = '<div class="empty-state"><span>📦</span><p class="sub">' + t("noProducts") + "</p></div>";
       return;
     }
     grid.innerHTML = list.map(function (p) {
-      var thumb = p.image
-        ? '<img src="' + p.image + '" alt="" />'
-        : (p.emoji || "🎮");
+      var inCart = cart.find(function (x) { return x.id === p.id; });
+      var btnText = inCart ? t("addedToCart") : t("addCart");
+      var btnClass = inCart ? "btn added" : "btn";
+      var thumb = p.image ? '<img src="' + p.image + '" alt="" />' : '<span class="emoji-thumb">' + (p.emoji || "🎮") + "</span>";
       return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body"><div class="tag">' +
         catName(p.cat) + "</div><h4>" + esc(pname(p)) + '</h4><p class="sub">' + esc(pdesc(p)) +
-        '</p><div class="price">' + money(p.price) + '</div><button class="btn" data-add="' + p.id + '">' +
-        t("addCart") + "</button></div></article>";
+        '</p><div class="price">' + money(p.price) + '</div><button class="' + btnClass + '" data-add="' + p.id + '">' + btnText + "</button></div></article>";
     }).join("");
   }
 
   function renderCart() {
     var box = document.getElementById("cartItems");
+    if (!box) return;
     if (!cart.length) {
       box.innerHTML = '<p class="sub">' + t("emptyCart") + "</p>";
       document.getElementById("cartTotal").textContent = money(0);
@@ -68,9 +71,7 @@
     box.innerHTML = cart.map(function (i, idx) {
       total += i.price * i.qty;
       var label = MajorI18n.getLang() === "en" ? (i.nameEn || i.name) : i.name;
-      return '<div class="cart-row"><div><b>' + esc(label) + "</b><br><span class='sub'>" + money(i.price) +
-        '</span></div><div class="qty"><button data-dec="' + idx + '">-</button><span>' + i.qty +
-        '</span><button data-inc="' + idx + '">+</button></div></div>';
+      return '<div class="cart-row"><div><b>' + esc(label) + "</b><br><span class='sub'>" + money(i.price) + '</span></div><div class="qty"><button data-dec="' + idx + '">−</button><span>' + i.qty + '</span><button data-inc="' + idx + '">+</button></div></div>';
     }).join("");
     document.getElementById("cartTotal").textContent = money(total);
   }
@@ -83,20 +84,24 @@
     else cart.push({ id: p.id, name: p.name, nameEn: p.nameEn, price: p.price, qty: 1 });
     saveCart();
     renderCart();
+    renderProducts();
     toast(t("added"));
   }
 
   function refreshDiscord() {
-    document.getElementById("discordLink").href = db.discord;
-    document.getElementById("footerDiscord").href = db.discord;
+    var dl = document.getElementById("discordLink");
+    var fd = document.getElementById("footerDiscord");
+    if (dl) dl.href = db.discord;
+    if (fd) fd.href = db.discord;
   }
 
-  var prev2 = MajorI18n.onChange;
+  var prev = MajorI18n.onChange;
   MajorI18n.onChange = function () {
-    if (typeof prev2 === "function") prev2();
+    if (typeof prev === "function") prev();
     renderProducts();
     renderCart();
     drawChat();
+    renderOrders();
   };
 
   refreshDiscord();
@@ -122,6 +127,15 @@
     });
   });
 
+  /* SEARCH */
+  var searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      searchQuery = this.value;
+      renderProducts();
+    });
+  }
+
   var overlay = document.getElementById("overlay");
   var drawer = document.getElementById("drawer");
   function openCart() { overlay.classList.add("show"); drawer.classList.add("show"); renderCart(); }
@@ -141,33 +155,71 @@
     renderCart();
   });
 
+  /* CHECKOUT */
   var orderModal = document.getElementById("orderModal");
   var proofData = "";
-  function cartTotal() {
-    return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0);
+  function cartTotal() { return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0); }
+  function cartTotalWithDiscount() {
+    var total = cartTotal();
+    if (appliedCoupon) {
+      if (appliedCoupon.type === "percent") total = total * (1 - appliedCoupon.value / 100);
+      else total = Math.max(0, total - appliedCoupon.value);
+    }
+    return total;
+  }
+
+  function validateCoupon(code) {
+    db = MajorDB.load();
+    var c = (db.coupons || []).find(function (x) { return x.code.toUpperCase() === code.trim().toUpperCase(); });
+    if (!c) return null;
+    if (c.max && c.used >= c.max) return null;
+    if (c.expires && new Date(c.expires) < new Date()) return null;
+    return c;
   }
 
   document.getElementById("checkout").addEventListener("click", function () {
     if (!cart.length) return toast(t("emptyCart"));
     closeCart();
+    appliedCoupon = null;
+    var cr = document.getElementById("couponRow");
+    if (cr) cr.style.display = "block";
+    document.getElementById("couponCode").value = "";
+    document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
     document.getElementById("walletAddr").textContent = db.wallet || MajorDB.WALLET;
     orderModal.classList.add("show");
   });
-  document.getElementById("closeOrder").addEventListener("click", function () {
-    orderModal.classList.remove("show");
-  });
+  document.getElementById("closeOrder").addEventListener("click", function () { orderModal.classList.remove("show"); });
   document.getElementById("copyAddr").addEventListener("click", function () {
     var addr = document.getElementById("walletAddr").textContent;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(addr).then(function () { toast(t("copied")); });
     } else toast(addr);
   });
+
+  /* COUPON */
+  document.getElementById("couponApply").addEventListener("click", function () {
+    var code = document.getElementById("couponCode").value.trim();
+    if (!code) return;
+    var coupon = validateCoupon(code);
+    if (!coupon) {
+      document.getElementById("couponMsg").textContent = t("couponInvalid");
+      document.getElementById("couponMsg").style.color = "#ff6b6b";
+      appliedCoupon = null;
+      document.getElementById("payAmount").textContent = money(cartTotal());
+      return;
+    }
+    appliedCoupon = coupon;
+    document.getElementById("couponMsg").textContent = t("couponApplied") + " (-" + (coupon.type === "percent" ? coupon.value + "%" : "$" + coupon.value) + ")";
+    document.getElementById("couponMsg").style.color = "#22c55e";
+    document.getElementById("payAmount").textContent = money(cartTotalWithDiscount());
+  });
+
   document.getElementById("cproof").addEventListener("change", function (e) {
     var file = e.target.files && e.target.files[0];
     if (!file) { proofData = ""; return; }
-    var img = new Image();
     var url = URL.createObjectURL(file);
+    var img = new Image();
     img.onload = function () {
       var w = img.width, h = img.height, max = 900;
       if (w > max) { h = Math.round(h * max / w); w = max; }
@@ -182,12 +234,15 @@
     };
     img.src = url;
   });
+
   document.getElementById("orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
     if (!proofData) return toast(t("proofNeed"));
     db = MajorDB.load();
+    var total = cartTotalWithDiscount();
+    var orderId = "o" + Date.now();
     db.orders.unshift({
-      id: "o" + Date.now(),
+      id: orderId,
       name: document.getElementById("cname").value.trim(),
       contact: document.getElementById("ccontact").value.trim(),
       country: document.getElementById("ccountry").value.trim(),
@@ -196,18 +251,27 @@
       network: "BSC BEP20",
       wallet: db.wallet || MajorDB.WALLET,
       items: cart.slice(),
-      total: cartTotal(),
+      total: total,
+      originalTotal: cartTotal(),
+      coupon: appliedCoupon ? appliedCoupon.code : null,
+      status: "pending",
       at: new Date().toLocaleString()
     });
+    if (appliedCoupon) {
+      var c = (db.coupons || []).find(function (x) { return x.code === appliedCoupon.code; });
+      if (c) c.used = (c.used || 0) + 1;
+    }
     MajorDB.save(db);
     cart = [];
     proofData = "";
+    appliedCoupon = null;
     saveCart();
     renderCart();
     document.getElementById("proofPreview").classList.remove("show");
     orderModal.classList.remove("show");
-    toast(t("sent"));
+    toast(t("sent") + " (" + t("yourOrderId") + " " + orderId + ")");
     e.target.reset();
+    renderOrders();
   });
 
   document.getElementById("menuBtn").addEventListener("click", function () {
@@ -225,9 +289,7 @@
       drawChat();
     }
   });
-  document.getElementById("chatClose").addEventListener("click", function () {
-    win.classList.remove("open");
-  });
+  document.getElementById("chatClose").addEventListener("click", function () { win.classList.remove("open"); });
 
   function getChat() {
     db = MajorDB.load();
@@ -262,9 +324,7 @@
   }
 
   document.getElementById("chatStart").addEventListener("click", startChat);
-  document.getElementById("chatName").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") startChat();
-  });
+  document.getElementById("chatName").addEventListener("keydown", function (e) { if (e.key === "Enter") startChat(); });
 
   function startChat() {
     var name = document.getElementById("chatName").value.trim();
@@ -274,9 +334,7 @@
     chatId = "c" + Date.now();
     sessionStorage.setItem("major360_chat", chatId);
     db.chats.unshift({
-      id: chatId,
-      name: name,
-      updated: Date.now(),
+      id: chatId, name: name, updated: Date.now(),
       messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
     });
     MajorDB.save(db);
@@ -297,9 +355,7 @@
     drawChat();
   }
   document.getElementById("chatSend").addEventListener("click", sendUser);
-  document.getElementById("chatInput").addEventListener("keydown", function (e) {
-    if (e.key === "Enter") sendUser();
-  });
+  document.getElementById("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
 
   if (chatId) {
     document.getElementById("chatStartBox").style.display = "none";
@@ -309,6 +365,27 @@
     drawChat();
   }
 
+  /* MY ORDERS */
+  var ordersBox = document.getElementById("myOrders");
+  function renderOrders() {
+    if (!ordersBox) return;
+    db = MajorDB.load();
+    var list = db.orders.slice(0, 10);
+    if (!list.length) {
+      ordersBox.innerHTML = '<h3>' + t("myOrders") + '</h3><p class="sub">' + t("noOrdersHistory") + "</p>";
+      return;
+    }
+    ordersBox.innerHTML = '<h3>' + t("myOrders") + '</h3>' +
+      list.map(function (o) {
+        var s = o.status || "pending";
+        var sk = "status" + s.charAt(0).toUpperCase() + s.slice(1);
+        var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
+        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div><div class="order-body"><p class="sub">' + it + '</p><p><span>' + t("total") + '</span> <b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + ' ' + o.id + '</small></div></div>';
+      }).join("");
+  }
+
   setInterval(drawChat, 1500);
   window.addEventListener("storage", function () { drawChat(); });
+
+  renderOrders();
 })();

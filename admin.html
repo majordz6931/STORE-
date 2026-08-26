@@ -60,7 +60,10 @@
       <button class="active" data-tab="tabProducts" type="button" data-i18n="products">المنتجات</button>
       <button data-tab="tabOrders" type="button" data-i18n="orders">الطلبات</button>
       <button data-tab="tabChat" type="button" data-i18n="liveChat">الدردشة</button>
+      <button data-tab="tabStats" type="button" data-i18n="stats">الإحصائيات</button>
+      <button data-tab="tabCoupons" type="button" data-i18n="coupons">كوبونات</button>
       <button data-tab="tabDiscord" type="button">Discord</button>
+      <button data-tab="tabMembers" type="button" data-i18n="members">الأعضاء</button>
       <button data-tab="tabAdmins" type="button" data-i18n="admins">الأدمن</button>
     </aside>
     <div>
@@ -99,10 +102,47 @@
 
       <section class="panel" id="tabOrders">
         <h3 data-i18n="ordersTitle">الطلبات الواردة</h3>
-        <p class="sub"><span data-i18n="oCount">عدد الطلبات:</span> <b id="oCount">0</b></p>
+        <p class="sub"><span data-i18n="oCount">عدد الطلبات:</span> <b id="oCount">0</b> <button class="btn outline" id="exportCSV" type="button" data-i18n="exportCSV" style="float:left">📥 تصدير CSV</button></p>
         <table class="table">
-          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="contactInfo">تواصل / بلد</th><th data-i18n="colItems">العناصر</th><th data-i18n="colTotal">المجموع</th><th data-i18n="screenshot">سكرين</th></tr></thead>
+          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="contactInfo">تواصل / بلد</th><th data-i18n="colItems">العناصر</th><th data-i18n="colTotal">المجموع</th><th data-i18n="screenshot">سكرين</th><th data-i18n="orderStatus">الحالة</th></tr></thead>
           <tbody id="orderTable"></tbody>
+        </table>
+      </section>
+
+      <section class="panel" id="tabStats">
+        <h3 data-i18n="statsTitle">📊 إحصائيات المتجر</h3>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label" data-i18n="totalOrders">إجمالي الطلبات</div></div>
+          <div class="stat-card"><div class="stat-num" id="statRevenue">$0</div><div class="stat-label" data-i18n="totalRevenue">إجمالي الإيرادات</div></div>
+          <div class="stat-card"><div class="stat-num stat-pending" id="statPending">0</div><div class="stat-label" data-i18n="statusPending">🟡 قيد الانتظار</div></div>
+          <div class="stat-card"><div class="stat-num stat-confirmed" id="statConfirmed">0</div><div class="stat-label" data-i18n="statusConfirmed">🟢 تم التأكيد</div></div>
+          <div class="stat-card"><div class="stat-num stat-delivered" id="statDelivered">0</div><div class="stat-label" data-i18n="statusDelivered">🟣 تم التسليم</div></div>
+        </div>
+        <h4 style="margin-top:20px" data-i18n="topProducts">المنتجات الأكثر مبيعاً</h4>
+        <div id="topProducts"></div>
+      </section>
+
+      <section class="panel" id="tabCoupons">
+        <h3 data-i18n="coupons">كوبونات الخصم</h3>
+        <form class="form" id="addCouponForm" style="max-width:480px">
+          <label data-i18n="couponCodeLabel">الكود</label>
+          <input id="ccode" required placeholder="MAJOR20" />
+          <label data-i18n="couponType">النوع</label>
+          <select id="ctype">
+            <option value="percent" data-i18n="couponPercent">نسبة %</option>
+            <option value="fixed" data-i18n="couponFixed">مبلغ ثابت</option>
+          </select>
+          <label data-i18n="couponValue">القيمة</label>
+          <input id="cvalue" type="number" min="0.01" step="0.01" required />
+          <label data-i18n="couponMax">أقصى استخدام</label>
+          <input id="cmax" type="number" min="0" value="100" />
+          <label data-i18n="couponExpires">تاريخ الانتهاء</label>
+          <input id="cexpires" type="date" />
+          <button class="btn" type="submit" data-i18n="couponAddBtn">إضافة الكوبون</button>
+        </form>
+        <table class="table" style="margin-top:16px">
+          <thead><tr><th data-i18n="couponCodeLabel">الكود</th><th data-i18n="couponValue">القيمة</th><th data-i18n="couponUsage">استخدام</th><th data-i18n="couponExpires">تاريخ الانتهاء</th><th></th></tr></thead>
+          <tbody id="couponTable"></tbody>
         </table>
       </section>
 
