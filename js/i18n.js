@@ -150,7 +150,6 @@
       admin: "Dashboard",
       cart: "Cart",
       heroTitle: "Choose the service that suits you and get it quickly.",
-      heroText: "Choose the service that suits you and get it quickly.",
       shopNow: "Shop now",
       discord: "Discord",
       joinDiscord: "Join MAJOR Discord",
