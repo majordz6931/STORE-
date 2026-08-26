@@ -460,7 +460,10 @@
     });
   }
 
-  /* ===== CHAT ===== */
+  /* ===== CHAT — Socket.IO Real-time ===== */
+  var chatSocket = null;
+  try { chatSocket = io(); } catch(e) { chatSocket = null; }
+
   function renderChats() {
     if (!db.chats) db.chats = [];
     var list = document.getElementById("chatList");
@@ -476,7 +479,8 @@
       var unread = c.messages.filter(function (m) { return m.from === "user" && !m.seen; }).length;
       var badge = unread > 0 ? ' <span class="chat-unread">' + unread + "</span>" : "";
       return '<div class="live-item' + (c.id === activeChat ? " active" : "") + '" data-cid="' + c.id + '"><b>' +
-        c.name + badge + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 30) : "") + "</small></div>";
+        c.name + badge + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 30) : "") + "</small>" +
+        '<button class="chat-del danger" data-cdel="' + c.id + '" title="حذف">&times;</button></div>';
     }).join("");
     drawAdminThread();
   }
@@ -496,7 +500,77 @@
     log.scrollTop = log.scrollHeight;
   }
 
+  // Socket events
+  if (chatSocket) {
+    // New chat created by a customer
+    chatSocket.on("chat:new", function (data) {
+      db = MajorDB.load();
+      // Check if we already have this chat
+      var exists = db.chats.some(function (c) { return c.id === data.chatId; });
+      if (!exists) {
+        db.chats.unshift({
+          id: data.chatId,
+          name: data.name || "زبون",
+          updated: Date.now(),
+          messages: []
+        });
+        MajorDB.save(db);
+      }
+      renderChats();
+      // Sound notification
+      if (soundEnabled) playNewOrderSound();
+    });
+
+    // New message in a chat
+    chatSocket.on("chat:message", function (data) {
+      db = MajorDB.load();
+      var c = db.chats.find(function (x) { return x.id === data.chatId; });
+      if (c) {
+        var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
+        if (!exists) {
+          c.messages.push(data.message);
+          c.updated = Date.now();
+          MajorDB.save(db);
+          renderChats();
+          // Sound for user messages
+          if (data.message.from === "user" && soundEnabled) playNewOrderSound();
+        }
+      }
+    });
+
+    // Chat deleted by admin from another tab
+    chatSocket.on("chat:deleted", function (chatId) {
+      db = MajorDB.load();
+      db.chats = (db.chats || []).filter(function (c) { return c.id !== chatId; });
+      if (activeChat === chatId) activeChat = "";
+      MajorDB.save(db);
+      renderChats();
+    });
+
+    // Join all existing chats on connect
+    chatSocket.on("connect", function () {
+      db = MajorDB.load();
+      (db.chats || []).forEach(function (c) {
+        chatSocket.emit("chat:join", c.id);
+      });
+    });
+  }
+
   document.getElementById("chatList").addEventListener("click", function (e) {
+    // Delete chat
+    var delBtn = e.target.closest("[data-cdel]");
+    if (delBtn) {
+      var cid = delBtn.getAttribute("data-cdel");
+      if (!confirm(t("confirmDelete") || "Confirm delete?")) return;
+      db = MajorDB.load();
+      db.chats = (db.chats || []).filter(function (c) { return c.id !== cid; });
+      if (activeChat === cid) activeChat = "";
+      MajorDB.save(db);
+      if (chatSocket) chatSocket.emit("chat:delete", cid);
+      renderChats();
+      return;
+    }
+    // Select chat
     var item = e.target.closest("[data-cid]");
     if (!item) return;
     activeChat = item.getAttribute("data-cid");
@@ -511,10 +585,13 @@
     db = MajorDB.load();
     var c = db.chats.find(function (x) { return x.id === activeChat; });
     if (!c) return;
-    c.messages.push({ from: "admin", text: text, at: new Date().toLocaleString(), ts: Date.now() });
+    var msg = { from: "admin", text: text, at: new Date().toLocaleString(), ts: Date.now() };
+    c.messages.push(msg);
     c.updated = Date.now();
     MajorDB.save(db);
     input.value = "";
+    // Emit via socket
+    if (chatSocket) chatSocket.emit("chat:message", { chatId: activeChat, message: msg });
     renderChats();
   });
 
@@ -527,10 +604,6 @@
   /* ===== INTERVALS ===== */
   setInterval(function() {
     checkNewOrders();
-    if (document.getElementById("tabChat") && document.getElementById("tabChat").classList.contains("active")) {
-      db = MajorDB.load();
-      renderChats();
-    }
   }, 3000);
 
   /* ===== SOUND TOGGLE ===== */

@@ -368,7 +368,10 @@
     document.getElementById("navLinks").classList.toggle("open");
   });
 
-  /* CHAT */
+  /* CHAT — Socket.IO Real-time */
+  var socket = null;
+  try { socket = io(); } catch(e) { socket = null; }
+
   var fab = document.getElementById("chatFab");
   var win = document.getElementById("chatWin");
   fab.addEventListener("click", function () {
@@ -428,6 +431,11 @@
       messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
     });
     MajorDB.save(db);
+    // Notify server — new chat + welcome message
+    if (socket) {
+      socket.emit("chat:new", { chatId: chatId, name: name });
+      socket.emit("chat:message", { chatId: chatId, message: { from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() } });
+    }
     drawChat();
   }
 
@@ -438,18 +446,41 @@
     db = MajorDB.load();
     var c = db.chats.find(function (x) { return x.id === chatId; });
     if (!c) return;
-    c.messages.push({ from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() });
+    var msg = { from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() };
+    c.messages.push(msg);
     c.updated = Date.now();
     MajorDB.save(db);
     input.value = "";
+    // Emit via socket
+    if (socket) socket.emit("chat:message", { chatId: chatId, message: msg });
     drawChat();
   }
   document.getElementById("chatSend").addEventListener("click", sendUser);
   document.getElementById("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
 
+  // Listen for admin replies from server
+  if (socket) {
+    socket.on("chat:message", function (data) {
+      if (data.chatId === chatId) {
+        db = MajorDB.load();
+        var c = db.chats.find(function (x) { return x.id === chatId; });
+        if (c) {
+          // Only add if we don't already have it
+          var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
+          if (!exists) {
+            c.messages.push(data.message);
+            MajorDB.save(db);
+          }
+        }
+        drawChat();
+      }
+    });
+  }
+
   if (chatId) {
     document.getElementById("chatStartBox").style.display = "none";
     document.getElementById("chatSendBox").style.display = "flex";
+    if (socket) socket.emit("chat:join", chatId);
     drawChat();
   } else {
     drawChat();
