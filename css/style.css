@@ -799,3 +799,12 @@ body.ltr .wa-fab { right: auto; left: 22px; }
   .wa-fab { width: 52px; height: 52px; bottom: 18px; right: 18px; }
   .wa-fab svg { width: 26px; height: 26px; }
 }
+
+/* Buy Now button */
+.card-actions { display: flex; gap: 6px; margin-top: 8px; }
+.card-actions .btn { flex: 1; margin-top: 0; font-size: 12px; padding: 8px 6px; }
+.buy-now-btn {
+  background: linear-gradient(180deg, #f59e0b, #d97706) !important;
+  box-shadow: 0 4px 16px rgba(245,158,11,.25) !important;
+}
+.buy-now-btn:hover { filter: brightness(1.1); }

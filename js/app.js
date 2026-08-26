@@ -55,7 +55,7 @@
       var thumb = p.image ? '<img src="' + p.image + '" alt="" />' : '<span class="emoji-thumb">' + (p.emoji || "🎮") + "</span>";
       return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body"><div class="tag">' +
         catName(p.cat) + "</div><h4>" + esc(pname(p)) + '</h4><p class="sub">' + esc(pdesc(p)) +
-        '</p><div class="price">' + money(p.price) + '</div><button class="' + btnClass + '" data-add="' + p.id + '">' + btnText + "</button></div></article>";
+        '</p><div class="price">' + money(p.price) + '</div><div class="card-actions"><button class="' + btnClass + '" data-add="' + p.id + '">' + btnText + '</button><button class="btn buy-now-btn" data-buy="' + p.id + '">' + t("buyNow") + "</button></div></article>";
     }).join("");
   }
 
@@ -86,6 +86,31 @@
     renderCart();
     renderProducts();
     toast(t("added"));
+  }
+
+  /* BUY NOW — direct purchase, skips cart */
+  function buyNow(id) {
+    var p = db.products.find(function (x) { return x.id === id; });
+    if (!p) return;
+    // Clear cart and add only this product
+    cart = [{ id: p.id, name: p.name, nameEn: p.nameEn, price: p.price, qty: 1 }];
+    saveCart();
+    renderCart();
+    renderProducts();
+    // Close any open cart drawer and open checkout directly
+    var overlay = document.getElementById("overlay");
+    var drawer = document.getElementById("drawer");
+    overlay.classList.remove("show");
+    drawer.classList.remove("show");
+    // Open checkout
+    appliedCoupon = null;
+    var cr = document.getElementById("couponRow");
+    if (cr) cr.style.display = "block";
+    document.getElementById("couponCode").value = "";
+    document.getElementById("couponMsg").textContent = "";
+    document.getElementById("payAmount").textContent = money(cartTotal());
+    document.getElementById("walletAddr").textContent = db.wallet || MajorDB.WALLET;
+    document.getElementById("orderModal").classList.add("show");
   }
 
   function refreshDiscord() {
@@ -139,8 +164,10 @@
   });
 
   document.getElementById("products").addEventListener("click", function (e) {
-    var id = e.target.getAttribute("data-add");
-    if (id) addToCart(id);
+    var addId = e.target.getAttribute("data-add");
+    if (addId) addToCart(addId);
+    var buyId = e.target.getAttribute("data-buy");
+    if (buyId) buyNow(buyId);
   });
 
   document.querySelectorAll(".cat").forEach(function (el) {
@@ -271,7 +298,7 @@
       name: document.getElementById("cname").value.trim(),
       contact: document.getElementById("ccontact").value.trim(),
       country: document.getElementById("ccountry").value.trim(),
-      note: document.getElementById("cnote").value.trim(),
+      note: "",
       proof: proofData,
       network: "BSC BEP20",
       wallet: db.wallet || MajorDB.WALLET,
