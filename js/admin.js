@@ -5,6 +5,7 @@
   var activeChat = "";
   var lastOrderCount = db.orders ? db.orders.length : 0;
   var newOrdersCount = 0;
+  var newChatsCount = 0;
   var soundEnabled = true;
 
   function $(id) { return document.getElementById(id); }
@@ -12,24 +13,80 @@
   function qsa(s) { return document.querySelectorAll(s); }
   function t(k) { return MajorI18n.t(k); }
 
-  /* ===== NOTIFICATION SOUND ===== */
-  function playNewOrderSound() {
+  /* ===== SMS-STYLE ORDER SOUND ===== */
+  function playOrderSound() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      [0, 0.13].forEach(function(delay) {
+      function beep(freq, delay) {
         var osc = ctx.createOscillator();
         var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.1);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(660, ctx.currentTime + delay);
-        osc.frequency.setValueAtTime(880, ctx.currentTime + delay + 0.07);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.2);
         osc.start(ctx.currentTime + delay);
-        osc.stop(ctx.currentTime + delay + 0.25);
-      });
+        osc.stop(ctx.currentTime + delay + 0.12);
+      }
+      // SMS-style two-tone
+      beep(660, 0);
+      beep(880, 0.1);
     } catch(e) {}
+  }
+
+  /* ===== SMS-STYLE CHAT SOUND ===== */
+  function playChatSound() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      function beep(freq, delay) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.08);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.1);
+      }
+      // SMS triplet — ding ding ding!
+      beep(880, 0);
+      beep(1100, 0.09);
+      beep(880, 0.18);
+    } catch(e) {}
+  }
+
+  /* ===== CHAT NOTIFICATION ===== */
+  function updateNewChatBadge() {
+    var badge = document.getElementById("newChatBadge");
+    if (!badge) return;
+    if (newChatsCount > 0) {
+      badge.textContent = newChatsCount;
+      badge.classList.add("show");
+    } else {
+      badge.classList.remove("show");
+    }
+    updateTitle();
+  }
+
+  function showChatNotification(name, text) {
+    var el = document.getElementById("chatNotify");
+    if (!el) return;
+    el.innerHTML = '<div class="notif-inner"><div class="notif-icon">💬</div><div class="notif-body"><b>' + (name || "زبون") + '</b><p class="sub">' + (text || "") + '</p></div></div>';
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.classList.remove("show"); }, 5000);
+  }
+
+  function updateTitle() {
+    var parts = [];
+    if (newOrdersCount > 0) parts.push("🛒" + newOrdersCount);
+    if (newChatsCount > 0) parts.push("💬" + newChatsCount);
+    var prefix = parts.length ? "(" + parts.join(" ") + ") " : "";
+    var title = document.title.replace(/^\(.*?\)\s*/, "");
+    document.title = prefix + title;
   }
 
   /* ===== NEW ORDERS CHECK ===== */
@@ -40,7 +97,7 @@
     if (diff > 0) {
       newOrdersCount += diff;
       updateNewOrdersBadge();
-      if (soundEnabled) playNewOrderSound();
+      if (soundEnabled) playOrderSound();
       var newest = db.orders.slice(0, diff);
       newest.forEach(function(o) { showOrderNotification(o); });
       lastOrderCount = currentCount;
@@ -56,8 +113,7 @@
     } else {
       badge.classList.remove("show");
     }
-    var title = document.title.replace(/^\(\d+\+?\)\s*/, "");
-    document.title = newOrdersCount > 0 ? "(" + newOrdersCount + ") " + title : title;
+    updateTitle();
   }
 
   function showOrderNotification(o) {
@@ -134,6 +190,10 @@
       if (b.getAttribute("data-tab") === "tabOrders") {
         newOrdersCount = 0;
         updateNewOrdersBadge();
+      }
+      if (b.getAttribute("data-tab") === "tabChat") {
+        newChatsCount = 0;
+        updateNewChatBadge();
       }
     });
   });
@@ -517,13 +577,16 @@
         MajorDB.save(db);
       }
       renderChats();
-      // Sound notification
-      if (soundEnabled) playNewOrderSound();
+      newChatsCount++;
+      updateNewChatBadge();
+      showChatNotification(data.name || "زبون", "بدأ محادثة جديدة");
+      if (soundEnabled) playChatSound();
     });
 
     // New message in a chat
     chatSocket.on("chat:message", function (data) {
       db = MajorDB.load();
+      if (data.message.from !== "user") return; // only user msgs trigger notification
       var c = db.chats.find(function (x) { return x.id === data.chatId; });
       if (c) {
         var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
@@ -532,8 +595,11 @@
           c.updated = Date.now();
           MajorDB.save(db);
           renderChats();
-          // Sound for user messages
-          if (data.message.from === "user" && soundEnabled) playNewOrderSound();
+          // Increment unread badge + notify
+          newChatsCount++;
+          updateNewChatBadge();
+          showChatNotification(c.name || "زبون", data.message.text);
+          if (soundEnabled) playChatSound();
         }
       }
     });

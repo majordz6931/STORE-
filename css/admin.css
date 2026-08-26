@@ -421,3 +421,7 @@ body.ltr .order-notify { right: auto; left: 20px; }
 }
 .chat-del:hover { background: rgba(255,46,85,.15); }
 .live-item { position: relative; }
+
+/* ===== CHAT NOTIFICATION ===== */
+#chatNotify .notif-icon { background: #8b5cf6; }
+#chatNotify { border-left-color: #8b5cf6; }

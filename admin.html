@@ -77,6 +77,7 @@
         <button class="side-btn" data-tab="tabChat">
           <span class="side-icon">💬</span>
           <span class="side-label" data-i18n="liveChat">الدردشة</span>
+          <span id="newChatBadge" class="badge-new"></span>
         </button>
         <button class="side-btn" data-tab="tabDiscord">
           <span class="side-icon">💜</span>
@@ -454,6 +455,8 @@
 
   <!-- Order notification toast -->
   <div id="orderNotify" class="order-notify"></div>
+  <!-- Chat notification toast -->
+  <div id="chatNotify" class="order-notify"></div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/i18n.js"></script>
