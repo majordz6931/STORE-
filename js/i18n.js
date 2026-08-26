@@ -330,9 +330,7 @@
       if (!getLang()) gate.classList.add("show");
       else gate.classList.remove("show");
     }
-    var login = document.getElementById("loginGate");
-    if (login && getLang() && !localStorage.getItem("major360_user")) login.classList.add("show");
-    else if (login && localStorage.getItem("major360_user")) login.classList.remove("show");
+
     if (window.MajorI18n && typeof window.MajorI18n.onChange === "function") {
       window.MajorI18n.onChange(lang);
     }

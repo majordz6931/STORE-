@@ -4,89 +4,6 @@
   var filter = "all";
   var chatId = sessionStorage.getItem("major360_chat") || "";
   var lastSeen = 0;
-  var sessionUser = null;
-  try { sessionUser = JSON.parse(localStorage.getItem("major360_user") || "null"); } catch (e) {}
-
-  function showLogin() {
-    var gate = document.getElementById("loginGate");
-    if (!gate) return;
-    if (sessionUser) gate.classList.remove("show");
-    else if (MajorI18n.getLang()) gate.classList.add("show");
-  }
-
-  function paintUser() {
-    var el = document.getElementById("userHi");
-    if (!el) return;
-    el.textContent = sessionUser ? (t("hi") + " " + sessionUser.name) : "";
-    if (sessionUser && document.getElementById("cname")) {
-      document.getElementById("cname").value = sessionUser.name;
-    }
-    if (sessionUser && sessionUser.handle && document.getElementById("ccontact")) {
-      document.getElementById("ccontact").value = sessionUser.handle;
-    }
-    if (sessionUser && document.getElementById("chatName")) {
-      document.getElementById("chatName").value = sessionUser.name;
-    }
-  }
-
-  function saveUser(u) {
-    sessionUser = u;
-    localStorage.setItem("major360_user", JSON.stringify(u));
-    db = MajorDB.load();
-    if (!db.users) db.users = [];
-    var exists = db.users.some(function (x) { return x.handle === u.handle && x.provider === u.provider; });
-    if (!exists) {
-      db.users.unshift(u);
-      MajorDB.save(db);
-    }
-    showLogin();
-    paintUser();
-  }
-
-  document.getElementById("pickGmail").addEventListener("click", function () {
-    document.getElementById("gmailForm").style.display = "grid";
-    document.getElementById("discordForm").style.display = "none";
-  });
-  document.getElementById("pickDiscord").addEventListener("click", function () {
-    document.getElementById("discordForm").style.display = "grid";
-    document.getElementById("gmailForm").style.display = "none";
-  });
-  document.getElementById("gmailForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var email = document.getElementById("gmail").value.trim();
-    saveUser({
-      id: "u" + Date.now(),
-      provider: "Gmail",
-      name: document.getElementById("gname").value.trim(),
-      handle: email,
-      at: new Date().toLocaleString()
-    });
-  });
-  document.getElementById("discordForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    saveUser({
-      id: "u" + Date.now(),
-      provider: "Discord",
-      name: document.getElementById("dname").value.trim(),
-      handle: document.getElementById("duser").value.trim(),
-      at: new Date().toLocaleString()
-    });
-  });
-  document.getElementById("userOut").addEventListener("click", function () {
-    sessionUser = null;
-    localStorage.removeItem("major360_user");
-    showLogin();
-    paintUser();
-  });
-
-  var prevOnChange = MajorI18n.onChange;
-  MajorI18n.onChange = function () {
-    showLogin();
-    paintUser();
-    if (typeof prevOnChange === "function") prevOnChange();
-  };
-  showLogin();
-  paintUser();
 
   function t(k) { return MajorI18n.t(k); }
 
@@ -272,7 +189,6 @@
     db.orders.unshift({
       id: "o" + Date.now(),
       name: document.getElementById("cname").value.trim(),
-      login: sessionUser || null,
       contact: document.getElementById("ccontact").value.trim(),
       country: document.getElementById("ccountry").value.trim(),
       note: document.getElementById("cnote").value.trim(),
@@ -351,7 +267,7 @@
   });
 
   function startChat() {
-    var name = (sessionUser && sessionUser.name) || document.getElementById("chatName").value.trim();
+    var name = document.getElementById("chatName").value.trim();
     if (!name) return;
     db = MajorDB.load();
     if (!db.chats) db.chats = [];
@@ -360,8 +276,6 @@
     db.chats.unshift({
       id: chatId,
       name: name,
-      handle: sessionUser ? sessionUser.handle : "",
-      provider: sessionUser ? sessionUser.provider : "",
       updated: Date.now(),
       messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
     });
