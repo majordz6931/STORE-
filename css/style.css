@@ -370,4 +370,11 @@ body.ltr .chat-x { margin-right: 0; margin-left: auto; }
   background: rgba(0,0,0,.45); color: #fff; border: 1px solid #5a1a1a;
   border-radius: 8px; padding: 8px 12px; cursor: pointer;
 }
+.auth-btns { display: grid; gap: 10px; margin-top: 18px; }
+.auth-g, .auth-d {
+  border: 0; border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 800; color: #fff;
+}
+.auth-g { background: #ea4335; }
+.auth-d { background: #5865f2; }
+.user-hi { color: var(--gold); font-size: 13px; }
 html[dir="ltr"] .intro-skip { left: auto; right: 18px; }
