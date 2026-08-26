@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة التحكم — MAJOR AM 360</title>
+  <link rel="icon" href="images/logo.gif" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="lang-gate" id="langGate">
+    <div class="box">
+      <img src="images/logo.gif" alt="MAJOR AM 360" />
+      <div class="kicker">MAJOR AM 360</div>
+      <h2 data-i18n="gateTitle">اختر اللغة / Choose language</h2>
+      <p class="sub">DEV BY MAJOR</p>
+      <div class="lang-picks">
+        <button type="button" data-set-lang="ar">العربية<small>Arabic</small></button>
+        <button type="button" data-set-lang="en">English<small>الإنجليزية</small></button>
+      </div>
+    </div>
+  </div>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="index.html">
+        <img src="images/logo.gif" alt="MAJOR" />
+        <div>
+          <h1>MAJOR AM 360</h1>
+          <span data-i18n="adminBar">لوحة التحكم · DEV BY MAJOR</span>
+        </div>
+      </a>
+      <div>
+        <span id="who" class="sub"></span>
+        <button class="lang-btn" type="button" id="swapLang" data-i18n="langBtn">EN</button>
+        <a class="btn outline" href="index.html" data-i18n="storeBtn">المتجر</a>
+        <button class="btn" id="logout" type="button" data-i18n="logout">خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap login-wrap" id="loginBox">
+    <div class="login-box">
+      <img src="images/logo.gif" alt="" width="80" height="80" style="margin:0 auto 12px" />
+      <h3 style="text-align:center;margin-bottom:12px" data-i18n="loginTitle">دخول الأدمن</h3>
+      <form class="form" id="loginForm">
+        <label data-i18n="username">اسم المستخدم</label>
+        <input id="user" required placeholder="MAJOR" />
+        <label data-i18n="password">كلمة السر</label>
+        <input id="pass" type="password" required />
+        <p id="loginErr" style="color:#ff6b6b;font-size:13px"></p>
+        <button class="btn" type="submit" data-i18n="login">دخول</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="dash" id="dash" style="display:none">
+    <aside class="side">
+      <button class="active" data-tab="tabProducts" type="button" data-i18n="products">المنتجات</button>
+      <button data-tab="tabOrders" type="button" data-i18n="orders">الطلبات</button>
+      <button data-tab="tabChat" type="button" data-i18n="liveChat">الدردشة</button>
+      <button data-tab="tabDiscord" type="button">Discord</button>
+      <button data-tab="tabAdmins" type="button" data-i18n="admins">الأدمن</button>
+    </aside>
+    <div>
+      <section class="panel active" id="tabProducts">
+        <h3 data-i18n="addProduct">إضافة منتج للبيع</h3>
+        <p class="sub"><span data-i18n="pCount">عدد المنتجات:</span> <b id="pCount">0</b></p>
+        <form class="form" id="addProduct" style="max-width:560px">
+          <label data-i18n="pName">اسم المنتج</label>
+          <input id="pname" required data-i18n-ph="pNamePh" placeholder="مثال: بيباس 1080" />
+          <label data-i18n="pNameEn">الاسم بالإنجليزية</label>
+          <input id="pnameEn" placeholder="English name" />
+          <label data-i18n="category">القسم</label>
+          <select id="pcat">
+            <option value="cyber">🛡️ Cyber Security Tools</option>
+            <option value="streamer">📺 Streamer Tools</option>
+            <option value="gaming">🎮 Gaming Tools</option>
+          </select>
+          <label data-i18n="price">السعر (دج)</label>
+          <input id="pprice" type="number" min="0" required />
+          <label data-i18n="emoji">أيقونة (إيموجي)</label>
+          <input id="pemoji" placeholder="💎" />
+          <label data-i18n="desc">الوصف</label>
+          <textarea id="pdesc" rows="2"></textarea>
+          <label data-i18n="descEn">الوصف بالإنجليزية</label>
+          <textarea id="pdescEn" rows="2"></textarea>
+          <button class="btn" type="submit" data-i18n="publish">نشر في المتجر</button>
+        </form>
+        <table class="table" style="margin-top:20px">
+          <thead><tr><th></th><th data-i18n="colName">الاسم</th><th data-i18n="colCat">قسم</th><th data-i18n="colPrice">سعر</th><th></th></tr></thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </section>
+
+      <section class="panel" id="tabOrders">
+        <h3 data-i18n="ordersTitle">الطلبات الواردة</h3>
+        <p class="sub"><span data-i18n="oCount">عدد الطلبات:</span> <b id="oCount">0</b></p>
+        <table class="table">
+          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="contactInfo">تواصل / بلد</th><th data-i18n="colItems">العناصر</th><th data-i18n="colTotal">المجموع</th><th data-i18n="screenshot">سكرين</th></tr></thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+      </section>
+
+      <section class="panel" id="tabChat">
+        <h3 data-i18n="liveChat">الدردشة</h3>
+        <div class="live-wrap">
+          <div class="live-list" id="chatList"></div>
+          <div class="live-thread">
+            <div class="chat-log" id="adminChatLog"></div>
+            <div class="chat-send">
+              <input id="adminChatInput" data-i18n-ph="chatMsgPh" placeholder="اكتب رسالتك..." />
+              <button class="btn" type="button" id="adminChatSend" data-i18n="reply">رد</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="tabDiscord">
+        <h3 data-i18n="discTitle">رابط قناة الديسكورد</h3>
+        <p class="sub" data-i18n="discSub">يظهر الزر في الصفحة الرئيسية.</p>
+        <div class="form" style="max-width:560px">
+          <label data-i18n="link">الرابط</label>
+          <input id="discordUrl" />
+          <button class="btn" id="saveDiscord" type="button" data-i18n="saveLink">حفظ الرابط</button>
+          <p id="savedMsg" style="color:#22c55e"></p>
+        </div>
+      </section>
+
+      <section class="panel" id="tabAdmins">
+        <h3 data-i18n="addAdmin">إضافة أدمن آخر</h3>
+        <form class="form" id="addAdmin" style="max-width:480px">
+          <label data-i18n="username">اسم المستخدم</label>
+          <input id="auser" required />
+          <label data-i18n="password">كلمة السر</label>
+          <input id="apass" type="password" required />
+          <button class="btn" type="submit" data-i18n="addAdminBtn">إضافة أدمن</button>
+          <p id="adminMsg"></p>
+        </form>
+        <table class="table" style="margin-top:16px">
+          <thead><tr><th data-i18n="colUser">المستخدم</th><th data-i18n="password">كلمة السر</th><th></th></tr></thead>
+          <tbody id="adminTable"></tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+  <script src="js/i18n.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
