@@ -234,6 +234,16 @@ footer strong { color: var(--red-2); }
 }
 .pay-qr { background: #fff; border-radius: 10px; padding: 4px; }
 .pay-qr img { width: 100%; height: auto; }
+.pay-methods { display: grid; gap: 6px; margin: 6px 0 4px; }
+.pay-method {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid #3a151a; border-radius: 10px; padding: 8px 10px;
+  cursor: pointer; background: #0c0c12; font-size: 13px;
+}
+.pay-method:hover { border-color: #ff2e55; }
+.pay-method.sel { border-color: #ff2e55; background: rgba(255,46,85,.08); }
+.pay-method input { accent-color: #ff2e55; }
+.pay-method small { color: #888; }
 .addr-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
 .addr-row code {
   flex: 1; min-width: 180px; font-size: 11px; word-break: break-all;

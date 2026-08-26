@@ -11,7 +11,10 @@
     announcementEnabled: true,
     siteName: "MAJOR AM 360",
     wallet: WALLET,
-    network: "BSC — BNB Smart Chain (BEP20)",
+    network: "BNB Smart Chain (BEP20)",
+    payMethods: [
+      { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: "BNB Smart Chain (BEP20)", wallet: WALLET, qr: true, icon: "🟡" }
+    ],
     theme: "dark",
     admins: [{ user: "MAJOR", pass: "yemavava91@@@@@#####" }],
     coupons: [
@@ -62,6 +65,11 @@
       if (db.announcementEnabled === undefined) db.announcementEnabled = DEFAULT.announcementEnabled;
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;
+      if (!db.payMethods || !db.payMethods.length) {
+        db.payMethods = [
+          { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: DEFAULT.network, wallet: db.wallet || WALLET, qr: true, icon: "🟡" }
+        ];
+      }
       return db;
     } catch (e) {
       return JSON.parse(JSON.stringify(DEFAULT));

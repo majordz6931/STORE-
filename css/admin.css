@@ -404,3 +404,10 @@ body.ltr .order-notify { right: auto; left: 20px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .main-content { padding: 12px; }
 }
+/* ===== PAYMENTS TAB ===== */
+.panel-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.wallet-code {
+  font-family: "Courier New", monospace;
+  background: #16161e; padding: 4px 8px; border-radius: 6px;
+  color: #ffcc66; font-size: 11px; letter-spacing: .5px;
+}

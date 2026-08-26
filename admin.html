@@ -90,6 +90,10 @@
           <span class="side-icon">📢</span>
           <span class="side-label" data-i18n="announcementTab">إعلان</span>
         </button>
+        <button class="side-btn" data-tab="tabPayments">
+          <span class="side-icon">💰</span>
+          <span class="side-label" data-i18n="paymentsTab">طرق الدفع</span>
+        </button>
         <button class="side-btn" data-tab="tabAdmins">
           <span class="side-icon">👤</span>
           <span class="side-label" data-i18n="admins">الأدمن</span>
@@ -360,6 +364,50 @@
               <p id="annSaved" style="color:#22c55e;margin-top:8px"></p>
             </div>
           </div>
+        </section>
+
+        <!-- Payments Panel -->
+        <section class="panel" id="tabPayments">
+          <div class="panel-header">
+            <h2 data-i18n="paymentsTitle">💰 طرق الدفع</h2>
+            <p class="panel-sub" data-i18n="paymentsSub">أضف محافظك هنا — ستظهر للزبناء كخيارات في صفحة إتمام الطلب.</p>
+          </div>
+          <div class="form-card" style="max-width:620px">
+            <div class="dash-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label data-i18n="payLabel">اسم الطريقة</label>
+                  <input id="payLabel" placeholder="BSC" />
+                </div>
+                <div class="form-group">
+                  <label data-i18n="payIcon">أيقونة</label>
+                  <input id="payIcon" placeholder="🟡" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label data-i18n="payNetwork">الشبكة</label>
+                <input id="payNetwork" placeholder="BNB Smart Chain (BEP20)" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="payWallet">عنوان المحفظة</label>
+                <input id="payWallet" placeholder="0x..." />
+              </div>
+              <div class="form-group">
+                <label data-i18n="payLabelEn">الاسم بالإنجليزية (اختياري)</label>
+                <input id="payLabelEn" placeholder="BSC (BEP20)" />
+              </div>
+              <label class="toggle-label">
+                <input id="payQr" type="checkbox" checked />
+                <span data-i18n="payQrLabel">عرض صورة QR</span>
+              </label>
+              <button class="btn-primary" id="addPayment" type="button" data-i18n="addPayment">➕ إضافة طريقة</button>
+              <p id="paySaved" style="color:#22c55e;margin-top:8px"></p>
+            </div>
+          </div>
+          <table class="table" style="margin-top:20px">
+            <thead><tr><th data-i18n="payLabel">اسم الطريقة</th><th data-i18n="payNetwork">الشبكة</th><th data-i18n="payWallet">المحفظة</th><th></th></tr></thead>
+            <tbody id="payTable"></tbody>
+          </table>
         </section>
 
         <!-- Admins Panel -->

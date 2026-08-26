@@ -138,10 +138,10 @@
     <div class="box pay-box">
       <h3 data-i18n="orderData">بيانات الطلب</h3>
       <div class="pay-card">
-        <div class="pay-qr"><img src="images/pay-qr.png" alt="BSC QR" /></div>
+        <div class="pay-qr" id="payQrWrap"><img src="images/pay-qr.png" alt="QR" id="payQrImg" /></div>
         <div>
-          <div class="kicker" data-i18n="payTitle">الدفع عبر BSC</div>
-          <b data-i18n="payNet">BNB Smart Chain (BEP20)</b>
+          <div class="kicker" data-i18n="payChoose">اختر طريقة الدفع</div>
+          <div class="pay-methods" id="payMethods"></div>
           <p class="sub" data-i18n="payHint">حوّل المبلغ ثم ارفع السكرين.</p>
           <p class="pay-amount"><span data-i18n="total">الإجمالي:</span> <b id="payAmount">$0</b></p>
           <div class="coupon-row" id="couponRow">

@@ -229,6 +229,41 @@
     return c;
   }
 
+  var selectedPay = "";
+  function renderPayMethods() {
+    var box = document.getElementById("payMethods");
+    if (!box) return;
+    db = MajorDB.load();
+    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [
+      { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: "BNB Smart Chain (BEP20)", wallet: db.wallet || MajorDB.WALLET, qr: true, icon: "🟡" }
+    ];
+    box.innerHTML = methods.map(function (m, i) {
+      return '<label class="pay-method' + (i === 0 ? " sel" : "") + '"><input type="radio" name="paym" value="' + i + '"' + (i === 0 ? " checked" : "") + " /><span>" + (m.icon || "💳") + " " + (m.label || m.labelEn || "") + (m.network ? " <small>" + m.network + "</small>" : "") + "</span></label>";
+    }).join("");
+    if (methods.length) selectPayMethod(0, methods);
+  }
+
+  function selectPayMethod(i, methods) {
+    var m = methods[i];
+    selectedPay = i;
+    var wa = document.getElementById("walletAddr");
+    if (wa) wa.textContent = m.wallet || db.wallet || MajorDB.WALLET;
+    var qw = document.getElementById("payQrWrap");
+    if (qw) qw.style.display = m.qr ? "block" : "none";
+    var radios = document.querySelectorAll(".pay-method");
+    radios.forEach(function (r, j) { r.classList.toggle("sel", j === i); });
+  }
+
+  document.addEventListener("change", function (e) {
+    if (e.target && e.target.name === "paym") {
+      db = MajorDB.load();
+      var methods = db.payMethods && db.payMethods.length ? db.payMethods : [
+        { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: "BNB Smart Chain (BEP20)", wallet: db.wallet || MajorDB.WALLET, qr: true, icon: "🟡" }
+      ];
+      selectPayMethod(+e.target.value, methods);
+    }
+  });
+
   document.getElementById("checkout").addEventListener("click", function () {
     if (!cart.length) return toast(t("emptyCart"));
     closeCart();
@@ -238,7 +273,7 @@
     document.getElementById("couponCode").value = "";
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
-    document.getElementById("walletAddr").textContent = db.wallet || MajorDB.WALLET;
+    renderPayMethods();
     orderModal.classList.add("show");
   });
   document.getElementById("closeOrder").addEventListener("click", function () { orderModal.classList.remove("show"); });
@@ -293,6 +328,8 @@
     db = MajorDB.load();
     var total = cartTotalWithDiscount();
     var orderId = "o" + Date.now();
+    var methods = db.payMethods && db.payMethods.length ? db.payMethods : null;
+    var pay = methods && methods[selectedPay] ? methods[selectedPay] : null;
     db.orders.unshift({
       id: orderId,
       name: document.getElementById("cname").value.trim(),
@@ -300,8 +337,9 @@
       country: document.getElementById("ccountry").value.trim(),
       note: "",
       proof: proofData,
-      network: "BSC BEP20",
-      wallet: db.wallet || MajorDB.WALLET,
+      network: pay ? (pay.network || pay.label || "BSC") : (db.network || "BSC BEP20"),
+      wallet: pay ? pay.wallet : (db.wallet || MajorDB.WALLET),
+      payLabel: pay ? pay.label : null,
       items: cart.slice(),
       total: total,
       originalTotal: cartTotal(),

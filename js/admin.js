@@ -153,6 +153,47 @@
     renderChats();
     renderStats();
     renderCoupons();
+    renderPayments();
+  }
+
+  /* ===== PAYMENTS ===== */
+  function renderPayments() {
+    if (!$("payTable")) return;
+    var list = db.payMethods || [];
+    $("payTable").innerHTML = list.length
+      ? list.map(function (p, i) {
+          var short = String(p.wallet || "").slice(0, 14) + "…" + String(p.wallet || "").slice(-6);
+          return "<tr><td>" + (p.icon || "💳") + " " + (p.label || "") + "</td><td>" + (p.network || "-") +
+            "</td><td><code class='wallet-code'>" + short + "</code></td>" +
+            "<td><button class='danger' data-pdel='" + i + "'>&times;</button></td></tr>";
+        }).join("")
+      : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">' + t("noPayments") + "</td></tr>";
+  }
+
+  function addPaymentMethod() {
+    db = MajorDB.load();
+    var label = ($("payLabel") ? $("payLabel").value : "").trim();
+    if (!label) return;
+    var wallet = ($("payWallet") ? $("payWallet").value : "").trim();
+    if (!wallet) return;
+    if (!db.payMethods) db.payMethods = [];
+    db.payMethods.push({
+      id: "pm" + Date.now(),
+      label: label,
+      labelEn: ($("payLabelEn") ? $("payLabelEn").value : "").trim() || label,
+      network: ($("payNetwork") ? $("payNetwork").value : "").trim(),
+      wallet: wallet,
+      icon: ($("payIcon") ? $("payIcon").value : "").trim() || "💳",
+      qr: !$("payQr") || $("payQr").checked
+    });
+    MajorDB.save(db);
+    if ($("payLabel")) $("payLabel").value = "";
+    if ($("payLabelEn")) $("payLabelEn").value = "";
+    if ($("payNetwork")) $("payNetwork").value = "";
+    if ($("payWallet")) $("payWallet").value = "";
+    if ($("paySaved")) $("paySaved").textContent = t("saved");
+    setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
+    renderPayments();
   }
 
   /* ===== STATS ===== */
@@ -294,8 +335,9 @@
       else if (status === "delivered") btns += '<span style="color:var(--green)">✓✓✓</span>';
       else if (status === "cancelled") btns += '<span style="color:var(--red)">✗✗</span>';
       btns += "</div>";
+      var pmLabel = o.payLabel ? "<br>💳 " + o.payLabel : "";
       return "<tr><td>" + (o.at || "") + "</td><td>" + (o.name || "") +
-        "</td><td>" + (o.contact || "") + "<br>" + (o.country || "") +
+        "</td><td>" + (o.contact || "") + "<br>" + (o.country || "") + pmLabel +
         "</td><td>" + items + couponInfo + "</td><td>$" + Number(o.total).toFixed(2) +
         "</td><td>" + shot + "</td><td><span class='status-" + status + "'>" + t(statusKey) + "</span><br>" + btns + "</td></tr>";
     }).join("") || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">' + t("noOrders") + "</td></tr>";
@@ -397,6 +439,24 @@
       db.coupons.splice(+i, 1);
       MajorDB.save(db);
       renderAll();
+    });
+  }
+
+  /* ===== PAYMENTS (add / delete) ===== */
+  if ($("addPayment")) {
+    $("addPayment").addEventListener("click", addPaymentMethod);
+  }
+
+  if ($("payTable")) {
+    $("payTable").addEventListener("click", function (e) {
+      var i = e.target.getAttribute("data-pdel");
+      if (i == null) return;
+      db = MajorDB.load();
+      db.payMethods.splice(+i, 1);
+      MajorDB.save(db);
+      if ($("paySaved")) $("paySaved").textContent = t("removed");
+      setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
+      renderPayments();
     });
   }
 
