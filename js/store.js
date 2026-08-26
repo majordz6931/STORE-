@@ -25,7 +25,8 @@
       { id: "p7", cat: "gaming", name: "بيباس فري فاير 520", nameEn: "Free Fire Diamonds 520", price: 8.99, emoji: "💎", desc: "شحن 520 بيباس.", descEn: "520 diamonds top-up." }
     ],
     orders: [],
-    chats: []
+    chats: [],
+    users: []
   };
 
   function load() {
@@ -40,6 +41,7 @@
       if (!db.products) db.products = DEFAULT.products.slice();
       if (!db.orders) db.orders = [];
       if (!db.chats) db.chats = [];
+      if (!db.users) db.users = [];
       if (!db.discord) db.discord = DEFAULT.discord;
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;

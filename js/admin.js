@@ -74,6 +74,17 @@
     renderAdmins();
     renderOrders();
     renderChats();
+    renderMembers();
+  }
+
+  function renderMembers() {
+    var box = $("memberTable");
+    if (!box) return;
+    var list = db.users || [];
+    box.innerHTML = list.map(function (u) {
+      return "<tr><td>" + (u.at || "") + "</td><td>" + (u.name || "") + "</td><td>" +
+        (u.provider || "") + "</td><td>" + (u.handle || "") + "</td></tr>";
+    }).join("") || '<tr><td colspan="4">' + t("noMembers") + "</td></tr>";
   }
 
   function renderProducts() {
@@ -195,7 +206,7 @@
     list.innerHTML = db.chats.map(function (c) {
       var last = c.messages[c.messages.length - 1];
       return '<div class="live-item' + (c.id === activeChat ? " active" : "") + '" data-cid="' + c.id + '"><b>' +
-        c.name + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 40) : "") + "</small></div>";
+        c.name + (c.handle ? " · " + c.handle : "") + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 40) : "") + "</small></div>";
     }).join("");
     drawAdminThread();
   }

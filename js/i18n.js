@@ -133,7 +133,19 @@
       chatSend: "إرسال",
       liveChat: "الدردشة",
       noChats: "لا محادثات بعد",
-      reply: "رد"
+      reply: "رد",
+      userLogin: "تسجيل الدخول",
+      userLoginSub: "سجّل حتى نتعرف على اسمك",
+      withGmail: "الدخول عبر Gmail",
+      withDiscord: "الدخول عبر Discord",
+      gmail: "Gmail",
+      discUser: "يوزر ديسكورد",
+      discUserPh: "username",
+      members: "الأعضاء",
+      noMembers: "لا أعضاء بعد",
+      provider: "الطريقة",
+      userLogout: "خروج",
+      hi: "مرحباً"
     },
     en: {
       dir: "ltr",
@@ -265,7 +277,19 @@
       chatSend: "Send",
       liveChat: "Live chat",
       noChats: "No chats yet",
-      reply: "Reply"
+      reply: "Reply",
+      userLogin: "Sign in",
+      userLoginSub: "Sign in so we know your name",
+      withGmail: "Continue with Gmail",
+      withDiscord: "Continue with Discord",
+      gmail: "Gmail",
+      discUser: "Discord username",
+      discUserPh: "username",
+      members: "Members",
+      noMembers: "No members yet",
+      provider: "Provider",
+      userLogout: "Sign out",
+      hi: "Hi"
     }
   };
 
@@ -306,6 +330,9 @@
       if (!getLang()) gate.classList.add("show");
       else gate.classList.remove("show");
     }
+    var login = document.getElementById("loginGate");
+    if (login && getLang() && !localStorage.getItem("major360_user")) login.classList.add("show");
+    else if (login && localStorage.getItem("major360_user")) login.classList.remove("show");
     if (window.MajorI18n && typeof window.MajorI18n.onChange === "function") {
       window.MajorI18n.onChange(lang);
     }
