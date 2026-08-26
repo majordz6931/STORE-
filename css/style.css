@@ -808,3 +808,74 @@ body.ltr .wa-fab { right: auto; left: 22px; }
   box-shadow: 0 4px 16px rgba(245,158,11,.25) !important;
 }
 .buy-now-btn:hover { filter: brightness(1.1); }
+
+/* ================================ */
+/* 🔔 NEW ORDER NOTIFICATION SYSTEM */
+/* ================================ */
+
+/* Alert badge on sidebar button */
+.order-alert-badge {
+  display: none;
+  background: #ff1a1a;
+  color: #fff;
+  font-size: 10px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  text-align: center;
+  line-height: 18px;
+  padding: 0 5px;
+  font-weight: 800;
+  vertical-align: middle;
+  margin-left: 4px;
+  animation: alertPulse 1s ease-in-out infinite;
+}
+.order-alert-badge.show { display: inline-block; }
+@keyframes alertPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(255,26,26,.5); }
+  50% { box-shadow: 0 0 14px rgba(255,26,26,.8); }
+}
+
+/* Floating order notification */
+.order-notify {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  max-width: 360px;
+  background: #121218;
+  border: 1px solid #3a151a;
+  border-radius: 14px;
+  box-shadow: 0 12px 48px rgba(0,0,0,.5), 0 0 40px rgba(255,20,20,.15);
+  display: none;
+  overflow: hidden;
+  animation: slideInRight .3s ease;
+}
+.order-notify.show { display: block; }
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.notif-inner { display: flex; align-items: center; gap: 10px; padding: 14px; }
+.notif-icon { font-size: 28px; }
+.notif-body b { display: block; font-size: 14px; color: var(--gold); }
+.notif-body .sub { font-size: 12px; margin: 2px 0; }
+.notif-body small { color: var(--muted); font-size: 11px; }
+
+body.ltr .order-notify { right: auto; left: 16px; }
+body.ltr .order-alert-badge { margin-left: 0; margin-right: 4px; }
+
+/* Sound toggle button in admin top bar */
+.sound-toggle {
+  background: #1a1a22;
+  border: 1px solid #3a151a;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.sound-toggle.muted { opacity: .5; }
+.sound-toggle.muted::after { content: " 🔇"; }
+.sound-toggle:not(.muted)::after { content: " 🔊"; }

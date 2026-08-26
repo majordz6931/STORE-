@@ -3,9 +3,77 @@
   var db = MajorDB.load();
   var productImage = "";
   var activeChat = "";
+  var lastOrderCount = db.orders ? db.orders.length : 0;
+  var newOrdersCount = 0;
+  var soundEnabled = true;
 
   function $(id) { return document.getElementById(id); }
   function t(k) { return MajorI18n.t(k); }
+
+  /* NOTIFICATION SOUND — uses Web Audio API, no files needed */
+  function playNewOrderSound() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // Two ascending beeps like a classic notification
+      [0, 0.15].forEach(function(delay) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(660, ctx.currentTime + delay);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + delay + 0.08);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.25);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.25);
+      });
+    } catch(e) { /* silent fail */ }
+  }
+
+  /* Check for new orders */
+  function checkNewOrders() {
+    db = MajorDB.load();
+    var currentCount = db.orders ? db.orders.length : 0;
+    var diff = currentCount - lastOrderCount;
+    if (diff > 0) {
+      newOrdersCount += diff;
+      updateNewOrdersBadge();
+      if (soundEnabled) playNewOrderSound();
+      // Show a notification toast for each new order
+      var newestOrders = db.orders.slice(0, diff);
+      newestOrders.forEach(function(o) {
+        showOrderNotification(o);
+      });
+      lastOrderCount = currentCount;
+    }
+  }
+
+  function updateNewOrdersBadge() {
+    var badge = document.getElementById("newOrdersBadge");
+    if (!badge) return;
+    if (newOrdersCount > 0) {
+      badge.textContent = newOrdersCount;
+      badge.classList.add("show");
+    } else {
+      badge.classList.remove("show");
+    }
+    // Also update document title with count
+    var title = document.title.replace(/^\\(\\d+\\+?\\)\\s*/, "");
+    document.title = newOrdersCount > 0 ? "(" + newOrdersCount + ") " + title : title;
+  }
+
+  function showOrderNotification(o) {
+    var toast = document.getElementById("orderNotify");
+    if (!toast) return;
+    var items = o.items.map(function(i) { return i.name + " ×" + i.qty; }).join(" | ");
+    toast.innerHTML = '<div class="notif-inner"><div class="notif-icon">🔔</div><div class="notif-body"><b>' + (o.name || "زبون") + '</b><p class="sub">' + items + '</p><small>' + t("total") + ' $' + Number(o.total).toFixed(2) + '</small></div></div>';
+    toast.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function() {
+      toast.classList.remove("show");
+    }, 5000);
+  }
 
   function compressImage(file, max, quality, cb) {
     var url = URL.createObjectURL(file);
@@ -63,6 +131,10 @@
       b.classList.add("active");
       document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
       $(b.getAttribute("data-tab")).classList.add("active");
+      if (b.getAttribute("data-tab") === "tabOrders") {
+        newOrdersCount = 0;
+        updateNewOrdersBadge();
+      }
     });
   });
 
@@ -377,10 +449,21 @@
   $("adminChatSend").addEventListener("click", sendAdmin);
   $("adminChatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendAdmin(); });
 
-  setInterval(function () {
-    if ($("tabChat") && $("tabChat").classList.contains("active")) {
+  // Check for new orders every 3 seconds
+  setInterval(function() {
+    var oldTab = $("tabChat") && $("tabChat").classList.contains("active");
+    checkNewOrders();
+    if (oldTab) {
       db = MajorDB.load();
       renderChats();
     }
-  }, 2000);
+  }, 3000);
+
+  // Sound toggle listener
+  document.addEventListener("click", function(e) {
+    if (e.target.closest("#soundToggle")) {
+      soundEnabled = !soundEnabled;
+      e.target.closest("#soundToggle").classList.toggle("muted");
+    }
+  });
 })();

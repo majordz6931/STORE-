@@ -38,6 +38,7 @@
       <div>
         <span id="who" class="sub"></span>
         <button class="lang-btn" type="button" id="swapLang" data-i18n="langBtn">EN</button>
+        <button class="sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
         <a class="btn outline" href="index.html" data-i18n="storeBtn">المتجر</a>
         <button class="btn" id="logout" type="button" data-i18n="logout">خروج</button>
       </div>
@@ -62,7 +63,7 @@
   <div class="dash" id="dash" style="display:none">
     <aside class="side">
       <button class="active" data-tab="tabProducts" type="button" data-i18n="products">المنتجات</button>
-      <button data-tab="tabOrders" type="button" data-i18n="orders">الطلبات</button>
+      <button data-tab="tabOrders" type="button" data-i18n="orders">الطلبات <span id="newOrdersBadge" class="order-alert-badge"></span></button>
       <button data-tab="tabChat" type="button" data-i18n="liveChat">الدردشة</button>
       <button data-tab="tabStats" type="button" data-i18n="stats">الإحصائيات</button>
       <button data-tab="tabCoupons" type="button" data-i18n="coupons">كوبونات</button>
@@ -224,5 +225,6 @@
   <script src="js/i18n.js"></script>
   <script src="js/store.js"></script>
   <script src="js/admin.js"></script>
+  <div id="orderNotify" class="order-notify"></div>
 <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31306d15fc8cc70',t:'MTc4Nzc0OTMwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
