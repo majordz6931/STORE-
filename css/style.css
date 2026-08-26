@@ -309,7 +309,7 @@ body.ltr .chat-x { margin-right: 0; margin-left: auto; }
   position: fixed; inset: 0; z-index: 500; background: #050000;
   overflow: hidden; cursor: pointer;
 }
-.intro.done { pointer-events: none; opacity: 0; transition: opacity .6s ease; }
+.intro.done { pointer-events: none; opacity: 0; transition: opacity .28s ease; }
 .curtain {
   position: absolute; top: 0; width: 50%; height: 100%;
   background:
