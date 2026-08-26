@@ -131,6 +131,14 @@
         </div>
       </section>
 
+      <section class="panel" id="tabMembers">
+        <h3 data-i18n="members">الأعضاء</h3>
+        <table class="table">
+          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="provider">الطريقة</th><th>Gmail / Discord</th></tr></thead>
+          <tbody id="memberTable"></tbody>
+        </table>
+      </section>
+
       <section class="panel" id="tabAdmins">
         <h3 data-i18n="addAdmin">إضافة أدمن آخر</h3>
         <form class="form" id="addAdmin" style="max-width:480px">
@@ -151,5 +159,5 @@
   <script src="js/i18n.js"></script>
   <script src="js/store.js"></script>
   <script src="js/admin.js"></script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31306d15fc8cc70',t:'MTc4Nzc0OTMwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

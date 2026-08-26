@@ -32,6 +32,32 @@
     </div>
   </div>
 
+  <div class="lang-gate" id="loginGate">
+    <div class="box">
+      <img src="images/logo.gif" alt="MAJOR AM 360" />
+      <h2 data-i18n="userLogin">تسجيل الدخول</h2>
+      <p class="sub" data-i18n="userLoginSub">سجّل حتى نتعرف على اسمك</p>
+      <div class="auth-btns">
+        <button class="auth-g" type="button" id="pickGmail" data-i18n="withGmail">الدخول عبر Gmail</button>
+        <button class="auth-d" type="button" id="pickDiscord" data-i18n="withDiscord">الدخول عبر Discord</button>
+      </div>
+      <form class="form" id="gmailForm" style="display:none;text-align:right">
+        <label data-i18n="name">الاسم</label>
+        <input id="gname" required data-i18n-ph="namePh" />
+        <label data-i18n="gmail">Gmail</label>
+        <input id="gmail" type="email" required placeholder="you@gmail.com" />
+        <button class="btn" type="submit" data-i18n="login">دخول</button>
+      </form>
+      <form class="form" id="discordForm" style="display:none;text-align:right">
+        <label data-i18n="name">الاسم</label>
+        <input id="dname" required data-i18n-ph="namePh" />
+        <label data-i18n="discUser">يوزر ديسكورد</label>
+        <input id="duser" required data-i18n-ph="discUserPh" />
+        <button class="btn" type="submit" data-i18n="login">دخول</button>
+      </form>
+    </div>
+  </div>
+
   <header class="nav">
     <div class="wrap nav-inner">
       <a class="brand" href="index.html">
@@ -47,6 +73,8 @@
         <a href="#how" data-i18n="how">كيف تطلب</a>
         <a href="#contact" data-i18n="contact">تواصل</a>
         <a href="admin.html" data-i18n="admin">لوحة التحكم</a>
+        <span id="userHi" class="user-hi"></span>
+        <button class="lang-btn" type="button" id="userOut" data-i18n="userLogout">خروج</button>
         <button class="lang-btn" type="button" id="swapLang" data-i18n="langBtn">EN</button>
         <button class="btn cart-btn" id="openCart" type="button"><span data-i18n="cart">السلة</span> <span class="badge" id="cartCount">0</span></button>
       </nav>
@@ -195,5 +223,5 @@
   <script src="js/i18n.js"></script>
   <script src="js/store.js"></script>
   <script src="js/app.js"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a312fa907c1bcc70',t:'MTc4Nzc0ODgwMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a313067bd8e2cc70',t:'MTc4Nzc0OTI4OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
