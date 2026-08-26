@@ -47,7 +47,10 @@
       return;
     }
     grid.innerHTML = list.map(function (p) {
-      return '<article class="card"><div class="thumb">' + (p.emoji || "🎮") + '</div><div class="body"><div class="tag">' +
+      var thumb = p.image
+        ? '<img src="' + p.image + '" alt="" />'
+        : (p.emoji || "🎮");
+      return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body"><div class="tag">' +
         catName(p.cat) + "</div><h4>" + esc(pname(p)) + '</h4><p class="sub">' + esc(pdesc(p)) +
         '</p><div class="price">' + money(p.price) + '</div><button class="btn" data-add="' + p.id + '">' +
         t("addCart") + "</button></div></article>";

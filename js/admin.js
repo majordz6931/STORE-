@@ -1,9 +1,26 @@
 (function () {
   var session = sessionStorage.getItem("major360_admin");
   var db = MajorDB.load();
+  var productImage = "";
+  var activeChat = "";
 
   function $(id) { return document.getElementById(id); }
   function t(k) { return MajorI18n.t(k); }
+
+  function compressImage(file, max, quality, cb) {
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function () {
+      var w = img.width, h = img.height;
+      if (w > max) { h = Math.round(h * max / w); w = max; }
+      var c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      cb(c.toDataURL("image/jpeg", quality));
+    };
+    img.src = url;
+  }
 
   function showApp() {
     $("loginBox").style.display = "none";
@@ -50,8 +67,6 @@
     });
   });
 
-  var activeChat = "";
-
   function renderAll() {
     db = MajorDB.load();
     $("discordUrl").value = db.discord;
@@ -65,10 +80,24 @@
     $("pCount").textContent = db.products.length;
     $("productTable").innerHTML = db.products.map(function (p) {
       var n = (MajorI18n.getLang() === "en" ? (p.nameEn || p.name) : p.name);
-      return "<tr><td>" + p.emoji + "</td><td>" + n + "</td><td>" + p.cat + "</td><td>" + p.price +
+      var pic = p.image
+        ? '<img class="mini-thumb" src="' + p.image + '" alt="" />'
+        : (p.emoji || "🎮");
+      return "<tr><td>" + pic + "</td><td>" + n + "</td><td>" + p.cat + "</td><td>" + p.price +
         '</td><td><button class="danger" data-del="' + p.id + '">' + t("del") + "</button></td></tr>";
     }).join("");
   }
+
+  $("pimage").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) { productImage = ""; return; }
+    compressImage(file, 800, 0.7, function (data) {
+      productImage = data;
+      var prev = $("pimagePreview");
+      prev.src = data;
+      prev.classList.add("show");
+    });
+  });
 
   $("addProduct").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -80,10 +109,13 @@
       cat: $("pcat").value,
       price: Number($("pprice").value),
       emoji: $("pemoji").value.trim() || "🎮",
+      image: productImage,
       desc: $("pdesc").value.trim(),
       descEn: $("pdescEn").value.trim()
     });
     MajorDB.save(db);
+    productImage = "";
+    $("pimagePreview").classList.remove("show");
     e.target.reset();
     renderAll();
   });
@@ -148,8 +180,70 @@
   }
 
   $("orderTable").addEventListener("click", function (e) {
-    if (e.target.tagName === "IMG" && e.target.src) {
-      window.open(e.target.src, "_blank");
-    }
+    if (e.target.tagName === "IMG" && e.target.src) window.open(e.target.src, "_blank");
   });
+
+  function renderChats() {
+    if (!db.chats) db.chats = [];
+    var list = $("chatList");
+    if (!list) return;
+    if (!db.chats.length) {
+      list.innerHTML = '<p class="sub" style="padding:12px">' + t("noChats") + "</p>";
+      $("adminChatLog").innerHTML = "";
+      return;
+    }
+    list.innerHTML = db.chats.map(function (c) {
+      var last = c.messages[c.messages.length - 1];
+      return '<div class="live-item' + (c.id === activeChat ? " active" : "") + '" data-cid="' + c.id + '"><b>' +
+        c.name + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 40) : "") + "</small></div>";
+    }).join("");
+    drawAdminThread();
+  }
+
+  function drawAdminThread() {
+    var log = $("adminChatLog");
+    var c = (db.chats || []).find(function (x) { return x.id === activeChat; });
+    if (!c) {
+      log.innerHTML = '<p class="sub">' + t("noChats") + "</p>";
+      return;
+    }
+    log.innerHTML = c.messages.map(function (m) {
+      return '<div class="bubble ' + m.from + '">' + String(m.text).replace(/</g, "&lt;") + "<time>" + m.at + "</time></div>";
+    }).join("");
+    log.scrollTop = log.scrollHeight;
+  }
+
+  $("chatList").addEventListener("click", function (e) {
+    var item = e.target.closest("[data-cid]");
+    if (!item) return;
+    activeChat = item.getAttribute("data-cid");
+    db = MajorDB.load();
+    renderChats();
+  });
+
+  function sendAdmin() {
+    var input = $("adminChatInput");
+    var text = input.value.trim();
+    if (!text || !activeChat) return;
+    db = MajorDB.load();
+    var c = db.chats.find(function (x) { return x.id === activeChat; });
+    if (!c) return;
+    c.messages.push({ from: "admin", text: text, at: new Date().toLocaleString(), ts: Date.now() });
+    c.updated = Date.now();
+    MajorDB.save(db);
+    input.value = "";
+    renderChats();
+  }
+  $("adminChatSend").addEventListener("click", sendAdmin);
+  $("adminChatInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") sendAdmin();
+  });
+
+  setInterval(function () {
+    var tab = document.getElementById("tabChat");
+    if (tab && tab.classList.contains("active")) {
+      db = MajorDB.load();
+      renderChats();
+    }
+  }, 1500);
 })();
