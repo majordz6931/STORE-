@@ -8,30 +8,31 @@
   var soundEnabled = true;
 
   function $(id) { return document.getElementById(id); }
+  function qs(s) { return document.querySelector(s); }
+  function qsa(s) { return document.querySelectorAll(s); }
   function t(k) { return MajorI18n.t(k); }
 
-  /* NOTIFICATION SOUND — uses Web Audio API, no files needed */
+  /* ===== NOTIFICATION SOUND ===== */
   function playNewOrderSound() {
     try {
       var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      // Two ascending beeps like a classic notification
-      [0, 0.15].forEach(function(delay) {
+      [0, 0.13].forEach(function(delay) {
         var osc = ctx.createOscillator();
         var gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = "sine";
         osc.frequency.setValueAtTime(660, ctx.currentTime + delay);
-        osc.frequency.setValueAtTime(880, ctx.currentTime + delay + 0.08);
-        gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.25);
+        osc.frequency.setValueAtTime(880, ctx.currentTime + delay + 0.07);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.2);
         osc.start(ctx.currentTime + delay);
         osc.stop(ctx.currentTime + delay + 0.25);
       });
-    } catch(e) { /* silent fail */ }
+    } catch(e) {}
   }
 
-  /* Check for new orders */
+  /* ===== NEW ORDERS CHECK ===== */
   function checkNewOrders() {
     db = MajorDB.load();
     var currentCount = db.orders ? db.orders.length : 0;
@@ -40,17 +41,14 @@
       newOrdersCount += diff;
       updateNewOrdersBadge();
       if (soundEnabled) playNewOrderSound();
-      // Show a notification toast for each new order
-      var newestOrders = db.orders.slice(0, diff);
-      newestOrders.forEach(function(o) {
-        showOrderNotification(o);
-      });
+      var newest = db.orders.slice(0, diff);
+      newest.forEach(function(o) { showOrderNotification(o); });
       lastOrderCount = currentCount;
     }
   }
 
   function updateNewOrdersBadge() {
-    var badge = document.getElementById("newOrdersBadge");
+    var badge = document.querySelector(".badge-new");
     if (!badge) return;
     if (newOrdersCount > 0) {
       badge.textContent = newOrdersCount;
@@ -58,23 +56,21 @@
     } else {
       badge.classList.remove("show");
     }
-    // Also update document title with count
-    var title = document.title.replace(/^\\(\\d+\\+?\\)\\s*/, "");
+    var title = document.title.replace(/^\(\d+\+?\)\s*/, "");
     document.title = newOrdersCount > 0 ? "(" + newOrdersCount + ") " + title : title;
   }
 
   function showOrderNotification(o) {
-    var toast = document.getElementById("orderNotify");
-    if (!toast) return;
-    var items = o.items.map(function(i) { return i.name + " ×" + i.qty; }).join(" | ");
-    toast.innerHTML = '<div class="notif-inner"><div class="notif-icon">🔔</div><div class="notif-body"><b>' + (o.name || "زبون") + '</b><p class="sub">' + items + '</p><small>' + t("total") + ' $' + Number(o.total).toFixed(2) + '</small></div></div>';
-    toast.classList.add("show");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(function() {
-      toast.classList.remove("show");
-    }, 5000);
+    var el = document.getElementById("orderNotify");
+    if (!el) return;
+    var items = o.items.map(function(i) { return i.name + " x" + i.qty; }).join(" | ");
+    el.innerHTML = '<div class="notif-inner"><div class="notif-icon">🔔</div><div class="notif-body"><b>' + (o.name || t("name")) + '</b><p class="sub">' + items + '</p><small>' + t("total") + ' $' + Number(o.total).toFixed(2) + '</small></div></div>';
+    el.classList.add("show");
+    clearTimeout(el._t);
+    el._t = setTimeout(function() { el.classList.remove("show"); }, 5000);
   }
 
+  /* ===== COMPRESS IMAGE ===== */
   function compressImage(file, max, quality, cb) {
     var url = URL.createObjectURL(file);
     var img = new Image();
@@ -90,15 +86,17 @@
     img.src = url;
   }
 
+  /* ===== SHOW APP ===== */
   function showApp() {
     $("loginBox").style.display = "none";
-    $("dash").style.display = "grid";
-    $("who").textContent = session;
+    $("dash").style.display = "block";
+    document.getElementById("who").textContent = session;
     renderAll();
   }
 
   if (session) showApp();
 
+  /* ===== LOGIN ===== */
   $("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var u = $("user").value.trim();
@@ -119,18 +117,20 @@
     location.reload();
   });
 
-  document.getElementById("swapLang").addEventListener("click", function () {
+  qs("#swapLang").addEventListener("click", function () {
     MajorI18n.setLang((MajorI18n.getLang() || "ar") === "ar" ? "en" : "ar");
   });
 
   MajorI18n.onChange = function () { renderAll(); };
 
-  document.querySelectorAll(".side button[data-tab]").forEach(function (b) {
+  /* ===== SIDEBAR NAV ===== */
+  qsa(".side-btn").forEach(function (b) {
     b.addEventListener("click", function () {
-      document.querySelectorAll(".side button[data-tab]").forEach(function (x) { x.classList.remove("active"); });
+      qsa(".side-btn").forEach(function (x) { x.classList.remove("active"); });
       b.classList.add("active");
-      document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
-      $(b.getAttribute("data-tab")).classList.add("active");
+      qsa(".panel").forEach(function (p) { p.classList.remove("active"); });
+      var tab = $(b.getAttribute("data-tab"));
+      if (tab) tab.classList.add("active");
       if (b.getAttribute("data-tab") === "tabOrders") {
         newOrdersCount = 0;
         updateNewOrdersBadge();
@@ -138,9 +138,10 @@
     });
   });
 
+  /* ===== RENDER ALL ===== */
   function renderAll() {
     db = MajorDB.load();
-    $("discordUrl").value = db.discord;
+    if ($("discordUrl")) $("discordUrl").value = db.discord;
     if ($("whatsappNum")) $("whatsappNum").value = db.whatsapp || "";
     if ($("whatsappMsg")) $("whatsappMsg").value = db.whatsappMsg || "";
     if ($("annTextInput")) $("annTextInput").value = db.announcement || "";
@@ -150,53 +151,45 @@
     renderAdmins();
     renderOrders();
     renderChats();
-    renderMembers();
     renderStats();
     renderCoupons();
   }
 
-  /* STATS */
+  /* ===== STATS ===== */
   function renderStats() {
     var orders = db.orders || [];
-    $("statOrders").textContent = orders.length;
+    if ($("statOrders")) $("statOrders").textContent = orders.length;
     var revenue = orders.reduce(function (s, o) { return s + (o.total || 0); }, 0);
-    $("statRevenue").textContent = "$" + Number(revenue).toFixed(2);
+    if ($("statRevenue")) $("statRevenue").textContent = "$" + Number(revenue).toFixed(2);
     var pending = orders.filter(function (o) { return (o.status || "pending") === "pending"; }).length;
     var confirmed = orders.filter(function (o) { return o.status === "confirmed"; }).length;
     var delivered = orders.filter(function (o) { return o.status === "delivered"; }).length;
-    $("statPending").textContent = pending;
-    $("statConfirmed").textContent = confirmed;
-    $("statDelivered").textContent = delivered;
+    if ($("statPending")) $("statPending").textContent = pending;
+    if ($("statConfirmed")) $("statConfirmed").textContent = confirmed;
+    if ($("statDelivered")) $("statDelivered").textContent = delivered;
     var map = {};
     orders.forEach(function (o) {
       (o.items || []).forEach(function (i) { map[i.name] = (map[i.name] || 0) + i.qty; });
     });
     var top = Object.keys(map).sort(function (a, b) { return map[b] - map[a]; }).slice(0, 5);
-    $("topProducts").innerHTML = top.length
-      ? top.map(function (name) { return "<div class='top-item'>• " + name + " <b>×" + map[name] + "</b></div>"; }).join("")
-      : '<span class="sub">' + t("noOrders") + "</span>";
+    if ($("topProducts")) {
+      $("topProducts").innerHTML = top.length
+        ? top.map(function (name) { return '<div class="top-item">• ' + name + ' <b>x' + map[name] + "</b></div>"; }).join("")
+        : '<span style="color:var(--muted)">' + t("noOrders") + "</span>";
+    }
   }
 
-  function renderMembers() {
-    var box = $("memberTable");
-    if (!box) return;
-    var list = db.users || [];
-    box.innerHTML = list.length
-      ? list.map(function (u) {
-          return "<tr><td>" + (u.at || "") + "</td><td>" + (u.name || "") + "</td><td>" +
-            (u.provider || "") + "</td><td>" + (u.handle || "") + "</td></tr>";
-        }).join("")
-      : '<tr><td colspan="4">' + t("noMembers") + "</td></tr>";
-  }
-
+  /* ===== PRODUCTS ===== */
   function renderProducts() {
-    $("pCount").textContent = db.products.length;
-    $("productTable").innerHTML = db.products.map(function (p) {
-      var n = (MajorI18n.getLang() === "en" ? (p.nameEn || p.name) : p.name);
-      var pic = p.image ? '<img class="mini-thumb" src="' + p.image + '" alt="" />' : (p.emoji || "🎮");
-      return "<tr><td>" + pic + "</td><td>" + n + "</td><td>" + p.cat + "</td><td>$" + Number(p.price).toFixed(2) +
-        '</td><td><button class="danger" data-del="' + p.id + '">' + t("del") + "</button></td></tr>";
-    }).join("");
+    if ($("pCount")) $("pCount").textContent = db.products.length;
+    if ($("productTable")) {
+      $("productTable").innerHTML = db.products.map(function (p) {
+        var n = (MajorI18n.getLang() === "en" ? (p.nameEn || p.name) : p.name);
+        var pic = p.image ? '<img class="mini-thumb" src="' + p.image + '" alt="" />' : (p.emoji || "🎮");
+        return "<tr><td>" + pic + "</td><td>" + n + "</td><td>" + p.cat + "</td><td>$" + Number(p.price).toFixed(2) +
+          '</td><td><button class="danger" data-del="' + p.id + '">x</button></td></tr>';
+      }).join("");
+    }
   }
 
   $("pimage").addEventListener("change", function (e) {
@@ -205,8 +198,7 @@
     compressImage(file, 800, 0.7, function (data) {
       productImage = data;
       var prev = $("pimagePreview");
-      prev.src = data;
-      prev.classList.add("show");
+      if (prev) { prev.src = data; prev.classList.add("show"); }
     });
   });
 
@@ -226,7 +218,8 @@
     });
     MajorDB.save(db);
     productImage = "";
-    $("pimagePreview").classList.remove("show");
+    var prev = $("pimagePreview");
+    if (prev) prev.classList.remove("show");
     e.target.reset();
     renderAll();
   });
@@ -240,18 +233,24 @@
     renderAll();
   });
 
-  $("saveDiscord").addEventListener("click", function () {
-    db = MajorDB.load();
-    db.discord = $("discordUrl").value.trim();
-    MajorDB.save(db);
-    $("savedMsg").textContent = t("saved");
-  });
+  /* ===== DISCORD ===== */
+  if ($("saveDiscord")) {
+    $("saveDiscord").addEventListener("click", function () {
+      db = MajorDB.load();
+      db.discord = $("discordUrl").value.trim();
+      MajorDB.save(db);
+      $("savedMsg").textContent = t("saved");
+    });
+  }
 
+  /* ===== ADMINS ===== */
   function renderAdmins() {
-    $("adminTable").innerHTML = db.admins.map(function (a, i) {
-      var del = a.user === "MAJOR" ? "" : '<button class="danger" data-adel="' + i + '">' + t("del") + "</button>";
-      return "<tr><td>" + a.user + "</td><td>••••••••</td><td>" + del + "</td></tr>";
-    }).join("");
+    if ($("adminTable")) {
+      $("adminTable").innerHTML = db.admins.map(function (a, i) {
+        var del = a.user === "MAJOR" ? "" : '<button class="danger" data-adel="' + i + '">x</button>';
+        return "<tr><td>" + a.user + "</td><td>••••••••</td><td>" + del + "</td></tr>";
+      }).join("");
+    }
   }
 
   $("addAdmin").addEventListener("submit", function (e) {
@@ -279,25 +278,27 @@
     renderAll();
   });
 
+  /* ===== ORDERS ===== */
   function renderOrders() {
-    $("oCount").textContent = db.orders.length;
+    if ($("oCount")) $("oCount").textContent = db.orders.length;
+    if (!$("orderTable")) return;
     $("orderTable").innerHTML = db.orders.map(function (o) {
-      var items = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
+      var items = o.items.map(function (i) { return i.name + " x" + i.qty; }).join(" | ");
       var shot = o.proof ? '<img class="order-shot" src="' + o.proof + '" alt="proof" />' : "-";
       var status = o.status || "pending";
       var statusKey = "status" + status.charAt(0).toUpperCase() + status.slice(1);
       var couponInfo = o.coupon ? "<br>🎫 " + o.coupon : "";
       var btns = '<div class="status-btns">';
-      if (status === "pending") btns += '<button class="okbtn" data-ostat="' + o.id + '" data-next="confirmed">' + t("markConfirmed") + '</button> <button class="danger" data-ostat="' + o.id + '" data-next="cancelled">' + t("markCancelled") + '</button>';
-      else if (status === "confirmed") btns += '<button class="okbtn" data-ostat="' + o.id + '" data-next="delivered">' + t("markDelivered") + '</button> <button class="danger" data-ostat="' + o.id + '" data-next="cancelled">' + t("markCancelled") + '</button>';
-      else if (status === "delivered") btns += '<span class="sub">✅</span>';
-      else if (status === "cancelled") btns += '<span class="sub">❌</span>';
-      btns += '</div>';
+      if (status === "pending") btns += '<button class="okbtn" data-ostat="' + o.id + '" data-next="confirmed">✓</button> <button class="danger" data-ostat="' + o.id + '" data-next="cancelled">✗</button>';
+      else if (status === "confirmed") btns += '<button class="okbtn" data-ostat="' + o.id + '" data-next="delivered">✓✓</button> <button class="danger" data-ostat="' + o.id + '" data-next="cancelled">✗</button>';
+      else if (status === "delivered") btns += '<span style="color:var(--green)">✓✓✓</span>';
+      else if (status === "cancelled") btns += '<span style="color:var(--red)">✗✗</span>';
+      btns += "</div>";
       return "<tr><td>" + (o.at || "") + "</td><td>" + (o.name || "") +
-        "</td><td>" + (o.contact || o.phone || "") + "<br>" + (o.country || "") +
+        "</td><td>" + (o.contact || "") + "<br>" + (o.country || "") +
         "</td><td>" + items + couponInfo + "</td><td>$" + Number(o.total).toFixed(2) +
         "</td><td>" + shot + "</td><td><span class='status-" + status + "'>" + t(statusKey) + "</span><br>" + btns + "</td></tr>";
-    }).join("") || '<tr><td colspan="7">' + t("noOrders") + "</td></tr>";
+    }).join("") || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">' + t("noOrders") + "</td></tr>";
   }
 
   document.addEventListener("click", function (e) {
@@ -310,18 +311,41 @@
     if (o) { o.status = next; MajorDB.save(db); renderAll(); }
   });
 
-  /* WHATSAPP SETTINGS */
+  if ($("exportCSV")) {
+    $("exportCSV").addEventListener("click", function () {
+      db = MajorDB.load();
+      var rows = [["Time", "Name", "Contact", "Country", "Items", "Total", "Status", "Coupon"]];
+      db.orders.forEach(function (o) {
+        var items = o.items.map(function (i) { return i.name + " x" + i.qty; }).join("; ");
+        rows.push([o.at, o.name, o.contact, o.country, items, o.total, o.status || "pending", o.coupon || ""]);
+      });
+      var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
+      var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "orders_" + new Date().toISOString().slice(0, 10) + ".csv";
+      a.click();
+    });
+  }
+
+  if ($("orderTable")) {
+    $("orderTable").addEventListener("click", function (e) {
+      if (e.target.tagName === "IMG" && e.target.src) window.open(e.target.src, "_blank");
+    });
+  }
+
+  /* ===== WHATSAPP ===== */
   if ($("saveWhatsapp")) {
     $("saveWhatsapp").addEventListener("click", function () {
       db = MajorDB.load();
       db.whatsapp = $("whatsappNum").value.trim();
-      db.whatsappMsg = $("whatsappMsg").value.trim() || "مرحباً! أريد الاستفسار عن منتج";
+      db.whatsappMsg = $("whatsappMsg").value.trim() || "مرحاً";
       MajorDB.save(db);
       $("whatsappSaved").textContent = t("whatsappSaved");
     });
   }
 
-  /* ANNOUNCEMENT SETTINGS */
+  /* ===== ANNOUNCEMENT ===== */
   if ($("saveAnnouncement")) {
     $("saveAnnouncement").addEventListener("click", function () {
       db = MajorDB.load();
@@ -333,71 +357,58 @@
     });
   }
 
-  /* COUPONS */
+  /* ===== COUPONS ===== */
   function renderCoupons() {
+    if (!$("couponTable")) return;
     var list = db.coupons || [];
     $("couponTable").innerHTML = list.length
       ? list.map(function (c, i) {
           var label = c.type === "percent" ? c.value + "%" : "$" + c.value;
           return "<tr><td>" + c.code + "</td><td>" + label + "</td><td>" + (c.used || 0) + "/" + (c.max || "∞") +
-            "</td><td>" + (c.expires || "-") + '</td><td><button class="danger" data-cdel="' + i + '">' + t("couponDelete") + "</button></td></tr>";
+            "</td><td>" + (c.expires || "-") + '</td><td><button class="danger" data-cdel="' + i + '">x</button></td></tr>';
         }).join("")
-      : '<tr><td colspan="5">' + t("noCoupons") + "</td></tr>";
+      : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">' + t("noCoupons") + "</td></tr>";
   }
 
-  $("addCouponForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    db = MajorDB.load();
-    if (!db.coupons) db.coupons = [];
-    db.coupons.push({
-      code: $("ccode").value.trim().toUpperCase(),
-      type: $("ctype").value,
-      value: Number($("cvalue").value),
-      max: Number($("cmax").value) || 0,
-      used: 0,
-      expires: $("cexpires").value || ""
+  if ($("addCouponForm")) {
+    $("addCouponForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      db = MajorDB.load();
+      if (!db.coupons) db.coupons = [];
+      db.coupons.push({
+        code: $("ccode").value.trim().toUpperCase(),
+        type: $("ctype").value,
+        value: Number($("cvalue").value),
+        max: Number($("cmax").value) || 0,
+        used: 0,
+        expires: $("cexpires").value || ""
+      });
+      MajorDB.save(db);
+      e.target.reset();
+      renderAll();
     });
-    MajorDB.save(db);
-    e.target.reset();
-    renderAll();
-  });
+  }
 
-  $("couponTable").addEventListener("click", function (e) {
-    var i = e.target.getAttribute("data-cdel");
-    if (i == null) return;
-    db = MajorDB.load();
-    db.coupons.splice(+i, 1);
-    MajorDB.save(db);
-    renderAll();
-  });
-
-  /* Export CSV */
-  document.getElementById("exportCSV").addEventListener("click", function () {
-    db = MajorDB.load();
-    var rows = [["Time", "Name", "Contact", "Country", "Items", "Total", "Status", "Coupon"]];
-    db.orders.forEach(function (o) {
-      var items = o.items.map(function (i) { return i.name + " x" + i.qty; }).join("; ");
-      rows.push([o.at, o.name, o.contact, o.country, items, o.total, o.status || "pending", o.coupon || ""]);
+  if ($("couponTable")) {
+    $("couponTable").addEventListener("click", function (e) {
+      var i = e.target.getAttribute("data-cdel");
+      if (i == null) return;
+      db = MajorDB.load();
+      db.coupons.splice(+i, 1);
+      MajorDB.save(db);
+      renderAll();
     });
-    var csv = rows.map(function (r) { return r.map(function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
-    var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "orders_" + new Date().toISOString().slice(0, 10) + ".csv";
-    a.click();
-  });
+  }
 
-  $("orderTable").addEventListener("click", function (e) {
-    if (e.target.tagName === "IMG" && e.target.src) window.open(e.target.src, "_blank");
-  });
-
+  /* ===== CHAT ===== */
   function renderChats() {
     if (!db.chats) db.chats = [];
-    var list = $("chatList");
+    var list = document.getElementById("chatList");
     if (!list) return;
     if (!db.chats.length) {
-      list.innerHTML = '<p class="sub" style="padding:12px">' + t("noChats") + "</p>";
-      $("adminChatLog").innerHTML = "";
+      list.innerHTML = '<p class="empty-chat">' + t("noChats") + "</p>";
+      var chatLog = document.getElementById("adminChatLog");
+      if (chatLog) chatLog.innerHTML = '<p class="empty-chat" style="min-height:unset">' + t("noChats") + "</p>";
       return;
     }
     list.innerHTML = db.chats.map(function (c) {
@@ -405,19 +416,19 @@
       var unread = c.messages.filter(function (m) { return m.from === "user" && !m.seen; }).length;
       var badge = unread > 0 ? ' <span class="chat-unread">' + unread + "</span>" : "";
       return '<div class="live-item' + (c.id === activeChat ? " active" : "") + '" data-cid="' + c.id + '"><b>' +
-        c.name + (c.handle ? " · " + c.handle : "") + badge + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 40) : "") + "</small></div>";
+        c.name + badge + "</b><br><small class='sub'>" + (last ? last.text.slice(0, 30) : "") + "</small></div>";
     }).join("");
     drawAdminThread();
   }
 
   function drawAdminThread() {
-    var log = $("adminChatLog");
+    var log = document.getElementById("adminChatLog");
+    if (!log) return;
     var c = (db.chats || []).find(function (x) { return x.id === activeChat; });
     if (!c) {
-      log.innerHTML = '<p class="sub">' + t("noChats") + "</p>";
+      log.innerHTML = '<p class="empty-chat">' + t("noChats") + "</p>";
       return;
     }
-    // Mark messages as seen
     c.messages.forEach(function (m) { if (m.from === "user") m.seen = true; });
     log.innerHTML = c.messages.map(function (m) {
       return '<div class="bubble ' + m.from + '">' + String(m.text).replace(/</g, "&lt;") + "<time>" + m.at + "</time></div>";
@@ -425,7 +436,7 @@
     log.scrollTop = log.scrollHeight;
   }
 
-  $("chatList").addEventListener("click", function (e) {
+  document.getElementById("chatList").addEventListener("click", function (e) {
     var item = e.target.closest("[data-cid]");
     if (!item) return;
     activeChat = item.getAttribute("data-cid");
@@ -433,8 +444,8 @@
     renderChats();
   });
 
-  function sendAdmin() {
-    var input = $("adminChatInput");
+  document.getElementById("adminChatSend").addEventListener("click", function() {
+    var input = document.getElementById("adminChatInput");
     var text = input.value.trim();
     if (!text || !activeChat) return;
     db = MajorDB.load();
@@ -445,25 +456,29 @@
     MajorDB.save(db);
     input.value = "";
     renderChats();
-  }
-  $("adminChatSend").addEventListener("click", sendAdmin);
-  $("adminChatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendAdmin(); });
+  });
 
-  // Check for new orders every 3 seconds
+  document.getElementById("adminChatInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      document.getElementById("adminChatSend").click();
+    }
+  });
+
+  /* ===== INTERVALS ===== */
   setInterval(function() {
-    var oldTab = $("tabChat") && $("tabChat").classList.contains("active");
     checkNewOrders();
-    if (oldTab) {
+    if (document.getElementById("tabChat") && document.getElementById("tabChat").classList.contains("active")) {
       db = MajorDB.load();
       renderChats();
     }
   }, 3000);
 
-  // Sound toggle listener
+  /* ===== SOUND TOGGLE ===== */
   document.addEventListener("click", function(e) {
-    if (e.target.closest("#soundToggle")) {
+    var btn = e.target.closest("#soundToggle");
+    if (btn) {
       soundEnabled = !soundEnabled;
-      e.target.closest("#soundToggle").classList.toggle("muted");
+      btn.classList.toggle("muted");
     }
   });
 })();

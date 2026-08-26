@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>لوحة التحكم — MAJOR AM 360</title>
   <link rel="icon" href="images/logo.gif" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
   <div class="bg-grid">
@@ -13,218 +13,402 @@
     <div class="particles"></div>
   </div>
   <div class="scanlines"></div>
-  <div class="lang-gate" id="langGate">
-    <div class="box">
-      <img src="images/logo.gif" alt="MAJOR AM 360" />
-      <div class="kicker">MAJOR AM 360</div>
-      <h2 data-i18n="gateTitle">اختر اللغة / Choose language</h2>
-      
-      <div class="lang-picks">
-        <button type="button" data-set-lang="ar">العربية<small>Arabic</small></button>
-        <button type="button" data-set-lang="en">English<small>الإنجليزية</small></button>
-      </div>
-    </div>
-  </div>
 
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="index.html">
-        <img src="images/logo.gif" alt="MAJOR" />
-        <div>
-          <h1>MAJOR AM 360</h1>
-          <span data-i18n="adminBar">لوحة التحكم</span>
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginBox">
+    <div class="login-card">
+      <div class="login-icon">🔐</div>
+      <h2 data-i18n="loginTitle">دخول الأدمن</h2>
+      <form class="login-form" id="loginForm">
+        <div class="input-group">
+          <label data-i18n="username">اسم المستخدم</label>
+          <input id="user" required placeholder="MAJOR" />
         </div>
-      </a>
-      <div>
-        <span id="who" class="sub"></span>
-        <button class="lang-btn" type="button" id="swapLang" data-i18n="langBtn">EN</button>
-        <button class="sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
-        <a class="btn outline" href="index.html" data-i18n="storeBtn">المتجر</a>
-        <button class="btn" id="logout" type="button" data-i18n="logout">خروج</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="wrap login-wrap" id="loginBox">
-    <div class="login-box">
-      <img src="images/logo.gif" alt="" width="80" height="80" style="margin:0 auto 12px" />
-      <h3 style="text-align:center;margin-bottom:12px" data-i18n="loginTitle">دخول الأدمن</h3>
-      <form class="form" id="loginForm">
-        <label data-i18n="username">اسم المستخدم</label>
-        <input id="user" required placeholder="MAJOR" />
-        <label data-i18n="password">كلمة السر</label>
-        <input id="pass" type="password" required />
-        <p id="loginErr" style="color:#ff6b6b;font-size:13px"></p>
-        <button class="btn" type="submit" data-i18n="login">دخول</button>
+        <div class="input-group">
+          <label data-i18n="password">كلمة السر</label>
+          <input id="pass" type="password" required />
+        </div>
+        <p id="loginErr" class="login-error"></p>
+        <button class="btn-primary" type="submit" data-i18n="login">دخول</button>
       </form>
+      <a class="back-link" href="index.html" data-i18n="storeBtn">← العودة للمتجر</a>
     </div>
   </div>
 
-  <div class="dash" id="dash" style="display:none">
-    <aside class="side">
-      <button class="active" data-tab="tabProducts" type="button" data-i18n="products">المنتجات</button>
-      <button data-tab="tabOrders" type="button" data-i18n="orders">الطلبات <span id="newOrdersBadge" class="order-alert-badge"></span></button>
-      <button data-tab="tabChat" type="button" data-i18n="liveChat">الدردشة</button>
-      <button data-tab="tabStats" type="button" data-i18n="stats">الإحصائيات</button>
-      <button data-tab="tabCoupons" type="button" data-i18n="coupons">كوبونات</button>
-      <button data-tab="tabDiscord" type="button">Discord</button>
-      <button data-tab="tabWhatsapp" type="button" data-i18n="whatsapp">واتساب</button>
-      <button data-tab="tabAnnouncement" type="button" data-i18n="announcementTab">الإعلانات</button>
-      <button data-tab="tabMembers" type="button" data-i18n="members">الأعضاء</button>
-      <button data-tab="tabAdmins" type="button" data-i18n="admins">الأدمن</button>
-    </aside>
-    <div>
-      <section class="panel active" id="tabProducts">
-        <h3 data-i18n="addProduct">إضافة منتج للبيع</h3>
-        <p class="sub"><span data-i18n="pCount">عدد المنتجات:</span> <b id="pCount">0</b></p>
-        <form class="form" id="addProduct" style="max-width:560px">
-          <label data-i18n="pName">اسم المنتج</label>
-          <input id="pname" required data-i18n-ph="pNamePh" placeholder="مثال: بيباس 1080" />
-          <label data-i18n="pNameEn">الاسم بالإنجليزية</label>
-          <input id="pnameEn" placeholder="English name" />
-          <label data-i18n="category">القسم</label>
-          <select id="pcat">
-            <option value="cyber">🛡️ Cyber Security Tools</option>
-            <option value="streamer">📺 Streamer Tools</option>
-            <option value="gaming">🎮 Gaming Tools</option>
-          </select>
-          <label data-i18n="price">السعر (دج)</label>
-          <input id="pprice" type="number" min="0" required />
-          <label data-i18n="pImage">صورة المنتج</label>
-          <input id="pimage" type="file" accept="image/*" />
-          <img id="pimagePreview" class="proof-preview" alt="" />
-          <label data-i18n="emoji">أيقونة (إيموجي)</label>
-          <input id="pemoji" placeholder="💎" />
-          <label data-i18n="desc">الوصف</label>
-          <textarea id="pdesc" rows="2"></textarea>
-          <label data-i18n="descEn">الوصف بالإنجليزية</label>
-          <textarea id="pdescEn" rows="2"></textarea>
-          <button class="btn" type="submit" data-i18n="publish">نشر في المتجر</button>
-        </form>
-        <table class="table" style="margin-top:20px">
-          <thead><tr><th></th><th data-i18n="colName">الاسم</th><th data-i18n="colCat">قسم</th><th data-i18n="colPrice">سعر</th><th></th></tr></thead>
-          <tbody id="productTable"></tbody>
-        </table>
-      </section>
+  <!-- Dashboard -->
+  <div class="dashboard" id="dash" style="display:none">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-logo">MAJOR AM 360</span>
+        <span class="topbar-badge">DEV</span>
+      </div>
+      <div class="topbar-center">
+        <span class="topbar-greeting">👋 <span id="who"></span></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn sound-toggle" id="soundToggle" type="button" title="Toggle sound"></button>
+        <button class="topbar-btn lang-btn" id="swapLang" type="button" data-i18n="langBtn">EN</button>
+        <a class="topbar-btn" href="index.html" data-i18n="storeBtn">🛒</a>
+        <button class="topbar-btn logout-btn" id="logout" type="button" data-i18n="logout">🚪</button>
+      </div>
+    </header>
 
-      <section class="panel" id="tabOrders">
-        <h3 data-i18n="ordersTitle">الطلبات الواردة</h3>
-        <p class="sub"><span data-i18n="oCount">عدد الطلبات:</span> <b id="oCount">0</b> <button class="btn outline" id="exportCSV" type="button" data-i18n="exportCSV" style="float:left">📥 تصدير CSV</button></p>
-        <table class="table">
-          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="contactInfo">تواصل / بلد</th><th data-i18n="colItems">العناصر</th><th data-i18n="colTotal">المجموع</th><th data-i18n="screenshot">سكرين</th><th data-i18n="orderStatus">الحالة</th></tr></thead>
-          <tbody id="orderTable"></tbody>
-        </table>
-      </section>
+    <div class="dash-body">
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <button class="side-btn active" data-tab="tabStats">
+          <span class="side-icon">📊</span>
+          <span class="side-label" data-i18n="stats">الإحصائيات</span>
+        </button>
+        <button class="side-btn" data-tab="tabOrders">
+          <span class="side-icon">📋</span>
+          <span class="side-label" data-i18n="orders">الطلبات</span>
+          <span id="newOrdersBadge" class="badge-new"></span>
+        </button>
+        <button class="side-btn" data-tab="tabProducts">
+          <span class="side-icon">🏷️</span>
+          <span class="side-label" data-i18n="products">المنتجات</span>
+        </button>
+        <button class="side-btn" data-tab="tabCoupons">
+          <span class="side-icon">🎫</span>
+          <span class="side-label" data-i18n="coupons">كوبونات</span>
+        </button>
+        <button class="side-btn" data-tab="tabChat">
+          <span class="side-icon">💬</span>
+          <span class="side-label" data-i18n="liveChat">الدردشة</span>
+        </button>
+        <button class="side-btn" data-tab="tabDiscord">
+          <span class="side-icon">💜</span>
+          <span class="side-label">Discord</span>
+        </button>
+        <button class="side-btn" data-tab="tabWhatsapp">
+          <span class="side-icon">💚</span>
+          <span class="side-label" data-i18n="whatsapp">واتساب</span>
+        </button>
+        <button class="side-btn" data-tab="tabAnnouncement">
+          <span class="side-icon">📢</span>
+          <span class="side-label" data-i18n="announcementTab">إعلان</span>
+        </button>
+        <button class="side-btn" data-tab="tabAdmins">
+          <span class="side-icon">👤</span>
+          <span class="side-label" data-i18n="admins">الأدمن</span>
+        </button>
+      </nav>
 
-      <section class="panel" id="tabStats">
-        <h3 data-i18n="statsTitle">📊 إحصائيات المتجر</h3>
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label" data-i18n="totalOrders">إجمالي الطلبات</div></div>
-          <div class="stat-card"><div class="stat-num" id="statRevenue">$0</div><div class="stat-label" data-i18n="totalRevenue">إجمالي الإيرادات</div></div>
-          <div class="stat-card"><div class="stat-num stat-pending" id="statPending">0</div><div class="stat-label" data-i18n="statusPending">🟡 قيد الانتظار</div></div>
-          <div class="stat-card"><div class="stat-num stat-confirmed" id="statConfirmed">0</div><div class="stat-label" data-i18n="statusConfirmed">🟢 تم التأكيد</div></div>
-          <div class="stat-card"><div class="stat-num stat-delivered" id="statDelivered">0</div><div class="stat-label" data-i18n="statusDelivered">🟣 تم التسليم</div></div>
-        </div>
-        <h4 style="margin-top:20px" data-i18n="topProducts">المنتجات الأكثر مبيعاً</h4>
-        <div id="topProducts"></div>
-      </section>
+      <!-- Main Content -->
+      <main class="main-content">
 
-      <section class="panel" id="tabCoupons">
-        <h3 data-i18n="coupons">كوبونات الخصم</h3>
-        <form class="form" id="addCouponForm" style="max-width:480px">
-          <label data-i18n="couponCodeLabel">الكود</label>
-          <input id="ccode" required placeholder="MAJOR20" />
-          <label data-i18n="couponType">النوع</label>
-          <select id="ctype">
-            <option value="percent" data-i18n="couponPercent">نسبة %</option>
-            <option value="fixed" data-i18n="couponFixed">مبلغ ثابت</option>
-          </select>
-          <label data-i18n="couponValue">القيمة</label>
-          <input id="cvalue" type="number" min="0.01" step="0.01" required />
-          <label data-i18n="couponMax">أقصى استخدام</label>
-          <input id="cmax" type="number" min="0" value="100" />
-          <label data-i18n="couponExpires">تاريخ الانتهاء</label>
-          <input id="cexpires" type="date" />
-          <button class="btn" type="submit" data-i18n="couponAddBtn">إضافة الكوبون</button>
-        </form>
-        <table class="table" style="margin-top:16px">
-          <thead><tr><th data-i18n="couponCodeLabel">الكود</th><th data-i18n="couponValue">القيمة</th><th data-i18n="couponUsage">استخدام</th><th data-i18n="couponExpires">تاريخ الانتهاء</th><th></th></tr></thead>
-          <tbody id="couponTable"></tbody>
-        </table>
-      </section>
-
-      <section class="panel" id="tabChat">
-        <h3 data-i18n="liveChat">الدردشة</h3>
-        <div class="live-wrap">
-          <div class="live-list" id="chatList"></div>
-          <div class="live-thread">
-            <div class="chat-log" id="adminChatLog"></div>
-            <div class="chat-send">
-              <input id="adminChatInput" data-i18n-ph="chatMsgPh" placeholder="اكتب رسالتك..." />
-              <button class="btn" type="button" id="adminChatSend" data-i18n="reply">رد</button>
+        <!-- Stats Panel -->
+        <section class="panel active" id="tabStats">
+          <div class="panel-header">
+            <h2 data-i18n="statsTitle">📊 الإحصائيات</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-box stat-box-primary">
+              <div class="stat-num" id="statOrders">0</div>
+              <div class="stat-lbl" data-i18n="totalOrders">إجمالي الطلبات</div>
+            </div>
+            <div class="stat-box stat-box-gold">
+              <div class="stat-num" id="statRevenue">$0</div>
+              <div class="stat-lbl" data-i18n="totalRevenue">الإيرادات</div>
+            </div>
+            <div class="stat-box stat-box-yellow">
+              <div class="stat-num" id="statPending">0</div>
+              <div class="stat-lbl" data-i18n="statusPending">🟡 قيد الانتظار</div>
+            </div>
+            <div class="stat-box stat-box-green">
+              <div class="stat-num" id="statConfirmed">0</div>
+              <div class="stat-lbl" data-i18n="statusConfirmed">🟢 تم التأكيد</div>
+            </div>
+            <div class="stat-box stat-box-purple">
+              <div class="stat-num" id="statDelivered">0</div>
+              <div class="stat-lbl" data-i18n="statusDelivered">🟣 تم التسليم</div>
             </div>
           </div>
-        </div>
-      </section>
+          <div class="top-products-section">
+            <h3 data-i18n="topProducts">🏆 المنتجات الأكثر مبيعاً</h3>
+            <div id="topProducts" class="top-list"></div>
+          </div>
+        </section>
 
-      <section class="panel" id="tabWhatsapp">
-        <h3 data-i18n="whatsappTitle">رابط واتساب</h3>
-        <p class="sub" data-i18n="whatsapp">زر واتساب يظهر في الموقع للتواصل المباشر.</p>
-        <div class="form" style="max-width:560px">
-          <label data-i18n="whatsappLabel">رقم واتساب (مع مفتاح الدولة)</label>
-          <input id="whatsappNum" placeholder="+213XXXXXXXXX" />
-          <label data-i18n="whatsappMsgLabel">رسالة الترحيب</label>
-          <input id="whatsappMsg" placeholder="مرحباً! أريد الاستفسار عن منتج" />
-          <button class="btn" id="saveWhatsapp" type="button" data-i18n="saveLink">حفظ</button>
-          <p id="whatsappSaved" style="color:#22c55e"></p>
-        </div>
-      </section>
+        <!-- Orders Panel -->
+        <section class="panel" id="tabOrders">
+          <div class="panel-header">
+            <h2 data-i18n="ordersTitle">📋 الطلبات</h2>
+            <div class="panel-actions">
+              <span class="order-count" data-i18n="oCount">العدد: <b id="oCount">0</b></span>
+              <button class="btn-sm btn-outline" id="exportCSV" type="button" data-i18n="exportCSV">📥 CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th data-i18n="colTime">الوقت</th>
+                  <th data-i18n="name">الاسم</th>
+                  <th data-i18n="contactInfo">التواصل</th>
+                  <th data-i18n="colItems">العناصر</th>
+                  <th data-i18n="colTotal">المبلغ</th>
+                  <th data-i18n="screenshot">سكرين</th>
+                  <th data-i18n="orderStatus">الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="orderTable"></tbody>
+            </table>
+          </div>
+        </section>
 
-      <section class="panel" id="tabAnnouncement">
-        <h3 data-i18n="announcementTitle">الإعلان العلوي</h3>
-        <p class="sub" data-i18n="announcementTab">شريط إعلانات متحرك يظهر في أعلى الموقع.</p>
-        <div class="form" style="max-width:560px">
-          <label data-i18n="annText">نص الإعلان (عربي)</label>
-          <input id="annTextInput" placeholder="🔥 عروض حصرية..." />
-          <label data-i18n="annTextEn">نص الإعلان (إنجليزي)</label>
-          <input id="annTextEnInput" placeholder="🔥 Exclusive offers..." />
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-            <input id="annEnabled" type="checkbox" checked />
-            <span data-i18n="annEnabled">تفعيل الإعلان</span>
-          </label>
-          <button class="btn" id="saveAnnouncement" type="button" data-i18n="saveLink">حفظ الإعلان</button>
-          <p id="annSaved" style="color:#22c55e"></p>
-        </div>
-      </section>
+        <!-- Products Panel -->
+        <section class="panel" id="tabProducts">
+          <div class="panel-header">
+            <h2 data-i18n="addProduct">🏷️ إدارة المنتجات</h2>
+            <span class="order-count" data-i18n="pCount">العدد: <b id="pCount">0</b></span>
+          </div>
+          <div class="form-cards">
+            <div class="form-card">
+              <h4 data-i18n="addProduct">➕ إضافة منتج</h4>
+              <form class="dash-form" id="addProduct">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="pName">اسم المنتج</label>
+                    <input id="pname" required data-i18n-ph="pNamePh" placeholder="اسم المنتج" />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="pNameEn">الاسم بالإنجليزية</label>
+                    <input id="pnameEn" placeholder="English name" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="category">القسم</label>
+                    <select id="pcat">
+                      <option value="cyber">🛡️ Cyber Security</option>
+                      <option value="streamer">📺 Streamer Tools</option>
+                      <option value="gaming">🎮 Gaming Tools</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="price">السعر ($)</label>
+                    <input id="pprice" type="number" min="0" step="0.01" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="pImage">صورة</label>
+                    <input id="pimage" type="file" accept="image/*" />
+                    <img id="pimagePreview" class="preview-thumb" alt="" />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="emoji">أيقونة</label>
+                    <input id="pemoji" placeholder="💎" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="desc">الوصف</label>
+                    <textarea id="pdesc" rows="2"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="descEn">الوصف (إنجليزي)</label>
+                    <textarea id="pdescEn" rows="2"></textarea>
+                  </div>
+                </div>
+                <button class="btn-primary" type="submit" data-i18n="publish">نشر في المتجر</button>
+              </form>
+            </div>
+            <div class="form-card">
+              <h4 data-i18n="products">📦 قائمة المنتجات</h4>
+              <div class="table-wrap" style="max-height:400px">
+                <table class="dash-table">
+                  <thead><tr><th></th><th data-i18n="colName">الاسم</th><th data-i18n="colCat">قسم</th><th data-i18n="colPrice">سعر</th><th></th></tr></thead>
+                  <tbody id="productTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <section class="panel" id="tabMembers">
-        <h3 data-i18n="members">الأعضاء</h3>
-        <table class="table">
-          <thead><tr><th data-i18n="colTime">الوقت</th><th data-i18n="name">الاسم</th><th data-i18n="provider">الطريقة</th><th>Gmail / Discord</th></tr></thead>
-          <tbody id="memberTable"></tbody>
-        </table>
-      </section>
+        <!-- Coupons Panel -->
+        <section class="panel" id="tabCoupons">
+          <div class="panel-header">
+            <h2 data-i18n="coupons">🎫 كوبونات الخصم</h2>
+          </div>
+          <div class="form-cards">
+            <div class="form-card">
+              <h4 data-i18n="addCoupon">➕ إضافة كوبون</h4>
+              <form class="dash-form" id="addCouponForm">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="couponCodeLabel">الكود</label>
+                    <input id="ccode" required placeholder="MAJOR20" />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="couponType">النوع</label>
+                    <select id="ctype">
+                      <option value="percent" data-i18n="couponPercent">نسبة %</option>
+                      <option value="fixed" data-i18n="couponFixed">مبلغ ثابت</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="couponValue">القيمة</label>
+                    <input id="cvalue" type="number" min="0.01" step="0.01" required />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="couponMax">أقصى استخدام</label>
+                    <input id="cmax" type="number" min="0" value="100" />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="coupoonExpires">تاريخ الانتهاء</label>
+                    <input id="cexpires" type="date" />
+                  </div>
+                </div>
+                <button class="btn-primary" type="submit" data-i18n="couponAddBtn">إضافة الكوبون</button>
+              </form>
+            </div>
+            <div class="form-card">
+              <h4 data-i18n="coupons">📋 الكوبونات</h4>
+              <div class="table-wrap" style="max-height:300px">
+                <table class="dash-table">
+                  <thead><tr><th data-i18n="couponCodeLabel">الكود</th><th data-i18n="couponValue">القيمة</th><th data-i18n="couponUsage">الاستخدام</th><th data-i18n="coupoonExpires">الانتهاء</th><th></th></tr></thead>
+                  <tbody id="couponTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <section class="panel" id="tabAdmins">
-        <h3 data-i18n="addAdmin">إضافة أدمن آخر</h3>
-        <form class="form" id="addAdmin" style="max-width:480px">
-          <label data-i18n="username">اسم المستخدم</label>
-          <input id="auser" required />
-          <label data-i18n="password">كلمة السر</label>
-          <input id="apass" type="password" required />
-          <button class="btn" type="submit" data-i18n="addAdminBtn">إضافة أدمن</button>
-          <p id="adminMsg"></p>
-        </form>
-        <table class="table" style="margin-top:16px">
-          <thead><tr><th data-i18n="colUser">المستخدم</th><th data-i18n="password">كلمة السر</th><th></th></tr></thead>
-          <tbody id="adminTable"></tbody>
-        </table>
-      </section>
+        <!-- Chat Panel -->
+        <section class="panel" id="tabChat">
+          <div class="panel-header">
+            <h2 data-i18n="liveChat">💬 الدردشة</h2>
+          </div>
+          <div class="chat-layout">
+            <div class="chat-users" id="chatList"></div>
+            <div class="chat-thread">
+              <div class="chat-msgs" id="adminChatLog">
+                <p class="empty-chat" data-i18n="noChats">لا محادثات بعد</p>
+              </div>
+              <div class="chat-input-bar">
+                <input id="adminChatInput" data-i18n-ph="chatMsgPh" placeholder="اكتب رسالتك..." />
+                <button class="btn-primary" type="button" id="adminChatSend" data-i18n="reply">إرسال</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Discord Panel -->
+        <section class="panel" id="tabDiscord">
+          <div class="panel-header">
+            <h2 data-i18n="discTitle">💜 رابط الديسكورد</h2>
+          </div>
+          <div class="form-card" style="max-width:560px">
+            <div class="dash-form">
+              <div class="form-group">
+                <label data-i18n="link">الرابط</label>
+                <input id="discordUrl" />
+              </div>
+              <button class="btn-primary" id="saveDiscord" type="button" data-i18n="saveLink">حفظ الرابط</button>
+              <p id="savedMsg" style="color:#22c55e;margin-top:8px"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- WhatsApp Panel -->
+        <section class="panel" id="tabWhatsapp">
+          <div class="panel-header">
+            <h2 data-i18n="whatsappTitle">💚 واتساب</h2>
+          </div>
+          <div class="form-card" style="max-width:560px">
+            <div class="dash-form">
+              <div class="form-group">
+                <label data-i18n="whatsappLabel">رقم واتساب (مع مفتاح الدولة)</label>
+                <input id="whatsappNum" placeholder="+213XXXXXXXXX" />
+              </div>
+              <div class="form-group">
+                <label data-i18n="whatsappMsgLabel">رسالة الترحيب</label>
+                <input id="whatsappMsg" placeholder="مرحباً!" />
+              </div>
+              <button class="btn-primary" id="saveWhatsapp" type="button" data-i18n="saveLink">حفظ</button>
+              <p id="whatsappSaved" style="color:#22c55e;margin-top:8px"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Announcement Panel -->
+        <section class="panel" id="tabAnnouncement">
+          <div class="panel-header">
+            <h2 data-i18n="announcementTitle">📢 الإعلان العلوي</h2>
+          </div>
+          <div class="form-card" style="max-width:560px">
+            <div class="dash-form">
+              <div class="form-group">
+                <label data-i18n="annText">نص الإعلان (عربي)</label>
+                <input id="annTextInput" placeholder="🔥 عروض حصرية..." />
+              </div>
+              <div class="form-group">
+                <label data-i18n="annTextEn">نص الإعلان (إنجليزي)</label>
+                <input id="annTextEnInput" placeholder="🔥 Exclusive offers..." />
+              </div>
+              <label class="toggle-label">
+                <input id="annEnabled" type="checkbox" checked />
+                <span data-i18n="annEnabled">تفعيل الإعلان</span>
+              </label>
+              <button class="btn-primary" id="saveAnnouncement" type="button" data-i18n="saveLink">حفظ الإعلان</button>
+              <p id="annSaved" style="color:#22c55e;margin-top:8px"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Admins Panel -->
+        <section class="panel" id="tabAdmins">
+          <div class="panel-header">
+            <h2 data-i18n="admins">👤 إدارة الأدمن</h2>
+          </div>
+          <div class="form-cards">
+            <div class="form-card">
+              <h4 data-i18n="addAdmin">➕ إضافة أدمن</h4>
+              <form class="dash-form" id="addAdmin" style="max-width:480px">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="username">اسم المستخدم</label>
+                    <input id="auser" required />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="password">كلمة السر</label>
+                    <input id="apass" type="password" required />
+                  </div>
+                </div>
+                <button class="btn-primary" type="submit" data-i18n="addAdminBtn">إضافة أدمن</button>
+                <p id="adminMsg" style="color:#22c55e;margin-top:8px"></p>
+              </form>
+            </div>
+            <div class="form-card">
+              <h4 data-i18n="admins">👥 الأدمن</h4>
+              <div class="table-wrap" style="max-height:300px">
+                <table class="dash-table">
+                  <thead><tr><th data-i18n="colUser">المستخدم</th><th data-i18n="password">كلمة السر</th><th></th></tr></thead>
+                  <tbody id="adminTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Members Panel (hidden but kept for reference) -->
+        <table id="memberTable" style="display:none"></table>
+
+      </main>
     </div>
   </div>
+
+  <!-- Order notification toast -->
+  <div id="orderNotify" class="order-notify"></div>
+
   <script src="js/i18n.js"></script>
   <script src="js/store.js"></script>
   <script src="js/admin.js"></script>
-  <div id="orderNotify" class="order-notify"></div>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31306d15fc8cc70',t:'MTc4Nzc0OTMwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
