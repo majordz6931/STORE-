@@ -740,3 +740,62 @@ body.ltr .chat-unread { margin-left: 0; margin-right: 6px; }
     text-shadow: none;
   }
 }
+
+/* ================================ */
+/* 🎯 NEW FEATURES — ANNOUNCEMENT + WHATSAPP */
+/* ================================ */
+
+/* Announcement bar */
+.announcement-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 55;
+  background: linear-gradient(90deg, #1a0505, #2a0a0a, #1a0505);
+  border-bottom: 1px solid #3a151a;
+  padding: 8px 20px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.announcement-bar .ann-text {
+  display: inline-block;
+  animation: marquee 25s linear infinite;
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(255,200,100,.2);
+}
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Push nav down */
+.nav {
+  top: 36px;
+}
+
+/* WhatsApp floating button */
+.wa-fab {
+  position: fixed; bottom: 22px; right: 22px; z-index: 69;
+  width: 62px; height: 62px;
+  border-radius: 50%;
+  display: none;
+  align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #25D366, #128C7E);
+  box-shadow: 0 10px 30px rgba(37,211,102,.45), 0 0 0 6px rgba(37,211,102,.12);
+  transition: transform .15s ease;
+  text-decoration: none;
+  animation: waPulse 2s ease-in-out infinite;
+}
+.wa-fab:hover { transform: scale(1.08); }
+.wa-fab svg { width: 32px; height: 32px; fill: #fff; }
+@keyframes waPulse {
+  0%, 100% { box-shadow: 0 10px 30px rgba(37,211,102,.45), 0 0 0 6px rgba(37,211,102,.12); }
+  50% { box-shadow: 0 10px 40px rgba(37,211,102,.6), 0 0 0 10px rgba(37,211,102,.08); }
+}
+
+body.ltr .wa-fab { right: auto; left: 22px; }
+@media (max-width: 600px) {
+  .wa-fab { width: 52px; height: 52px; bottom: 18px; right: 18px; }
+  .wa-fab svg { width: 26px; height: 26px; }
+}

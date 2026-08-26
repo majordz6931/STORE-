@@ -67,6 +67,8 @@
       <button data-tab="tabStats" type="button" data-i18n="stats">الإحصائيات</button>
       <button data-tab="tabCoupons" type="button" data-i18n="coupons">كوبونات</button>
       <button data-tab="tabDiscord" type="button">Discord</button>
+      <button data-tab="tabWhatsapp" type="button" data-i18n="whatsapp">واتساب</button>
+      <button data-tab="tabAnnouncement" type="button" data-i18n="announcementTab">الإعلانات</button>
       <button data-tab="tabMembers" type="button" data-i18n="members">الأعضاء</button>
       <button data-tab="tabAdmins" type="button" data-i18n="admins">الأدمن</button>
     </aside>
@@ -164,14 +166,33 @@
         </div>
       </section>
 
-      <section class="panel" id="tabDiscord">
-        <h3 data-i18n="discTitle">رابط قناة الديسكورد</h3>
-        <p class="sub" data-i18n="discSub">يظهر الزر في الصفحة الرئيسية.</p>
+      <section class="panel" id="tabWhatsapp">
+        <h3 data-i18n="whatsappTitle">رابط واتساب</h3>
+        <p class="sub" data-i18n="whatsapp">زر واتساب يظهر في الموقع للتواصل المباشر.</p>
         <div class="form" style="max-width:560px">
-          <label data-i18n="link">الرابط</label>
-          <input id="discordUrl" />
-          <button class="btn" id="saveDiscord" type="button" data-i18n="saveLink">حفظ الرابط</button>
-          <p id="savedMsg" style="color:#22c55e"></p>
+          <label data-i18n="whatsappLabel">رقم واتساب (مع مفتاح الدولة)</label>
+          <input id="whatsappNum" placeholder="+213XXXXXXXXX" />
+          <label data-i18n="whatsappMsgLabel">رسالة الترحيب</label>
+          <input id="whatsappMsg" placeholder="مرحباً! أريد الاستفسار عن منتج" />
+          <button class="btn" id="saveWhatsapp" type="button" data-i18n="saveLink">حفظ</button>
+          <p id="whatsappSaved" style="color:#22c55e"></p>
+        </div>
+      </section>
+
+      <section class="panel" id="tabAnnouncement">
+        <h3 data-i18n="announcementTitle">الإعلان العلوي</h3>
+        <p class="sub" data-i18n="announcementTab">شريط إعلانات متحرك يظهر في أعلى الموقع.</p>
+        <div class="form" style="max-width:560px">
+          <label data-i18n="annText">نص الإعلان (عربي)</label>
+          <input id="annTextInput" placeholder="🔥 عروض حصرية..." />
+          <label data-i18n="annTextEn">نص الإعلان (إنجليزي)</label>
+          <input id="annTextEnInput" placeholder="🔥 Exclusive offers..." />
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input id="annEnabled" type="checkbox" checked />
+            <span data-i18n="annEnabled">تفعيل الإعلان</span>
+          </label>
+          <button class="btn" id="saveAnnouncement" type="button" data-i18n="saveLink">حفظ الإعلان</button>
+          <p id="annSaved" style="color:#22c55e"></p>
         </div>
       </section>
 

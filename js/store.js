@@ -4,6 +4,11 @@
 
   var DEFAULT = {
     discord: "https://discord.gg/WrK7ttvq5g",
+    whatsapp: "+213XXXXXXXXX",
+    whatsappMsg: "مرحباً! أريد الاستفسار عن منتج",
+    announcement: "🔥 عروض حصرية — خصم 10% باستخدام كود MAJOR10",
+    announcementEn: "🔥 Exclusive offers — 10% off with code MAJOR10",
+    announcementEnabled: true,
     siteName: "MAJOR AM 360",
     wallet: WALLET,
     network: "BSC — BNB Smart Chain (BEP20)",
@@ -50,6 +55,11 @@
       if (!db.users) db.users = [];
       if (!db.coupons) db.coupons = DEFAULT.coupons.slice();
       if (!db.discord) db.discord = DEFAULT.discord;
+      if (!db.whatsapp) db.whatsapp = DEFAULT.whatsapp;
+      if (!db.whatsappMsg) db.whatsappMsg = DEFAULT.whatsappMsg;
+      if (!db.announcement) db.announcement = DEFAULT.announcement;
+      if (!db.announcementEn) db.announcementEn = DEFAULT.announcementEn;
+      if (db.announcementEnabled === undefined) db.announcementEnabled = DEFAULT.announcementEnabled;
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;
       return db;

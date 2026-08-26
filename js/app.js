@@ -95,6 +95,28 @@
     if (fd) fd.href = db.discord;
   }
 
+  /* ANNOUNCEMENT BAR */
+  function refreshAnnouncement() {
+    var bar = document.getElementById("announcementBar");
+    var txt = document.getElementById("annText");
+    if (!bar || !txt) return;
+    if (db.announcementEnabled === false) { bar.style.display = "none"; return; }
+    bar.style.display = "block";
+    txt.textContent = MajorI18n.getLang() === "en" ? (db.announcementEn || db.announcement) : db.announcement;
+  }
+
+  /* WHATSAPP */
+  function refreshWhatsApp() {
+    var fab = document.getElementById("whatsappFab");
+    if (!fab) return;
+    if (db.whatsapp && db.whatsapp !== "+213XXXXXXXXX") {
+      fab.style.display = "flex";
+      fab.href = "https://wa.me/" + db.whatsapp.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(db.whatsappMsg || "مرحباً");
+    } else {
+      fab.style.display = "none";
+    }
+  }
+
   var prev = MajorI18n.onChange;
   MajorI18n.onChange = function () {
     if (typeof prev === "function") prev();
@@ -102,9 +124,12 @@
     renderCart();
     drawChat();
     renderOrders();
+    refreshAnnouncement();
   };
 
   refreshDiscord();
+  refreshAnnouncement();
+  refreshWhatsApp();
   renderProducts();
   saveCart();
   renderCart();

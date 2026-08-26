@@ -69,6 +69,11 @@
   function renderAll() {
     db = MajorDB.load();
     $("discordUrl").value = db.discord;
+    if ($("whatsappNum")) $("whatsappNum").value = db.whatsapp || "";
+    if ($("whatsappMsg")) $("whatsappMsg").value = db.whatsappMsg || "";
+    if ($("annTextInput")) $("annTextInput").value = db.announcement || "";
+    if ($("annTextEnInput")) $("annTextEnInput").value = db.announcementEn || "";
+    if ($("annEnabled")) $("annEnabled").checked = db.announcementEnabled !== false;
     renderProducts();
     renderAdmins();
     renderOrders();
@@ -232,6 +237,29 @@
     var o = db.orders.find(function (x) { return x.id === id; });
     if (o) { o.status = next; MajorDB.save(db); renderAll(); }
   });
+
+  /* WHATSAPP SETTINGS */
+  if ($("saveWhatsapp")) {
+    $("saveWhatsapp").addEventListener("click", function () {
+      db = MajorDB.load();
+      db.whatsapp = $("whatsappNum").value.trim();
+      db.whatsappMsg = $("whatsappMsg").value.trim() || "مرحباً! أريد الاستفسار عن منتج";
+      MajorDB.save(db);
+      $("whatsappSaved").textContent = t("whatsappSaved");
+    });
+  }
+
+  /* ANNOUNCEMENT SETTINGS */
+  if ($("saveAnnouncement")) {
+    $("saveAnnouncement").addEventListener("click", function () {
+      db = MajorDB.load();
+      db.announcement = $("annTextInput").value.trim();
+      db.announcementEn = $("annTextEnInput").value.trim();
+      db.announcementEnabled = $("annEnabled").checked;
+      MajorDB.save(db);
+      $("annSaved").textContent = t("annSaved");
+    });
+  }
 
   /* COUPONS */
   function renderCoupons() {
