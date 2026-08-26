@@ -27,11 +27,86 @@ button, input, select, textarea { font-family: inherit; }
 
 .bg-grid {
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
   background:
     radial-gradient(800px 400px at 80% -10%, rgba(255,20,20,.18), transparent 60%),
-    radial-gradient(600px 300px at 10% 100%, rgba(255,80,0,.08), transparent 50%),
-    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,.015) 40px),
-    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,.015) 40px);
+    radial-gradient(600px 300px at 10% 100%, rgba(255,80,0,.08), transparent 50%);
+}
+
+/* Animated orbs */
+.bg-grid::before, .bg-grid::after {
+  content: "";
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: .12;
+  animation: orbFloat 12s ease-in-out infinite alternate;
+}
+.bg-grid::before {
+  background: radial-gradient(circle, #ff1a1a, transparent 70%);
+  top: -10%; left: -10%;
+  animation-duration: 14s;
+}
+.bg-grid::after {
+  background: radial-gradient(circle, #ff6600, transparent 70%);
+  bottom: -10%; right: -10%;
+  width: 500px; height: 500px;
+  animation-duration: 18s;
+  animation-delay: -4s;
+}
+
+@keyframes orbFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(80px, -60px) scale(1.1); }
+  66% { transform: translate(-40px, 80px) scale(.9); }
+  100% { transform: translate(60px, -30px) scale(1.05); }
+}
+
+/* Grid overlay with animation */
+.bg-grid .grid-lines {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,.012) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,.012) 40px);
+  animation: gridShift 20s linear infinite;
+}
+
+@keyframes gridShift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(40px, 40px); }
+}
+
+/* Floating particles */
+.bg-grid .particles {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1.5px 1.5px at 25% 55%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 45% 10%, rgba(255,255,255,.25), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255,200,100,.2), transparent),
+    radial-gradient(1.5px 1.5px at 75% 30%, rgba(255,255,255,.3), transparent),
+    radial-gradient(1.5px 1.5px at 90% 80%, rgba(255,200,100,.15), transparent),
+    radial-gradient(2px 2px at 15% 85%, rgba(255,255,255,.2), transparent),
+    radial-gradient(1.5px 1.5px at 50% 45%, rgba(255,100,50,.25), transparent),
+    radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,.35), transparent),
+    radial-gradient(2px 2px at 35% 90%, rgba(255,200,100,.2), transparent),
+    radial-gradient(1.5px 1.5px at 70% 55%, rgba(255,255,255,.15), transparent),
+    radial-gradient(1px 1px at 5% 50%, rgba(255,150,50,.25), transparent),
+    radial-gradient(1.5px 1.5px at 55% 25%, rgba(255,255,255,.2), transparent),
+    radial-gradient(2px 2px at 30% 40%, rgba(255,100,50,.2), transparent),
+    radial-gradient(1px 1px at 65% 90%, rgba(255,255,255,.25), transparent),
+    radial-gradient(1.5px 1.5px at 85% 45%, rgba(255,200,100,.15), transparent),
+    radial-gradient(1px 1px at 20% 5%, rgba(255,255,255,.3), transparent),
+    radial-gradient(2px 2px at 40% 65%, rgba(255,100,50,.2), transparent),
+    radial-gradient(1.5px 1.5px at 95% 60%, rgba(255,255,255,.2), transparent);
+  background-size: 200% 200%;
+  animation: particleDrift 30s linear infinite;
+}
+
+@keyframes particleDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 100%; }
 }
 
 .wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 0 20px; }
