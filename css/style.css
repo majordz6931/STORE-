@@ -550,3 +550,193 @@ body.ltr .chat-unread { margin-left: 0; margin-right: 6px; }
 ::-webkit-scrollbar-track { background: #0a0a0e; }
 ::-webkit-scrollbar-thumb { background: #3a151a; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #5a1a1a; }
+
+/* ================================ */
+/* 🎮 GAMING EFFECTS — HYPE MODE ON */
+/* ================================ */
+
+/* CRT Scanline overlay */
+.scanlines {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(0deg,
+    transparent, transparent 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 4px);
+}
+
+/* RGB animated border on hero card */
+.hero-card {
+  position: relative;
+  background: linear-gradient(180deg, #1a1014, #0c0c10);
+  border: 0 !important;
+  border-radius: 20px; padding: 22px;
+  box-shadow: var(--shadow); text-align: center;
+  overflow: hidden;
+}
+.hero-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, #ff1a1a, #ff6600, #ffcc00, #22c55e, #3b82f6, #a855f7, #ff1a1a);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rgbBorder 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes rgbBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animated gradient text for ALL titles */
+.section h3, .hero h2, .brand h1 {
+  background: linear-gradient(135deg, #ff3a3a, #ffcc66, #ff3a3a, #a855f7);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradText 6s ease infinite;
+}
+@keyframes gradText {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Card RGB hover effect */
+.card {
+  position: relative;
+  background: var(--card);
+  border: 0 !important;
+  border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 16px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,50,50,.3), rgba(255,200,100,.2), transparent 60%);
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.card:hover::before {
+  opacity: 1;
+  animation: rgbCard 2s linear infinite;
+}
+@keyframes rgbCard {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -200% 50%; }
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(255,20,20,.15), 0 0 60px rgba(255,20,20,.05);
+}
+
+/* Gaming pulse on category buttons */
+.cat.active, .cat:hover {
+  border-color: var(--red);
+  color: #fff;
+  animation: catPulse 1.5s ease-in-out infinite;
+}
+@keyframes catPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,20,20,.2); }
+  50% { box-shadow: 0 0 40px rgba(255,20,20,.4), 0 0 80px rgba(255,20,20,.1); }
+}
+
+/* Glitch text on hover */
+.hero h2 {
+  position: relative;
+  display: inline-block;
+}
+.hero h2:hover::before,
+.hero h2:hover::after {
+  content: attr(data-text);
+  position: absolute; top: 0; left: 0; right: 0;
+  opacity: 0;
+}
+..hero h2:hover::before {
+  opacity: .7;
+  color: #ff3a3a;
+  animation: glitch1 .3s ease-in-out 3;
+  clip-path: inset(20% 0 60% 0);
+}
+.hero h2:hover::after {
+  opacity: .7;
+  color: #00d4ff;
+  animation: glitch2 .3s ease-in-out 3;
+  clip-path: inset(60% 0 20% 0);
+}
+@keyframes glitch1 {
+  0% { transform: translate(0); }
+  20% { transform: translate(-3px, 2px); }
+  40% { transform: translate(3px, -1px); }
+   60% { transform: translate(-2px, 3px); }
+   80% { transform: translate(2px, -2px) }
+   100% { transform: translate(0); }
+}
+@keyframes glitch2 {
+   0% { transform: translate(0); }
+  20% { transform: translate(3px, -2px); }
+  40% { transform: translate(-3px, 1px); }
+  60% { transform: translate(2px, -3px); }
+  80% { transform: translate(-2px, 2px); }
+  100% { transform: translate(0); }
+}
+
+/* Gaming button shine effect */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: "";
+  position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,.1), transparent 60%);
+  opacity: 0; transform: scale(.5);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+.btn:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Step numbers pulsing glow */
+.num {
+  color: var(--red);
+  font-weight: 800;
+  font-size: 22px;
+  text-shadow: 0 0 20px rgba(255,20,20,.5);
+  animation: numGlow 2s ease-in-out infinite;
+}
+@keyframes numGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(255,20,20,.5); }
+  50% { text-shadow: 0 0 40px rgba(255,20,20,.8), 0 0 80px rgba(255,20,20,.2); }
+}
+
+/* Neon flicker on brand */
+.brand h1 {
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: #fff;
+}
+.brand h1, .brand span {
+  animation: neonFlicker 3s ease-in-out infinite;
+}
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 0 0 18px rgba(255,30,30,.7), 0 0 30px rgba(255,30,30,.3);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
