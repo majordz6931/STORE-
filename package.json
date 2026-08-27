@@ -1,13 +1,7 @@
 {
-  "name": "major-store",
-  "version": "3.0.0",
-  "description": "MAJOR store — serverless, Vercel-only (GitHub as data store)",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "name": "nova-tech-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NOVA TECH electronic tools store with local admin dashboard",
+  "scripts": { "start": "python3 -m http.server 8080" }
 }

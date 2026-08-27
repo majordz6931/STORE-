@@ -1,4 +1,13 @@
-node_modules/
-data/
+# Local/editor files
 .DS_Store
 *.log
+.vscode/
+.idea/
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+
+# Local preview data
+.python_history

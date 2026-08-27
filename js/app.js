@@ -1,570 +1,122 @@
 (function () {
-  var cart = JSON.parse(localStorage.getItem("major360_cart") || "[]");
-  var filter = "all";
-  var searchQuery = "";
-  var appliedCoupon = null;
-  var chatReady = sessionStorage.getItem("major360_chat_v2") === "1";
-  var chatName = chatReady ? (sessionStorage.getItem("major360_chat_name") || "") : "";
-  var chatId = chatReady && chatName ? (sessionStorage.getItem("major360_chat") || "") : "";
-  var lastSeen = 0;
+  "use strict";
+  var db = ElectroDB.load();
+  var cart = ElectroDB.loadCart();
+  var activeCategory = "all";
+  var search = "";
+  var sort = "featured";
+  var money = function (n) { return ElectroDB.formatMoney(n, db.settings.currency); };
 
-  // Server-backed data (read via serverless API / polling)
-  var productsList = [];
-  var paymentsList = [];
-  var couponsList = [];
-  var configData = null;
-
-  var selectedPayId = null;
-  var proofData = "";
-
-  function t(k) { return MajorI18n.t(k); }
-  function money(n) { return "$" + Number(n).toFixed(2); }
-  function $ (id) { return document.getElementById(id); }
-  function qsa(s) { return document.querySelectorAll(s); }
-  function pname(p) { return (MajorI18n.getLang() === "en") ? (p.nameEn || p.name) : p.name; }
-  function pdesc(p) { return (MajorI18n.getLang() === "en") ? (p.descEn || p.desc || "") : (p.desc || ""); }
-  function catName(c) { return { cyber: t("catCyber"), streamer: t("catStream"), gaming: t("catGaming") }[c] || c; }
-  function esc(s) {
-    return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
-      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
+  function $(id) { return document.getElementById(id); }
+  function all(selector) { return Array.prototype.slice.call(document.querySelectorAll(selector)); }
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (m) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m];
     });
   }
-
-  function toast(msg) {
-    var el = $("toast");
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.add("show");
-    clearTimeout(el._t);
-    el._t = setTimeout(function () { el.classList.remove("show"); }, 2400);
+  function toast(message) {
+    var el = $("toast"); if (!el) return;
+    el.textContent = message; el.classList.add("show");
+    clearTimeout(el._timer); el._timer = setTimeout(function () { el.classList.remove("show"); }, 2600);
   }
-
-  function saveCart() {
-    localStorage.setItem("major360_cart", JSON.stringify(cart));
-    var n = cart.reduce(function (s, i) { return s + i.qty; }, 0);
-    var el = $("cartCount");
-    if (el) el.textContent = n;
+  function persist() { ElectroDB.save(db); }
+  function productName(p) { return p.name; }
+  function categoryName(id) {
+    var c = db.categories.find(function (item) { return item.id === id; });
+    return c ? c.name : "منتجات";
   }
-
-  /* ===== SERVER SYNC (polling) ===== */
-  function refreshStore() {
-    fetch(MAJOR_API("/api/sync"), { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d) return;
-        if (Array.isArray(d.products)) productsList = d.products;
-        var localProducts = MajorDB.getProducts();
-        if (Array.isArray(localProducts)) productsList = localProducts;
-        if (Array.isArray(d.payments)) {
-          paymentsList = d.payments;
-          renderPayMethods();
-        }
-        if (Array.isArray(d.coupons)) couponsList = d.coupons;
-        if (d.config) {
-          configData = d.config;
-          refreshDiscord();
-          refreshAnnouncement();
-          refreshWhatsApp();
-        }
-        renderProducts();
-      })
-      .catch(function () {});
-  }
-
-  function refreshMyOrders() {
-    var mine = myOrdersLocal();
-    if (!mine.length) { renderOrders(); return; }
-    var ids = mine.map(function (o) { return o.id; }).join(",");
-    fetch(MAJOR_API("/api/orders?id=" + encodeURIComponent(ids)), { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (list) {
-        if (!Array.isArray(list)) return;
-        var changed = false;
-        list.forEach(function (s) {
-          var o = mine.find(function (x) { return x.id === s.id; });
-          if (o && s.status && s.status !== (o.status || "pending")) { o.status = s.status; changed = true; }
-        });
-        if (changed) {
-          localStorage.setItem("major360_myorders", JSON.stringify(mine));
-          renderOrders();
-        }
-      })
-      .catch(function () {});
-  }
-
-  /* ===== PRODUCTS ===== */
-  function renderProducts() {
-    var grid = $("products");
-    if (!grid) return;
-    var q = searchQuery.toLowerCase().trim();
-    var list = productsList.filter(function (p) {
-      if (filter !== "all" && p.cat !== filter) return false;
-      if (!q) return true;
-      return (p.name + " " + (p.nameEn || "") + " " + p.desc + " " + (p.descEn || "")).toLowerCase().indexOf(q) !== -1;
-    });
-    if (!list.length) {
-      grid.innerHTML = '<div class="empty-state"><span>📦</span><p class="sub">' + t("noProducts") + "</p></div>";
-      return;
+  function cartQuantity() { return cart.reduce(function (sum, item) { return sum + item.qty; }, 0); }
+  function cartTotal() { return cart.reduce(function (sum, item) { return sum + item.price * item.qty; }, 0); }
+  function updateCartCount() { $("cartCount").textContent = cartQuantity(); }
+  function updateSettings() {
+    var s = db.settings;
+    $("brandName").textContent = s.brand; $("footerBrand").textContent = s.brand;
+    $("brandMark").textContent = s.brandMark || s.brand.charAt(0); $("footerMark").textContent = s.brandMark || s.brand.charAt(0);
+    $("heroBadge").innerHTML = esc(s.heroBadge) + " <span>✦</span>";
+    $("heroTitle").innerHTML = esc(s.heroTitle).replace(/،\s*/, "،<br />") + "";
+    var title = $("heroTitle");
+    if (!title.innerHTML.includes("<em>")) {
+      var words = esc(s.heroTitle).split(" "); var pivot = Math.max(2, words.length - 3);
+      title.innerHTML = esc(words.slice(0, pivot).join(" ")) + "<br /><em>" + esc(words.slice(pivot).join(" ")) + "</em>";
     }
+    $("heroText").textContent = s.heroText; $("heroCta").childNodes[0].nodeValue = s.heroCta + " "; $("heroSecondary").childNodes[0].nodeValue = s.heroSecondary + " ";
+    var stats = s.heroStats || [];
+    $("heroStats").innerHTML = stats.map(function (x) { return "<div><strong>" + esc(x.value) + "</strong><span>" + esc(x.label) + "</span></div>"; }).join("");
+    $("footerText").textContent = s.footerText; $("footerAddress").textContent = s.address;
+    $("instagramLink").href = "https://instagram.com/" + String(s.instagram || "").replace(/^@/, "");
+    $("whatsappLink").href = "https://wa.me/" + String(s.whatsapp || "").replace(/\D/g, "");
+    $("emailLink").href = "mailto:" + s.email; $("supportFab").onclick = function () { window.open("https://wa.me/" + String(s.whatsapp || "").replace(/\D/g, ""), "_blank"); };
+    if (s.announcementEnabled && sessionStorage.getItem("nova_announcement_closed") !== "1") { $("announcementText").textContent = s.announcement; $("announcement").classList.remove("hidden"); } else $("announcement").classList.add("hidden");
+    document.title = s.brand + " — متجر الأدوات الإلكترونية";
+  }
+  function renderCategories() {
+    var row = $("categoryRow"), pills = $("filterPills");
+    var allCard = "<button class='category-card " + (activeCategory === "all" ? "active" : "") + "' data-category='all'><span class='category-icon all-icon'>✦</span><b>كل المنتجات</b><small>" + db.products.length + " منتج</small></button>";
+    row.innerHTML = allCard + db.categories.map(function (c) {
+      var count = db.products.filter(function (p) { return p.category === c.id; }).length;
+      return "<button class='category-card " + (activeCategory === c.id ? "active" : "") + "' data-category='" + esc(c.id) + "' style='--cat-color:" + esc(c.color) + "'><span class='category-icon'>" + esc(c.icon) + "</span><b>" + esc(c.name) + "</b><small>" + count + " منتجات</small></button>";
+    }).join("");
+    pills.innerHTML = "<button class='pill " + (activeCategory === "all" ? "selected" : "") + "' data-category='all'>الكل</button>" + db.categories.map(function (c) { return "<button class='pill " + (activeCategory === c.id ? "selected" : "") + "' data-category='" + esc(c.id) + "'>" + esc(c.name) + "</button>"; }).join("");
+  }
+  function filteredProducts() {
+    var list = db.products.filter(function (p) {
+      var text = (p.name + " " + (p.nameEn || "") + " " + (p.description || "") + " " + categoryName(p.category)).toLowerCase();
+      return (activeCategory === "all" || p.category === activeCategory) && (!search || text.indexOf(search.toLowerCase()) !== -1);
+    });
+    if (sort === "low") list.sort(function (a, b) { return a.price - b.price; });
+    if (sort === "high") list.sort(function (a, b) { return b.price - a.price; });
+    if (sort === "rating") list.sort(function (a, b) { return (b.rating || 0) - (a.rating || 0); });
+    return list;
+  }
+  function productVisual(p, large) {
+    if (p.image) return "<img src='" + esc(p.image) + "' alt='" + esc(p.name) + "' />";
+    return "<span class='visual-emoji " + (large ? "large" : "") + "'>" + esc(p.icon || "✦") + "</span>";
+  }
+  function renderProducts() {
+    var list = filteredProducts(), grid = $("productsGrid"), empty = $("emptyView");
+    $("resultCount").textContent = list.length + " منتج";
     grid.innerHTML = list.map(function (p) {
       var inCart = cart.some(function (x) { return x.id === p.id; });
-      var thumb = p.image ? '<img src="' + p.image + '" alt="" />' : (p.emoji || "🎮");
-      var add = inCart
-        ? '<button class="btn outline" data-added="1">' + t("addedToCart") + '</button>'
-        : '<button class="btn" data-add="' + p.id + '">' + t("addCart") + "</button>";
-      return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body"><div class="tag">' +
-        esc(catName(p.cat)) + '</div><h4>' + esc(pname(p)) + '</h4><p class="sub">' + esc(pdesc(p)) +
-        '</p><div class="price">' + Number(p.price).toFixed(2) + '</div><div class="card-actions">' + add +
-        '<button class="btn outline" data-buy="' + p.id + '">' + t("buyNow") + "</button></div></article>";
+      return "<article class='product-card' data-product='" + esc(p.id) + "'><div class='product-image' style='--product-color:" + esc(p.color || "#eee") + "'>" + (p.badge ? "<span class='product-badge'>" + esc(p.badge) + "</span>" : "") + "<button class='quick-view' data-view='" + esc(p.id) + "'>↗</button>" + productVisual(p, false) + "</div><div class='product-info'><div class='product-category'>" + esc(categoryName(p.category)) + "</div><h3>" + esc(productName(p)) + "</h3><p>" + esc(p.description || "") + "</p><div class='rating'><span>★</span> " + Number(p.rating || 0).toFixed(1) + " <small>(" + Number(p.reviews || 0) + ")</small></div><div class='product-bottom'><div><strong>" + money(p.price) + "</strong>" + (p.oldPrice ? "<del>" + money(p.oldPrice) + "</del>" : "") + "</div><button class='add-btn " + (inCart ? "added" : "") + "' data-add='" + esc(p.id) + "'>" + (inCart ? "✓ في السلة" : "＋ أضف للسلة") + "</button></div></div></article>";
     }).join("");
+    empty.hidden = list.length !== 0;
   }
-
   function renderCart() {
-    var box = $("cartItems");
-    if (!box) return;
-    if (!cart.length) {
-      box.innerHTML = '<p class="sub">' + t("emptyCart") + "</p>";
-      $("cartTotal").textContent = money(0);
-      return;
-    }
-    var total = 0;
-    box.innerHTML = cart.map(function (i, idx) {
-      total += i.price * i.qty;
-      var label = MajorI18n.getLang() === "en" ? (i.nameEn || i.name) : i.name;
-      return '<div class="cart-row"><div><b>' + esc(label) + '</b><br><span class="sub">' + money(i.price) + '</span></div>' +
-        '<div class="qty"><button data-dec="' + idx + '">−</button><span>' + i.qty + '</span><button data-inc="' + idx + '">+</button></div></div>';
-    }).join("");
-    $("cartTotal").textContent = money(total);
+    var box = $("cartItems"), total = cartTotal(); updateCartCount(); $("cartTotal").textContent = money(total);
+    if (!cart.length) { box.innerHTML = "<div class='empty-cart'><span>🛍</span><h3>السلة فارغة</h3><p>أضف منتجاتك المفضلة وستظهر هنا.</p><button class='btn btn-outline' id='emptyShop'>تصفح المنتجات</button></div>"; return; }
+    box.innerHTML = cart.map(function (item, index) { return "<div class='cart-item'><div class='cart-item-visual' style='background:" + esc(item.color || "#eee") + "'>" + esc(item.icon || "✦") + "</div><div class='cart-item-info'><b>" + esc(item.name) + "</b><small>" + money(item.price) + "</small><div class='quantity'><button data-qty='" + index + "' data-change='-1'>−</button><span>" + item.qty + "</span><button data-qty='" + index + "' data-change='1'>＋</button></div></div><button class='remove-item' data-remove='" + index + "'>×</button></div>"; }).join("");
   }
+  function openDrawer() { $("overlay").classList.add("show"); $("cartDrawer").classList.add("show"); document.body.classList.add("locked"); renderCart(); }
+  function closeOverlays() { all(".modal.show").forEach(function (x) { x.classList.remove("show"); }); $("overlay").classList.remove("show"); $("cartDrawer").classList.remove("show"); document.body.classList.remove("locked"); }
+  function addToCart(id) { var p = db.products.find(function (x) { return x.id === id; }); if (!p) return; var item = cart.find(function (x) { return x.id === id; }); if (item) item.qty += 1; else cart.push({ id: p.id, name: p.name, price: p.price, icon: p.icon, color: p.color, qty: 1 }); ElectroDB.saveCart(cart); renderCart(); renderProducts(); toast("تمت إضافة المنتج إلى السلة"); }
+  function openProduct(id) { var p = db.products.find(function (x) { return x.id === id; }); if (!p) return; $("productModalContent").innerHTML = "<div class='modal-product-visual' style='background:" + esc(p.color || "#eee") + "'>" + productVisual(p, true) + "</div><div class='modal-product-info'><span class='eyebrow small'>" + esc(categoryName(p.category)) + "</span><h2>" + esc(p.name) + "</h2><div class='rating'><span>★</span> " + Number(p.rating || 0).toFixed(1) + " <small>" + Number(p.reviews || 0) + " تقييم</small></div><p>" + esc(p.description || "") + "</p><div class='modal-price'><strong>" + money(p.price) + "</strong>" + (p.oldPrice ? "<del>" + money(p.oldPrice) + "</del>" : "") + "</div><button class='btn btn-primary full' data-modal-add='" + esc(p.id) + "'>إضافة إلى السلة <span>＋</span></button></div>"; $("productModal").classList.add("show"); }
+  function fillCheckout() { $("checkoutTotal").textContent = money(cartTotal()); $("orderPayment").innerHTML = (db.settings.paymentMethods || []).map(function (x) { return "<option>" + esc(x) + "</option>"; }).join(""); }
+  function submitOrder(event) { event.preventDefault(); if (!cart.length) return toast("أضف منتجاً أولاً"); var order = { id: "NOVA-" + Date.now().toString().slice(-6), name: $("orderName").value.trim(), phone: $("orderPhone").value.trim(), address: $("orderAddress").value.trim(), payment: $("orderPayment").value, note: $("orderNote").value.trim(), items: cart.slice(), total: cartTotal(), status: "pending", date: new Date().toLocaleString("ar-DZ") }; db.orders.unshift(order); persist(); cart = []; ElectroDB.saveCart(cart); $("checkoutForm").reset(); closeOverlays(); renderCart(); renderProducts(); toast("تم استلام طلبك " + order.id + " — سنتواصل معك قريباً"); }
+  function refresh() { db = ElectroDB.load(); money = function (n) { return ElectroDB.formatMoney(n, db.settings.currency); }; updateSettings(); renderCategories(); renderProducts(); renderCart(); fillCheckout(); }
 
-  function addToCart(id) {
-    var p = productsList.find(function (x) { return x.id === id; });
-    if (!p) return;
-    var f = cart.find(function (x) { return x.id === id; });
-    if (f) f.qty += 1;
-    else cart.push({ id: p.id, name: p.name, nameEn: p.nameEn, price: p.price, qty: 1 });
-    saveCart();
-    renderCart();
-    renderProducts();
-    toast(t("added"));
-  }
-
-  /* BUY NOW — skips cart drawer, opens checkout directly */
-  function buyNow(id) {
-    var p = productsList.find(function (x) { return x.id === id; });
-    if (!p) return;
-    cart = [{ id: p.id, name: p.name, nameEn: p.nameEn, price: p.price, qty: 1 }];
-    saveCart();
-    renderCart();
-    renderProducts();
-    closeCart();
-    openCheckout();
-  }
-
-  /* ===== CONFIG-DRIVEN UI ===== */
-  function refreshDiscord() {
-    var href = configData && configData.discord ? configData.discord : "https://discord.gg/WrK7ttvq5g";
-    var dl = $("discordLink"), fd = $("footerDiscord");
-    if (dl) dl.href = href;
-    if (fd) fd.href = href;
-  }
-  function refreshAnnouncement() {
-    var bar = $("announcementBar"), txt = $("annText");
-    if (!bar || !txt) return;
-    if (!configData || configData.announcementEnabled === false) { bar.style.display = "none"; return; }
-    bar.style.display = "block";
-    txt.textContent = MajorI18n.getLang() === "en" ? (configData.announcementEn || configData.announcement) : configData.announcement;
-  }
-  function refreshWhatsApp() {
-    var fab = $("whatsappFab");
-    if (!fab) return;
-    if (configData && configData.whatsapp) {
-      fab.style.display = "flex";
-      fab.href = "https://wa.me/" + configData.whatsapp.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(configData.whatsappMsg || "مرحباً");
-    } else fab.style.display = "none";
-  }
-
-  function openCart() {
-    $("overlay").classList.add("show");
-    $("drawer").classList.add("show");
-    renderCart();
-  }
-  function closeCart() {
-    $("overlay").classList.remove("show");
-    $("drawer").classList.remove("show");
-  }
-  // The cart is closed on every fresh page load; only the cart button opens it.
-  function forceCartClosed() {
-    $("overlay").classList.remove("show");
-    $("drawer").classList.remove("show");
-  }
-
-  /* ===== CHECKOUT ===== */
-  function cartTotal() { return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0); }
-  function cartTotalWithDiscount() {
-    var total = cartTotal();
-    if (appliedCoupon) {
-      if (appliedCoupon.type === "percent") total = total * (1 - appliedCoupon.value / 100);
-      else total = Math.max(0, total - appliedCoupon.value);
-    }
-    return total;
-  }
-  function validateCoupon(code) {
-    var c = (couponsList || []).find(function (x) { return x.code.toUpperCase() === code.trim().toUpperCase(); });
-    if (!c) return null;
-    if (c.max && c.used >= c.max) return null;
-    if (c.expires && new Date(c.expires) < new Date()) return null;
-    return c;
-  }
-  function activePay() {
-    return paymentsList.find(function (m) { return m.id === selectedPayId; }) || paymentsList[0] || null;
-  }
-
-  function renderPayMethods() {
-    var box = $("payMethods");
-    if (!box) return;
-    if (!paymentsList.length) {
-      box.innerHTML = '<p class="sub">' + t("noPayments") + "</p>";
-      $("payPanel").style.display = "none";
-      selectedPayId = null;
-      return;
-    }
-    if (!selectedPayId) selectedPayId = paymentsList[0].id;
-    box.innerHTML = paymentsList.map(function (m) {
-      var sel = m.id === selectedPayId;
-      return '<button type="button" class="pay-method' + (sel ? " sel" : "") + '" data-pay="' + m.id + '">' +
-        (m.icon || "💳") + " " + esc(m.label || "") + (m.network ? "<small>" + esc(m.network) + "</small>" : "") + "</button>";
-    }).join("");
-    renderPayPanel();
-  }
-
-  function renderPayPanel() {
-    var panel = $("payPanel");
-    if (!panel) return;
-    var m = activePay();
-    if (!m) { panel.style.display = "none"; return; }
-    panel.style.display = "block";
-    var code = $("payWalletCode");
-    if (code) code.textContent = m.wallet || "";
-    var qw = $("payQrWrap"), qi = $("payQrImg");
-    if (qw && qi) {
-      if (m.qrImage) { qi.src = m.qrImage; qw.style.display = "block"; }
-      else qw.style.display = "none";
-    }
-  }
-
-  function openCheckout() {
-    appliedCoupon = null;
-    $("couponCode").value = "";
-    $("couponMsg").textContent = "";
-    $("payAmount").textContent = money(cartTotal());
-    renderPayMethods();
-    renderPayPanel();
-    $("orderModal").classList.add("show");
-  }
-
-  /* ===== MY ORDERS ===== */
-  function myOrdersLocal() { return JSON.parse(localStorage.getItem("major360_myorders") || "[]"); }
-
-  function renderOrders() {
-    var box = $("myOrders");
-    if (!box) return;
-    var list = myOrdersLocal().slice(0, 5);
-    if (!list.length) {
-      box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + '</h2><p class="sub">' + t("noOrdersHistory") + "</p></div>";
-      return;
-    }
-    box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + "</h2></div>" +
-      list.map(function (o) {
-        var s = o.status || "pending";
-        var sk = "status" + s.charAt(0).toUpperCase() + s.slice(1);
-        var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
-        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div>' +
-          '<div class="order-body"><p class="sub">' + esc(it) + '</p><p><b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + " " + o.id + "</small></div></div>";
-      }).join("");
-  }
-
-  /* ===== CHAT (polling via /api/chat) ===== */
-  function getChat() {
-    var db = MajorDB.load();
-    if (!db.chats) db.chats = [];
-    return db.chats.find(function (c) { return c.id === chatId; });
-  }
-  function drawChat() {
-    var log = $("chatLog");
-    var c = getChat();
-    if (!c) {
-      log.innerHTML = '<p class="sub">' + t("chatHello") + "</p>";
-      $("chatStartBox").style.display = "flex";
-      $("chatSendBox").style.display = "none";
-      return;
-    }
-    $("chatStartBox").style.display = "none";
-    $("chatSendBox").style.display = "flex";
-    log.innerHTML = c.messages.map(function (m) {
-      return '<div class="bubble ' + m.from + '">' + esc(m.text) + "<time>" + esc(m.at) + "</time></div>";
-    }).join("");
-    log.scrollTop = log.scrollHeight;
-    var unread = c.messages.filter(function (m) { return m.from === "admin" && m.ts > lastSeen; }).length;
-    if (!$("chatWin").classList.contains("open")) updateBadge(unread);
-    else { lastSeen = Date.now(); updateBadge(0); }
-  }
-  function updateBadge(n) {
-    var b = $("chatBadge");
-    if (n > 0) { b.textContent = n; b.classList.add("show"); }
-    else b.classList.remove("show");
-  }
-  function startChat() {
-    var name = $("chatName").value.trim();
-    if (!name) return;
-    var db = MajorDB.load();
-    if (!db.chats) db.chats = [];
-    chatId = "c" + Date.now();
-    chatName = name;
-    sessionStorage.setItem("major360_chat", chatId);
-    sessionStorage.setItem("major360_chat_name", chatName);
-    sessionStorage.setItem("major360_chat_v2", "1");
-    db.chats.unshift({
-      id: chatId, name: name, updated: Date.now(),
-      messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
-    });
-    MajorDB.save(db);
-    fetch(MAJOR_API("/api/chat"), {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatId: chatId, name: name })
-    }).catch(function () {});
-    drawChat();
-  }
-  function pollChat() {
-    if (!chatId) return;
-    fetch(MAJOR_API("/api/chat?id=" + encodeURIComponent(chatId)), { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (list) {
-        if (!Array.isArray(list) || !list.length) return;
-        var remote = list[0];
-        var db = MajorDB.load();
-        var c = db.chats.find(function (x) { return x.id === chatId; });
-        if (!c) { c = { id: chatId, name: chatName, updated: Date.now(), messages: [] }; db.chats.unshift(c); }
-        var added = false;
-        (remote.messages || []).forEach(function (m) {
-          if (m && !c.messages.some(function (x) { return x.ts === m.ts; })) { c.messages.push(m); added = true; }
-        });
-        if (added) { c.updated = Date.now(); MajorDB.save(db); }
-        drawChat();
-      })
-      .catch(function () {});
-  }
-  function sendUser() {
-    var input = $("chatInput");
-    var text = input.value.trim();
-    if (!text || !chatId || !chatName) {
-      if (!chatName) { $("chatStartBox").style.display = "flex"; $("chatName").focus(); }
-      return;
-    }
-    var db = MajorDB.load();
-    var c = db.chats.find(function (x) { return x.id === chatId; });
-    if (!c) return;
-    var msg = { from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() };
-    c.messages.push(msg);
-    c.updated = Date.now();
-    MajorDB.save(db);
-    input.value = "";
-    fetch(MAJOR_API("/api/chat"), {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatId: chatId, name: chatName, message: msg })
-    }).catch(function () {});
-    drawChat();
-  }
-
-  /* ===== INIT ===== */
-  var prev = MajorI18n.onChange;
-  MajorI18n.onChange = function () {
-    if (typeof prev === "function") prev();
-    renderProducts();
-    renderCart();
-    renderPayMethods();
-    drawChat();
-    renderOrders();
-    refreshAnnouncement();
-  };
-
-  refreshStore();
-  setInterval(refreshStore, 15000);
-  setInterval(refreshMyOrders, 15000);
-  setInterval(pollChat, 5000);
-  renderProducts();
-  saveCart();
-  renderCart();
-  refreshMyOrders();
-
-  /* ===== EVENTS ===== */
-  $("swapLang").addEventListener("click", function () {
-    MajorI18n.setLang((MajorI18n.getLang() || "ar") === "ar" ? "en" : "ar");
+  updateSettings(); renderCategories(); renderProducts(); renderCart(); $("footerYear").textContent = new Date().getFullYear();
+  $("announcementClose").onclick = function () { sessionStorage.setItem("nova_announcement_closed", "1"); $("announcement").classList.add("hidden"); };
+  $("cartTrigger").onclick = openDrawer; $("cartClose").onclick = closeOverlays; $("overlay").onclick = closeOverlays;
+  $("searchToggle").onclick = function () { $("searchbar").classList.toggle("open"); if ($("searchbar").classList.contains("open")) $("searchInput").focus(); };
+  $("searchClose").onclick = function () { $("searchbar").classList.remove("open"); $("searchInput").value = ""; search = ""; renderProducts(); };
+  $("searchInput").oninput = function () { search = this.value.trim(); renderProducts(); };
+  $("sortProducts").onchange = function () { sort = this.value; renderProducts(); };
+  $("menuToggle").onclick = function () { $("mainNav").classList.toggle("open"); };
+  document.addEventListener("click", function (event) {
+    var category = event.target.closest("[data-category]"); if (category) { activeCategory = category.getAttribute("data-category"); renderCategories(); renderProducts(); if (event.target.closest(".category-card")) $("shop").scrollIntoView({ behavior: "smooth" }); return; }
+    var add = event.target.closest("[data-add]"); if (add) { addToCart(add.getAttribute("data-add")); return; }
+    var view = event.target.closest("[data-view]"); if (view) { openProduct(view.getAttribute("data-view")); return; }
+    var modalAdd = event.target.closest("[data-modal-add]"); if (modalAdd) { addToCart(modalAdd.getAttribute("data-modal-add")); closeOverlays(); return; }
+    var qty = event.target.closest("[data-qty]"); if (qty) { var i = Number(qty.getAttribute("data-qty")); cart[i].qty += Number(qty.getAttribute("data-change")); if (cart[i].qty <= 0) cart.splice(i, 1); ElectroDB.saveCart(cart); renderCart(); renderProducts(); return; }
+    var remove = event.target.closest("[data-remove]"); if (remove) { cart.splice(Number(remove.getAttribute("data-remove")), 1); ElectroDB.saveCart(cart); renderCart(); renderProducts(); return; }
+    if (event.target.closest("#emptyShop")) { closeOverlays(); $("shop").scrollIntoView({ behavior: "smooth" }); }
+    var close = event.target.closest("[data-close]"); if (close) { $(close.getAttribute("data-close")).classList.remove("show"); document.body.classList.remove("locked"); }
   });
-  $("products").addEventListener("click", function (e) {
-    var addId = e.target.getAttribute("data-add");
-    if (addId) addToCart(addId);
-    var buyId = e.target.getAttribute("data-buy");
-    if (buyId) buyNow(buyId);
-  });
-  qsa(".cat").forEach(function (el) {
-    el.addEventListener("click", function () {
-      qsa(".cat").forEach(function (c) { c.classList.remove("active"); });
-      el.classList.add("active");
-      filter = el.getAttribute("data-cat");
-      renderProducts();
-    });
-  });
-  var searchInput = $("searchInput");
-  if (searchInput) searchInput.addEventListener("input", function () { searchQuery = this.value; renderProducts(); });
-
-  $("openCart").addEventListener("click", function (e) {
-    e.preventDefault();
-    openCart();
-  });
-  $("overlay").addEventListener("click", closeCart);
-  $("closeCart").addEventListener("click", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    closeCart();
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") closeCart();
-  });
-  forceCartClosed();
-  $("menuBtn").addEventListener("click", function () { $("navLinks").classList.toggle("open"); });
-  $("cartItems").addEventListener("click", function (e) {
-    if (e.target.hasAttribute("data-inc")) cart[+e.target.getAttribute("data-inc")].qty++;
-    if (e.target.hasAttribute("data-dec")) {
-      var i = +e.target.getAttribute("data-dec");
-      cart[i].qty--;
-      if (cart[i].qty <= 0) cart.splice(i, 1);
-    }
-    saveCart();
-    renderCart();
-  });
-
-  $("checkout").addEventListener("click", function () {
-    if (!cart.length) return toast(t("emptyCart"));
-    closeCart();
-    openCheckout();
-  });
-  $("closeOrder").addEventListener("click", function () { $("orderModal").classList.remove("show"); });
-
-  $("couponApply").addEventListener("click", function () {
-    var code = $("couponCode").value.trim();
-    if (!code) return;
-    var coupon = validateCoupon(code);
-    var msg = $("couponMsg");
-    if (!coupon) {
-      msg.textContent = t("couponInvalid");
-      msg.style.color = "var(--bad)";
-      appliedCoupon = null;
-      $("payAmount").textContent = money(cartTotal());
-      return;
-    }
-    appliedCoupon = coupon;
-    msg.textContent = t("couponApplied") + " (-" + (coupon.type === "percent" ? coupon.value + "%" : "$" + coupon.value) + ")";
-    msg.style.color = "var(--ok)";
-    $("payAmount").textContent = money(cartTotalWithDiscount());
-  });
-
-  document.addEventListener("click", function (e) {
-    var card = e.target.closest("[data-pay]");
-    if (card) {
-      selectedPayId = card.getAttribute("data-pay");
-      qsa(".pay-method").forEach(function (c) { c.classList.toggle("sel", c.getAttribute("data-pay") === selectedPayId); });
-      renderPayPanel();
-      return;
-    }
-    var cp = e.target.closest("#payCopyWallet");
-    if (cp) {
-      var code = $("payWalletCode");
-      if (code && code.textContent && navigator.clipboard) {
-        navigator.clipboard.writeText(code.textContent).then(function () { toast(t("copied")); });
-      }
-    }
-  });
-
-  $("cproof").addEventListener("change", function (e) {
-    var file = e.target.files && e.target.files[0];
-    if (!file) { proofData = ""; return; }
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function () {
-      var w = img.width, h = img.height, max = 900;
-      if (w > max) { h = Math.round(h * max / w); w = max; }
-      var c = document.createElement("canvas");
-      c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img, 0, 0, w, h);
-      proofData = c.toDataURL("image/jpeg", 0.62);
-      var prev = $("proofPreview");
-      prev.src = proofData;
-      prev.classList.add("show");
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  });
-
-  /* SUBMIT ORDER */
-  $("orderForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (!proofData) return toast(t("proofNeed"));
-    var total = cartTotalWithDiscount();
-    var orderId = "o" + Date.now();
-    var pay = activePay();
-    var order = {
-      id: orderId,
-      name: $("cname").value.trim(),
-      contact: $("ccontact").value.trim(),
-      country: $("ccountry").value.trim(),
-      proof: proofData,
-      network: pay ? pay.network : "",
-      wallet: pay ? pay.wallet : "",
-      payLabel: pay ? pay.label : null,
-      items: cart.slice(),
-      total: total,
-      coupon: appliedCoupon ? appliedCoupon.code : null,
-      at: new Date().toLocaleString()
-    };
-    fetch(MAJOR_API("/api/orders"), {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(order)
-    }).then(function (r) { return r.json(); })
-      .then(function (saved) {
-        if (saved && saved.id) {
-          var myOrders = myOrdersLocal();
-          myOrders.unshift(saved);
-          localStorage.setItem("major360_myorders", JSON.stringify(myOrders));
-          renderOrders();
-        }
-      }).catch(function () {});
-    cart = [];
-    proofData = "";
-    appliedCoupon = null;
-    saveCart();
-    renderCart();
-    var pp = $("proofPreview");
-    if (pp) pp.classList.remove("show");
-    $("orderModal").classList.remove("show");
-    toast(t("sent") + " (" + t("yourOrderId") + " " + orderId + ")");
-    e.target.reset();
-  });
-
-  /* ===== CHAT EVENTS ===== */
-  $("chatFab").addEventListener("click", function () {
-    $("chatWin").classList.toggle("open");
-    if ($("chatWin").classList.contains("open")) { lastSeen = Date.now(); updateBadge(0); drawChat(); }
-  });
-  $("chatClose").addEventListener("click", function () { $("chatWin").classList.remove("open"); });
-  $("chatStart").addEventListener("click", startChat);
-  $("chatName").addEventListener("keydown", function (e) { if (e.key === "Enter") startChat(); });
-  $("chatSend").addEventListener("click", sendUser);
-  $("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
-
-  if (chatId) {
-    $("chatStartBox").style.display = "none";
-    $("chatSendBox").style.display = "flex";
-    drawChat();
-  } else drawChat();
-  window.addEventListener("storage", function () { drawChat(); });
+  $("checkoutOpen").onclick = function () { if (!cart.length) return toast("السلة فارغة"); fillCheckout(); $("checkoutModal").classList.add("show"); };
+  $("checkoutForm").onsubmit = submitOrder;
+  $("clearSearch").onclick = function () { search = ""; activeCategory = "all"; $("searchInput").value = ""; renderCategories(); renderProducts(); };
+  $("newsletterForm").onsubmit = function (e) { e.preventDefault(); $("newsletterMessage").textContent = "تم الاشتراك بنجاح — شكراً لك ✦"; e.target.reset(); };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeOverlays(); });
+  window.addEventListener("nova-db-updated", function () { refresh(); });
+  window.addEventListener("storage", function () { refresh(); });
 })();

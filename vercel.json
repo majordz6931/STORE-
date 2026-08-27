@@ -1,12 +1,4 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
   "cleanUrls": true,
-  "trailingSlash": false,
-  "headers": [
-    {
-      "source": "/js/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
-    }
-  ]
+  "trailingSlash": false
 }
