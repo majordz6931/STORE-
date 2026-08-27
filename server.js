@@ -10,12 +10,66 @@ const io = new Server(server, { cors: { origin: "*" } });
 
 const PORT = 8080;
 
-// Serve static files
+// Serve static files and accept QR images as JSON data.
+app.use(express.json({ limit: "5mb" }));
 app.use(express.static(path.join(__dirname)));
+
+// Payment methods API shared by admin and storefront.
+app.get("/api/payments", (req, res) => {
+  res.json(paymentMethods);
+});
+
+app.post("/api/payments", (req, res) => {
+  const p = req.body || {};
+  if (!p.label || !p.wallet) return res.status(400).json({ error: "label and wallet are required" });
+  const method = {
+    id: p.id || "pm" + Date.now(),
+    label: String(p.label).trim(),
+    network: String(p.network || "").trim(),
+    wallet: String(p.wallet).trim(),
+    icon: String(p.icon || "💳"),
+    qrImage: typeof p.qrImage === "string" ? p.qrImage : ""
+  };
+  if (method.id === "pm1" || method.wallet === "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3") {
+    return res.status(400).json({ error: "old payment method is not allowed" });
+  }
+  paymentMethods = paymentMethods.filter((x) => x.id !== method.id);
+  paymentMethods.push(method);
+  savePaymentMethods();
+  io.emit("payments:updated", paymentMethods);
+  res.json(method);
+});
+
+app.delete("/api/payments/:id", (req, res) => {
+  paymentMethods = paymentMethods.filter((p) => p.id !== req.params.id);
+  savePaymentMethods();
+  io.emit("payments:updated", paymentMethods);
+  res.json({ ok: true });
+});
 
 // Chat store
 const chatStore = {};
 const DATA_FILE = path.join(__dirname, "chat_data.json");
+
+// Payment methods are shared between the dashboard and the storefront.
+const PAYMENTS_FILE = path.join(__dirname, "payment_methods.json");
+let paymentMethods = [];
+try {
+  const paymentRaw = fs.readFileSync(PAYMENTS_FILE, "utf8");
+  paymentMethods = cleanPaymentMethods(JSON.parse(paymentRaw));
+} catch (e) {}
+
+function cleanPaymentMethods(list) {
+  if (!Array.isArray(list)) return [];
+  return list.filter(function (p) {
+    // Remove the old built-in BSC method permanently.
+    return p && p.id !== "pm1" && p.wallet !== "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3";
+  });
+}
+
+function savePaymentMethods() {
+  try { fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(paymentMethods)); } catch (e) {}
+}
 try {
   var raw = fs.readFileSync(DATA_FILE, "utf8");
   var parsed = JSON.parse(raw);
@@ -111,12 +165,12 @@ io.on("connection", (socket) => {
     if (!chatStore[chatId]) chatStore[chatId] = [];
     chatStore[chatId].push(message);
     saveData();
-    // Broadcast to ALL clients for user msgs (admin may not be in room)
-    // For admin msgs, only to room
+    const payload = { chatId, message, name: data.name || "" };
+    // Broadcast user messages to all connected admin/store clients so they are never missed.
     if (message.from === "user") {
-      io.emit("chat:message", { chatId, message });
+      io.emit("chat:message", payload);
     } else {
-      socket.to(chatId).emit("chat:message", { chatId, message });
+      socket.to(chatId).emit("chat:message", payload);
     }
   });
 

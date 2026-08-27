@@ -4,7 +4,10 @@
   var filter = "all";
   var searchQuery = "";
   var appliedCoupon = null;
-  var chatId = sessionStorage.getItem("major360_chat") || "";
+  var chatReady = sessionStorage.getItem("major360_chat_v2") === "1";
+  var chatName = chatReady ? (sessionStorage.getItem("major360_chat_name") || "") : "";
+  // Old sessions must enter their name again before messaging.
+  var chatId = chatReady && chatName ? (sessionStorage.getItem("major360_chat") || "") : "";
   var lastSeen = 0;
   var liveSocket = null;
 
@@ -110,8 +113,12 @@
     document.getElementById("couponCode").value = "";
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
-    document.getElementById("walletAddr").textContent = db.wallet || MajorDB.WALLET;
-    document.getElementById("orderModal").classList.add("show");
+    loadServerPayments(function () {
+      renderPayMethods();
+      var buyQrWrap = document.getElementById("payQrWrap");
+      if (buyQrWrap && !serverPayments.length && !(db.payMethods || []).length) buyQrWrap.style.display = "none";
+      document.getElementById("orderModal").classList.add("show");
+    });
   }
 
   function refreshDiscord() {
@@ -231,13 +238,30 @@
   }
 
   var selectedPay = "";
+  var serverPayments = [];
+
+  function loadServerPayments(done) {
+    fetch("/api/payments", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) {
+        serverPayments = Array.isArray(list) ? list : [];
+        if (done) done();
+      })
+      .catch(function () { if (done) done(); });
+  }
+
   function renderPayMethods() {
     var box = document.getElementById("payMethods");
     if (!box) return;
     db = MajorDB.load();
-    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
+    var methods = serverPayments.length ? serverPayments : (db.payMethods || []);
     if (!methods.length) {
       box.innerHTML = '<p class="sub" style="color:var(--muted);padding:8px">' + t("noPayments") + "</p>";
+      selectedPay = "";
+      var emptyWallet = document.getElementById("walletAddr");
+      if (emptyWallet) emptyWallet.textContent = "";
+      var emptyQr = document.getElementById("payQrWrap");
+      if (emptyQr) emptyQr.style.display = "none";
       return;
     }
     box.innerHTML = methods.map(function (m, i) {
@@ -268,7 +292,7 @@
   document.addEventListener("change", function (e) {
     if (e.target && e.target.name === "paym") {
       db = MajorDB.load();
-      var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
+      var methods = serverPayments.length ? serverPayments : (db.payMethods || []);
       selectPayMethod(+e.target.value, methods);
     }
   });
@@ -282,11 +306,13 @@
     document.getElementById("couponCode").value = "";
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
-    renderPayMethods();
-    // If no payment methods set, hide QR
-    var qw = document.getElementById("payQrWrap");
-    if (qw && (!db.payMethods || !db.payMethods.length)) qw.style.display = "none";
-    orderModal.classList.add("show");
+    loadServerPayments(function () {
+      renderPayMethods();
+      // If no payment methods are configured, keep the old QR hidden.
+      var qw = document.getElementById("payQrWrap");
+      if (qw && !serverPayments.length && !(db.payMethods || []).length) qw.style.display = "none";
+      orderModal.classList.add("show");
+    });
   });
   document.getElementById("closeOrder").addEventListener("click", function () { orderModal.classList.remove("show"); });
   document.getElementById("copyAddr").addEventListener("click", function () {
@@ -438,7 +464,10 @@
     db = MajorDB.load();
     if (!db.chats) db.chats = [];
     chatId = "c" + Date.now();
+    chatName = name;
     sessionStorage.setItem("major360_chat", chatId);
+    sessionStorage.setItem("major360_chat_name", chatName);
+    sessionStorage.setItem("major360_chat_v2", "1");
     db.chats.unshift({
       id: chatId, name: name, updated: Date.now(),
       messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
@@ -455,7 +484,13 @@
   function sendUser() {
     var input = document.getElementById("chatInput");
     var text = input.value.trim();
-    if (!text || !chatId) return;
+    if (!text || !chatId || !chatName) {
+      if (!chatName) {
+        document.getElementById("chatStartBox").style.display = "flex";
+        document.getElementById("chatName").focus();
+      }
+      return;
+    }
     db = MajorDB.load();
     var c = db.chats.find(function (x) { return x.id === chatId; });
     if (!c) return;
@@ -465,7 +500,7 @@
     MajorDB.save(db);
     input.value = "";
     // Emit via socket
-    if (liveSocket) liveSocket.emit("chat:message", { chatId: chatId, message: msg });
+    if (liveSocket) liveSocket.emit("chat:message", { chatId: chatId, name: chatName, message: msg });
     drawChat();
   }
   document.getElementById("chatSend").addEventListener("click", sendUser);

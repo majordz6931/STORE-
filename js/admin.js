@@ -219,6 +219,34 @@
   /* ===== PAYMENTS ===== */
   var payQrData = "";
 
+  function loadServerPaymentsAdmin() {
+    fetch("/api/payments", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) {
+        db = MajorDB.load();
+        var remote = Array.isArray(list) ? list : [];
+        var local = Array.isArray(db.payMethods) ? db.payMethods : [];
+        if (remote.length) {
+          db.payMethods = remote;
+          MajorDB.save(db);
+          renderPayments();
+          return;
+        }
+        // Keep methods that were already saved in this browser and upload them once.
+        db.payMethods = local;
+        MajorDB.save(db);
+        renderPayments();
+        local.forEach(function (p) {
+          fetch("/api/payments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(p)
+          }).catch(function () {});
+        });
+      })
+      .catch(function () { renderPayments(); });
+  }
+
   $("payQr").addEventListener("change", function (e) {
     var file = e.target.files && e.target.files[0];
     if (!file) { payQrData = ""; return; }
@@ -244,6 +272,8 @@
       : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">' + t("noPayments") + "</td></tr>";
   }
 
+  loadServerPaymentsAdmin();
+
   function addPaymentMethod() {
     db = MajorDB.load();
     var label = ($("payLabel") ? $("payLabel").value : "").trim();
@@ -260,6 +290,11 @@
       qrImage: payQrData || ""
     });
     MajorDB.save(db);
+    fetch("/api/payments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(db.payMethods[db.payMethods.length - 1])
+    }).then(function () { loadServerPaymentsAdmin(); }).catch(function () {});
     payQrData = "";
     if ($("payLabel")) $("payLabel").value = "";
     if ($("payNetwork")) $("payNetwork").value = "";
@@ -527,8 +562,10 @@
       var i = e.target.getAttribute("data-pdel");
       if (i == null) return;
       db = MajorDB.load();
+      var removed = db.payMethods[+i];
       db.payMethods.splice(+i, 1);
       MajorDB.save(db);
+      if (removed && removed.id) fetch("/api/payments/" + encodeURIComponent(removed.id), { method: "DELETE" }).catch(function () {});
       if ($("paySaved")) $("paySaved").textContent = t("removed");
       setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
       renderPayments();
@@ -605,6 +642,10 @@
       db = MajorDB.load();
       if (data.message.from !== "user") return; // only user msgs trigger notification
       var c = db.chats.find(function (x) { return x.id === data.chatId; });
+      if (!c && data.message.from === "user") {
+        c = { id: data.chatId, name: data.name || "زبون", updated: Date.now(), messages: [] };
+        db.chats.unshift(c);
+      }
       if (c) {
         var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
         if (!exists) {

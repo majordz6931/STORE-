@@ -63,10 +63,16 @@
       if (db.announcementEnabled === undefined) db.announcementEnabled = DEFAULT.announcementEnabled;
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;
-      if (!db.payMethods) db.payMethods = [];
-      // Force remove old default BSC payment method if it still exists
-      if (db.payMethods.length) {
-        db.payMethods = db.payMethods.filter(function(p) { return p.id !== "pm1"; });
+      // One-time migration: remove the old built-in BSC method only.
+      // Custom methods created from the dashboard are preserved.
+      if (!db.paymentsResetV2) {
+        db.payMethods = (Array.isArray(db.payMethods) ? db.payMethods : []).filter(function (p) {
+          return p.id !== "pm1" && p.wallet !== WALLET;
+        });
+        db.paymentsResetV2 = true;
+        localStorage.setItem(KEY, JSON.stringify(db));
+      } else if (!Array.isArray(db.payMethods)) {
+        db.payMethods = [];
       }
       return db;
     } catch (e) {
