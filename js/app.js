@@ -235,11 +235,13 @@
     var box = document.getElementById("payMethods");
     if (!box) return;
     db = MajorDB.load();
-    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [
-      { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: "BNB Smart Chain (BEP20)", wallet: db.wallet || MajorDB.WALLET, qr: true, icon: "🟡" }
-    ];
+    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
+    if (!methods.length) {
+      box.innerHTML = '<p class="sub" style="color:var(--muted);padding:8px">' + t("noPayments") + "</p>";
+      return;
+    }
     box.innerHTML = methods.map(function (m, i) {
-      return '<label class="pay-method' + (i === 0 ? " sel" : "") + '"><input type="radio" name="paym" value="' + i + '"' + (i === 0 ? " checked" : "") + " /><span>" + (m.icon || "💳") + " " + (m.label || m.labelEn || "") + (m.network ? " <small>" + m.network + "</small>" : "") + "</span></label>";
+      return '<label class="pay-method' + (i === 0 ? " sel" : "") + '"><input type="radio" name="paym" value="' + i + '"' + (i === 0 ? " checked" : "") + " /><span>" + (m.icon || "💳") + " " + (m.label || "") + (m.network ? " <small>" + m.network + "</small>" : "") + "</span></label>";
     }).join("");
     if (methods.length) selectPayMethod(0, methods);
   }
@@ -248,9 +250,17 @@
     var m = methods[i];
     selectedPay = i;
     var wa = document.getElementById("walletAddr");
-    if (wa) wa.textContent = m.wallet || db.wallet || MajorDB.WALLET;
+    if (wa) wa.textContent = m.wallet || "";
     var qw = document.getElementById("payQrWrap");
-    if (qw) qw.style.display = m.qr ? "block" : "none";
+    var qi = document.getElementById("payQrImg");
+    if (qw && qi) {
+      if (m.qrImage) {
+        qi.src = m.qrImage;
+        qw.style.display = "block";
+      } else {
+        qw.style.display = "none";
+      }
+    }
     var radios = document.querySelectorAll(".pay-method");
     radios.forEach(function (r, j) { r.classList.toggle("sel", j === i); });
   }
@@ -258,9 +268,7 @@
   document.addEventListener("change", function (e) {
     if (e.target && e.target.name === "paym") {
       db = MajorDB.load();
-      var methods = db.payMethods && db.payMethods.length ? db.payMethods : [
-        { id: "pm1", label: "BSC", labelEn: "BSC (BEP20)", network: "BNB Smart Chain (BEP20)", wallet: db.wallet || MajorDB.WALLET, qr: true, icon: "🟡" }
-      ];
+      var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
       selectPayMethod(+e.target.value, methods);
     }
   });
@@ -275,6 +283,9 @@
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
     renderPayMethods();
+    // If no payment methods set, hide QR
+    var qw = document.getElementById("payQrWrap");
+    if (qw && (!db.payMethods || !db.payMethods.length)) qw.style.display = "none";
     orderModal.classList.add("show");
   });
   document.getElementById("closeOrder").addEventListener("click", function () { orderModal.classList.remove("show"); });
@@ -329,7 +340,7 @@
     db = MajorDB.load();
     var total = cartTotalWithDiscount();
     var orderId = "o" + Date.now();
-    var methods = db.payMethods && db.payMethods.length ? db.payMethods : null;
+    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
     var pay = methods && methods[selectedPay] ? methods[selectedPay] : null;
     db.orders.unshift({
       id: orderId,
@@ -338,8 +349,8 @@
       country: document.getElementById("ccountry").value.trim(),
       note: "",
       proof: proofData,
-      network: pay ? (pay.network || pay.label || "BSC") : (db.network || "BSC BEP20"),
-      wallet: pay ? pay.wallet : (db.wallet || MajorDB.WALLET),
+      network: pay ? pay.network : "—",
+      wallet: pay ? pay.wallet : "—",
       payLabel: pay ? pay.label : null,
       items: cart.slice(),
       total: total,

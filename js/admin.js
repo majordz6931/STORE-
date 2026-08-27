@@ -217,17 +217,31 @@
   }
 
   /* ===== PAYMENTS ===== */
+  var payQrData = "";
+
+  $("payQr").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) { payQrData = ""; return; }
+    compressImage(file, 400, 0.8, function (data) {
+      payQrData = data;
+      var prev = $("payQrPreview");
+      if (prev) { prev.src = data; prev.classList.add("show"); }
+    });
+  });
+
   function renderPayments() {
     if (!$("payTable")) return;
     var list = db.payMethods || [];
     $("payTable").innerHTML = list.length
       ? list.map(function (p, i) {
           var short = String(p.wallet || "").slice(0, 14) + "…" + String(p.wallet || "").slice(-6);
+          var qrThumb = p.qrImage ? '<img class="mini-thumb" src="' + p.qrImage + '" alt="QR" />' : "-";
           return "<tr><td>" + (p.icon || "💳") + " " + (p.label || "") + "</td><td>" + (p.network || "-") +
             "</td><td><code class='wallet-code'>" + short + "</code></td>" +
+            "<td>" + qrThumb + "</td>" +
             "<td><button class='danger' data-pdel='" + i + "'>&times;</button></td></tr>";
         }).join("")
-      : '<tr><td colspan="4" style="text-align:center;color:var(--muted)">' + t("noPayments") + "</td></tr>";
+      : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">' + t("noPayments") + "</td></tr>";
   }
 
   function addPaymentMethod() {
@@ -240,17 +254,18 @@
     db.payMethods.push({
       id: "pm" + Date.now(),
       label: label,
-      labelEn: ($("payLabelEn") ? $("payLabelEn").value : "").trim() || label,
       network: ($("payNetwork") ? $("payNetwork").value : "").trim(),
       wallet: wallet,
-      icon: ($("payIcon") ? $("payIcon").value : "").trim() || "💳",
-      qr: !$("payQr") || $("payQr").checked
+      icon: "💳",
+      qrImage: payQrData || ""
     });
     MajorDB.save(db);
+    payQrData = "";
     if ($("payLabel")) $("payLabel").value = "";
-    if ($("payLabelEn")) $("payLabelEn").value = "";
     if ($("payNetwork")) $("payNetwork").value = "";
     if ($("payWallet")) $("payWallet").value = "";
+    if ($("payQrPreview")) { $("payQrPreview").src = ""; $("payQrPreview").classList.remove("show"); }
+    $("payQr").value = "";
     if ($("paySaved")) $("paySaved").textContent = t("saved");
     setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
     renderPayments();
