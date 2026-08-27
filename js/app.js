@@ -44,20 +44,20 @@
   }
 
   /* ===== SERVER SYNC — initial fetch + live socket updates ===== */
-  try { liveSocket = io(); } catch (e) { liveSocket = null; }
+  try { liveSocket = io(MAJOR_SOCKET_URL()); } catch (e) { liveSocket = null; }
 
   function refreshFromServer() {
-    fetch("/api/products", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/products"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       productsList = Array.isArray(d) ? d : [];
       renderProducts();
     }).catch(function () {});
-    fetch("/api/payments", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/payments"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       paymentsList = Array.isArray(d) ? d : [];
     }).catch(function () {});
-    fetch("/api/coupons", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/coupons"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       couponsList = Array.isArray(d) ? d : [];
     }).catch(function () {});
-    fetch("/api/config", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/config"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       configData = d;
       refreshDiscord();
       refreshAnnouncement();
@@ -406,7 +406,7 @@
       at: new Date().toLocaleString()
     };
     // Persist on the server so the admin dashboard receives it everywhere.
-    fetch("/api/orders", {
+    fetch(MAJOR_API("/api/orders"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(order)

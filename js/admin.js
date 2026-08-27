@@ -23,31 +23,31 @@
 
   /* ===== REALTIME COLLECTION SYNC ===== */
   function fetchAll() {
-    fetch("/api/products", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/products"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       serverSource.products = Array.isArray(d) ? d : [];
       renderProducts();
     }).catch(function () {});
-    fetch("/api/payments", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/payments"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       serverSource.payments = Array.isArray(d) ? d : [];
       renderPayments();
     }).catch(function () {});
-    fetch("/api/orders", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/orders"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       serverSource.orders = Array.isArray(d) ? d : [];
       renderOrders();
       renderStats();
     }).catch(function () {});
-    fetch("/api/coupons", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/coupons"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       serverSource.coupons = Array.isArray(d) ? d : [];
       renderCoupons();
     }).catch(function () {});
-    fetch("/api/config", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+    fetch(MAJOR_API("/api/config"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
       serverSource.config = d;
       renderConfig();
     }).catch(function () {});
   }
 
   var adminSocket = null;
-  try { adminSocket = io(); } catch (e) {}
+  try { adminSocket = io(MAJOR_SOCKET_URL()); } catch (e) {}
 
   function bindSocket() {
     if (!adminSocket) return;
@@ -359,7 +359,7 @@
 
   if ($("saveDiscord")) {
     $("saveDiscord").addEventListener("click", function () {
-      fetch("/api/config", {
+      fetch(MAJOR_API("/api/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ discord: $("discordUrl").value.trim() })
@@ -372,7 +372,7 @@
 
   if ($("saveWhatsapp")) {
     $("saveWhatsapp").addEventListener("click", function () {
-      fetch("/api/config", {
+      fetch(MAJOR_API("/api/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -388,7 +388,7 @@
 
   if ($("saveAnnouncement")) {
     $("saveAnnouncement").addEventListener("click", function () {
-      fetch("/api/config", {
+      fetch(MAJOR_API("/api/config"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -454,7 +454,7 @@
     var pr = $("payQrPreview");
     if (pr) { pr.src = ""; pr.classList.remove("show"); }
     $("payQr").value = "";
-    fetch("/api/payments", {
+    fetch(MAJOR_API("/api/payments"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -482,7 +482,7 @@
     if (i == null) return;
     var removed = serverSource.payments[+i];
     if (removed && removed.id) {
-      fetch("/api/payments/" + encodeURIComponent(removed.id), { method: "DELETE" }).catch(function () {});
+      fetch(MAJOR_API("/api/payments/" + encodeURIComponent(removed.id)), { method: "DELETE" }).catch(function () {});
     }
     if ($("paySaved")) $("paySaved").textContent = t("removed");
     setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
@@ -567,7 +567,7 @@
     var prev = $("pimagePreview");
     if (prev) prev.classList.remove("show");
     e.target.reset();
-    fetch("/api/products", {
+    fetch(MAJOR_API("/api/products"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -587,7 +587,7 @@
   $("productTable").addEventListener("click", function (e) {
     var id = e.target.getAttribute("data-del");
     if (!id) return;
-    fetch("/api/products/" + encodeURIComponent(id), { method: "DELETE" }).catch(function () {});
+    fetch(MAJOR_API("/api/products/" + encodeURIComponent(id)), { method: "DELETE" }).catch(function () {});
   });
 
   /* ===== ADMINS (local-only) ===== */
@@ -655,7 +655,7 @@
     if (!btn) return;
     var id = btn.getAttribute("data-ostat");
     var next = btn.getAttribute("data-next");
-    fetch("/api/orders/" + encodeURIComponent(id), {
+    fetch(MAJOR_API("/api/orders/" + encodeURIComponent(id)), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: next })
@@ -712,7 +712,7 @@
     serverSource.coupons.unshift(payload);
     renderCoupons();
     e.target.reset();
-    fetch("/api/coupons", {
+    fetch(MAJOR_API("/api/coupons"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -732,7 +732,7 @@
     var i = e.target.getAttribute("data-cdel");
     if (i == null) return;
     var c = serverSource.coupons[+i];
-    if (c) fetch("/api/coupons/" + encodeURIComponent(c.code), { method: "DELETE" }).catch(function () {});
+    if (c) fetch(MAJOR_API("/api/coupons/" + encodeURIComponent(c.code)), { method: "DELETE" }).catch(function () {});
   });
 
   /* ===== CHAT ===== */

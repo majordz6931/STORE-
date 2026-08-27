@@ -3,13 +3,23 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require("path");
 const fs = require("fs");
+const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+// Allow any origin: the storefront may be hosted on Vercel (or elsewhere)
+// while the API runs on this server.
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true
+  }
+});
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
+app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname)));
 
