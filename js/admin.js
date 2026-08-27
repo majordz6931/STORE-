@@ -138,7 +138,15 @@
     el.textContent = text;
     el.style.color = color || "var(--ok)";
     clearTimeout(el._t);
-    el._t = setTimeout(function () { el.textContent = ""; }, 4000);
+    el._t = setTimeout(function () { el.textContent = ""; }, 6000);
+  }
+  function storageMessage(data) {
+    var detail = data && data.detail ? data.detail : "";
+    if (detail === "github-token-missing") return "⚠️ GH_TOKEN غير مضاف في Vercel — أضفه ثم أعد النشر";
+    if (detail === "github-write-401" || detail === "github-write-403") return "⚠️ GH_TOKEN غير صالح أو لا يملك صلاحية repo";
+    if (detail === "github-read-401" || detail === "github-read-403") return "⚠️ لا يمكن قراءة GitHub — تحقق من GH_TOKEN";
+    if (detail) return "⚠️ فشل الحفظ: " + detail;
+    return t("storageError");
   }
   function compressImage(file, max, quality, cb) {
     var url = URL.createObjectURL(file);
@@ -369,15 +377,35 @@
         if (d && d.error) {
           S.products = S.products.filter(function (x) { return x.id !== payload.id; });
           renderProducts();
-          flashMsg($("productSaved"), t("storageError"), "var(--bad)");
-        } else flashMsg($("productSaved"), t("saved"));
+          flashMsg($("productSaved"), storageMessage(d), "var(--bad)");
+        } else flashMsg($("productSaved"), "✅ " + t("saved"));
       })
-      .catch(function () { flashMsg($("productSaved"), t("err"), "var(--bad)"); });
+      .catch(function (e) {
+        S.products = S.products.filter(function (x) { return x.id !== payload.id; });
+        renderProducts();
+        flashMsg($("productSaved"), "⚠️ تعذر الوصول إلى /api/products", "var(--bad)");
+      });
   });
   $("productTable").addEventListener("click", function (e) {
     var id = e.target.getAttribute("data-del");
     if (!id) return;
-    api("/api/products?id=" + encodeURIComponent(id), { method: "DELETE" });
+    if (!confirm("حذف هذا المنتج؟")) return;
+    var old = S.products.slice();
+    S.products = S.products.filter(function (x) { return x.id !== id; });
+    renderProducts();
+    api("/api/products?id=" + encodeURIComponent(id), { method: "DELETE" })
+      .then(function (d) {
+        if (d && d.error) {
+          S.products = old;
+          renderProducts();
+          flashMsg($("productSaved"), storageMessage(d), "var(--bad)");
+        } else flashMsg($("productSaved"), "✅ تم حذف المنتج");
+      })
+      .catch(function () {
+        S.products = old;
+        renderProducts();
+        flashMsg($("productSaved"), "⚠️ تعذر الوصول إلى /api/products", "var(--bad)");
+      });
   });
 
   /* ===== ORDERS ===== */

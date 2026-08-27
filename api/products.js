@@ -32,7 +32,7 @@ module.exports = async function (req, res) {
         list2.unshift(item);
       }
       var ok = await db.write("products.json", list2, "products: update");
-      if (!ok) return res.status(500).json({ error: "storage" });
+      if (!ok) return res.status(500).json({ error: "storage", detail: db.getLastError() });
       return res.status(200).json(p.action === "reset" ? { ok: true } : list2[0]);
     }
     if (req.method === "DELETE") {
@@ -41,7 +41,7 @@ module.exports = async function (req, res) {
       var list3 = await db.read("products.json", []);
       list3 = (Array.isArray(list3) ? list3 : []).filter(function (x) { return x.id !== id; });
       var ok2 = await db.write("products.json", list3, "products: delete");
-      if (!ok2) return res.status(500).json({ error: "storage" });
+      if (!ok2) return res.status(500).json({ error: "storage", detail: db.getLastError() });
       return res.status(200).json({ ok: true });
     }
     return res.status(405).json({ error: "method" });

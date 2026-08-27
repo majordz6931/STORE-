@@ -21,6 +21,7 @@ app.all("/api/coupons", require("./api/coupons"));
 app.all("/api/config", require("./api/config"));
 app.all("/api/chat", require("./api/chat"));
 app.all("/api/sync", require("./api/sync"));
+app.all("/api/health", require("./api/health"));
 
 /* ===== الملفات الثابتة ===== */
 app.use(express.static(path.join(__dirname)));
