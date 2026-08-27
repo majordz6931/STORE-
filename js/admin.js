@@ -321,9 +321,9 @@
     /* ترجمة سبب خطأ Supabase إلى رسالة واضحة */
     function describeAuthError(err) {
       var raw = ((err && err.message) || "").toString();
-      if (/Invalid login credentials|invalid_grant/.test(raw)) return "wrong email or password — check them and try again";
+      if (/Invalid login credentials|invalid_grant/.test(raw)) return "wrong email or password — if you never created the admin user, run create-admin-user.sql in Supabase > SQL Editor (or create it in Authentication > Users), then log in with admin@majorstore.store";
       if (/Email not confirmed|unverified/i.test(raw)) return "this email is not confirmed — turn OFF \"Confirm email\" in Supabase > Auth > Providers > Email, or re-create the user";
-      if (/not found|User already registered|user already/i.test(raw)) return "this user does not exist in Supabase — create it in Authentication > Users";
+      if (/not found|User already registered|user already/i.test(raw)) return "this user does not exist in Supabase — create it with create-admin-user.sql";
       if (/rate limit|too many|429/i.test(raw)) return "too many attempts — wait a few minutes and try again";
       if (/Email.*(disabled|not allowed|signup)|provider/i.test(raw)) return "the Email provider is disabled — enable it in Supabase > Authentication > Providers";
       if (/fetch|network|typeerror|failed/i.test(raw)) return "cannot reach Supabase — check your internet connection";

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major5" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major6" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -35,7 +35,7 @@
         <button class="btn primary full" type="submit">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
-      <p class="login-hint">🔒 Protected — real credentials are required.<br />Use the admin user created in <b>Supabase → Authentication → Users</b><br />(e.g. <b>admin@majorstore.store</b> + the password you set there).<br />No offline bypass exists. If login fails, read the red message above.</p>
+      <p class="login-hint">🔒 Protected — real credentials are required.<br />No user created yet? Run <b>create-admin-user.sql</b> in Supabase → SQL Editor,<br />then log in with: <b>User:</b> admin &nbsp;·&nbsp; <b>Pass:</b> the password you set there.<br />If it says "User already registered", only the password is wrong.</p>
       <a class="back-store" href="index.html">← back to MAJOR STORE</a>
     </div>
   </div>
@@ -458,8 +458,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major5"></script>
-  <script src="js/cloud.js?v=2026-major5"></script>
-  <script src="js/admin.js?v=2026-major5"></script>
+  <script src="js/store.js?v=2026-major6"></script>
+  <script src="js/cloud.js?v=2026-major6"></script>
+  <script src="js/admin.js?v=2026-major6"></script>
 </body>
 </html>
