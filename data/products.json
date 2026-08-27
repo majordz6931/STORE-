@@ -1,5 +1,16 @@
 [
   {
+    "id": "api-test-product",
+    "cat": "gaming",
+    "name": "API test product",
+    "nameEn": "",
+    "price": 1.11,
+    "emoji": "🧪",
+    "image": "",
+    "desc": "",
+    "descEn": ""
+  },
+  {
     "id": "c1",
     "cat": "cyber",
     "name": "حماية الحسابات — باقة أساسية",
