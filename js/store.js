@@ -1,70 +1,419 @@
 (function () {
   "use strict";
 
-  var DB_KEY = "major_cyber_db_v3";
-  var CART_KEY = "major_cyber_cart_v3";
+  var DB_KEY = "major_store_v4";
+  var CART_KEY = "major_store_cart_v4";
 
-  /* الشعار الدائري مع الحلقة اللونية المتغيرة باستمرار */
-  var LOGO_SVG = "<div class='logo-frame'><svg class='major-logo-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='majorGlow' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#22ffb5'/><stop offset='1' stop-color='#00d4ff'/></linearGradient></defs><circle cx='50' cy='50' r='34' fill='none' stroke='url(#majorGlow)' stroke-width='2'/><circle cx='50' cy='50' r='28' fill='#0b1322'/><g stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'><path d='M50 26 L74 40 L74 60 Q74 70 50 78 Q26 70 26 60 L26 40 Z'/></g><circle cx='40' cy='46' r='2.6' fill='#22ffb5'/><circle cx='60' cy='46' r='2.6' fill='#22ffb5'/><path d='M42 56 Q50 62 58 56' stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M30 84 L26 96 M50 86 L50 98 M70 84 L74 96' stroke='#22ffb5' stroke-width='2'/><text x='50' y='108' text-anchor='middle' font-family='Consolas,monospace' font-size='6' font-weight='700' fill='#22ffb5' letter-spacing='3'>CYBER&#160;TOOLS</text></svg></div>";
+  /* الشعار الدائري */
+  var LOGO_SVG = "<div class='logo-frame'><svg class='major-logo-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='mg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#22ffb5'/><stop offset='1' stop-color='#7b5fff'/></linearGradient></defs><circle cx='50' cy='50' r='34' fill='none' stroke='url(#mg)' stroke-width='2'/><circle cx='50' cy='50' r='28' fill='#060b16'/><g stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'><path d='M50 26 L74 40 L74 60 Q74 70 50 78 Q26 70 26 60 L26 40 Z'/></g><circle cx='40' cy='46' r='2.6' fill='#22ffb5'/><circle cx='60' cy='46' r='2.6' fill='#22ffb5'/><path d='M42 56 Q50 62 58 56' stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'/><text x='50' y='108' text-anchor='middle' font-family='Arial' font-size='6' font-weight='700' fill='#22ffb5' letter-spacing='3'>MAJOR</text></svg></div>";
+
+  /* ترجمة لجميع النصوص في الواجهة - تدعم العربية والإنجليزية */
+  var I18N = {
+    ar: {
+      siteTitle: "MAJOR STORE",
+      siteSub: "أدوات اختراق وبرامج إلكترونية",
+      navShop: "المتجر",
+      navCats: "الأقسام",
+      navAbout: "من نحن",
+      navContact: "تواصل",
+      navAdmin: "لوحة التحكم",
+      searchPh: "ابحث عن Kali، Metasploit، Burp…",
+      heroBadge: "Ethical Hacking · Penetration Testing",
+      heroLine1: "أدوات",
+      heroLine1Accent: "الاختراق الأخلاقي",
+      heroLine2: "وبرامج الأمن السيبراني",
+      heroText: "توزيعات لينكس احترافية، أدوات اختبار اختراق، بيئات تدريب افتراضية، وكتب منهجية للمحترفين والطلاب. كل شيء تحتاجه في مكان واحد.",
+      heroCta: "تصفح المنتجات",
+      heroSecondary: "انضم للديسكورد",
+      statClients: "عميل محترف",
+      statGuarantee: "ضمان المنتجات",
+      statSupport: "دعم تقني",
+      bullet1: "تجهيز فوري",
+      bullet2: "ضمان الجودة",
+      bullet3: "دعم على Discord",
+      bullet4: "مدفوعات مشفرة",
+      sectionCategories: "// الأقسام",
+      sectionAll: "جميع المنتجات",
+      sectionAllCount: "منتج",
+      sectionShop: "// let products = filteredList;",
+      sectionShopTitle1: "أدوات",
+      sectionShopTitle2: "احترافية",
+      resultCount: "منتج",
+      sortFeatured: "الأكثر تميزاً",
+      sortLow: "السعر: الأقل أولاً",
+      sortHigh: "السعر: الأعلى أولاً",
+      sortRating: "الأعلى تقييماً",
+      emptyTitle: "لم نجد نتيجة",
+      emptyText: "جرّب كلمة بحث أخرى أو تصفح جميع الأقسام.",
+      emptyAction: "عرض جميع المنتجات",
+      featIntro: "// why us",
+      featTitle1: "ليش يختارون المتخصصون",
+      featTitle2: "MAJOR STORE؟",
+      feat1Title: "منتجات مرخصة",
+      feat1Text: "كل الأدوات تأتي مرخصة أو من مصادر مفتوحة موثوقة، مع ضمان تفعيل.",
+      feat2Title: "تسليم لحظي",
+      feat2Text: "تستلم كود التفعيل أو ملف التوزيعة خلال دقائق بعد تأكيد الدفع.",
+      feat3Title: "دعم فني حقيقي",
+      feat3Text: "فريق متمكن في الأمن السيبراني يقدم دعماً فعلياً عبر Discord.",
+      feat4Title: "مدفوعات آمنة",
+      feat4Text: "Crypto, PayPal, Bank Card — كل المعاملات تتم بسرية تامة.",
+      aboutTitle1: "MAJOR STORE",
+      aboutTitle2: "أدوات الاختراق الأخلاقي",
+      aboutText: "متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية. كل ما يحتاجه المتخصص والممارس والطالب.",
+      aboutCta: "تواصل معنا",
+      newsletterTitle1: "اشترك في",
+      newsletterTitle2: "القائمة البريدية",
+      newsletterText: "احصل على آخر الأدوات والعروض مباشرة في بريدك.",
+      newsletterPh: "your@email.com",
+      newsletterBtn: "اشترك",
+      newsletterMsg: "تم الاشتراك بنجاح — شكراً لك ✦",
+      footerText: "Cybersecurity tools for professionals.",
+      copyright: "جميع الحقوق محفوظة.",
+      cartHead: "سلة التسوق",
+      cartEmpty: "السلة فارغة",
+      cartEmptyText: "أضف منتجاتك وستظهر هنا.",
+      cartBrowse: "تصفح المنتجات",
+      cartTotal: "الإجمالي",
+      cartCheckout: "إكمال الطلب",
+      cartIn: "✓ في السلة",
+      cartAdd: "＋ أضف للسلة",
+      cartAddFull: "إضافة إلى السلة",
+      cartStock: "موجود في المخزون",
+      cartQty: "الكمية",
+      cartView: "view",
+      cartClose: "×",
+      cartRemove: "حذف",
+      toastAdded: "تمت الإضافة للسلة",
+      toastRequired: "يرجى استكمال الحقول المطلوبة",
+      toastCouponInvalid: "كود الخصم غير صحيح",
+      toastOrderOk: "تم استلام طلبك {id}، سنتواصل معك قريباً",
+      toastOrderEmpty: "السلة فارغة",
+      checkoutTitle: "إكمال الطلب",
+      checkoutName: "الاسم الكامل",
+      checkoutNamePh: "اسمك الكامل",
+      checkoutPhone: "رقم الهاتف",
+      checkoutPhonePh: "07 xx xx xx xx",
+      checkoutEmail: "البريد الإلكتروني",
+      checkoutEmailPh: "you@example.com",
+      checkoutAddress: "الولاية / المدينة",
+      checkoutAddressPh: "الجزائر العاصمة",
+      checkoutPayment: "طريقة الدفع",
+      checkoutNote: "ملاحظات",
+      checkoutNotePh: "أي تفاصيل...",
+      checkoutTot: "المجموع",
+      checkoutSubmit: "تأكيد وتسليم",
+      checkoutNoteMsg: "سيتواصل معك خلال دقائق لتأكيد التسليم.",
+      couponPlaceholder: "كود الخصم (اختياري)",
+      couponApply: "تطبيق الخصم",
+      couponApplied: "تم تطبيق الخصم",
+      quickView: "عرض سريع",
+      addrLabel: "العنوان",
+      hours24: "24/7",
+      esc: "esc",
+      operatorCmd: "$"
+    },
+    en: {
+      siteTitle: "MAJOR STORE",
+      siteSub: "Hacking tools & electronic programs",
+      navShop: "Shop",
+      navCats: "Categories",
+      navAbout: "About",
+      navContact: "Contact",
+      navAdmin: "Admin",
+      searchPh: "Search Kali, Metasploit, Burp...",
+      heroBadge: "Ethical Hacking · Penetration Testing",
+      heroLine1: "Ethical Hacking",
+      heroLine1Accent: "Tools",
+      heroLine2: "& Cybersecurity Programs",
+      heroText: "Professional Linux distros, pentesting tools, training labs and methodology books. Everything you need in one place.",
+      heroCta: "Browse products",
+      heroSecondary: "Join Discord",
+      statClients: "Pro clients",
+      statGuarantee: "Products guarantee",
+      statSupport: "Tech support",
+      bullet1: "Instant delivery",
+      bullet2: "Guaranteed quality",
+      bullet3: "Discord support",
+      bullet4: "Crypto payments",
+      sectionCategories: "// Categories",
+      sectionAll: "All products",
+      sectionAllCount: "items",
+      sectionShop: "// let products = filteredList;",
+      sectionShopTitle1: "Pro",
+      sectionShopTitle2: "tools",
+      resultCount: "products",
+      sortFeatured: "Featured",
+      sortLow: "Price: Low to High",
+      sortHigh: "Price: High to Low",
+      sortRating: "Top rated",
+      emptyTitle: "No results found",
+      emptyText: "Try another keyword or browse all categories.",
+      emptyAction: "Show all products",
+      featIntro: "// why us",
+      featTitle1: "Why professionals choose",
+      featTitle2: "MAJOR STORE?",
+      feat1Title: "Licensed products",
+      feat1Text: "Every tool is licensed or comes from a trusted open-source project, with activation guarantee.",
+      feat2Title: "Instant delivery",
+      feat2Text: "You get the activation code or distro file within minutes after payment confirmation.",
+      feat3Title: "Real tech support",
+      feat3Text: "Cybersecurity experts ready to help you via Discord — pre and post purchase.",
+      feat4Title: "Secure payments",
+      feat4Text: "Crypto, PayPal, Visa/Master — every transaction is fully private.",
+      aboutTitle1: "MAJOR STORE",
+      aboutTitle2: "Ethical hacking toolbox",
+      aboutText: "Specialized store for pentesting tools, professional Linux distributions, virtual training environments and methodology books. Everything professionals, practitioners, and students need.",
+      aboutCta: "Contact us",
+      newsletterTitle1: "Subscribe to",
+      newsletterTitle2: "our newsletter",
+      newsletterText: "Be the first to get new tools, offers and CVE drops.",
+      newsletterPh: "your@email.com",
+      newsletterBtn: "Subscribe",
+      newsletterMsg: "Subscribed — check your inbox ✦",
+      footerText: "Cybersecurity tools for professionals.",
+      copyright: "All rights reserved.",
+      cartHead: "Shopping cart",
+      cartEmpty: "Your cart is empty",
+      cartEmptyText: "Add some products and they'll show up here.",
+      cartBrowse: "Browse products",
+      cartTotal: "Total",
+      cartCheckout: "Checkout",
+      cartIn: "✓ in cart",
+      cartAdd: "＋ Add",
+      cartAddFull: "Add to cart",
+      cartStock: "In stock",
+      cartQty: "Qty",
+      cartView: "view",
+      cartClose: "×",
+      cartRemove: "Remove",
+      toastAdded: "Added to cart",
+      toastRequired: "Please complete all required fields",
+      toastCouponInvalid: "Invalid coupon code",
+      toastOrderOk: "Order {id} received, we will contact you soon",
+      toastOrderEmpty: "Cart is empty",
+      checkoutTitle: "Checkout",
+      checkoutName: "Full name",
+      checkoutNamePh: "Your full name",
+      checkoutPhone: "Phone",
+      checkoutPhonePh: "07 xx xx xx xx",
+      checkoutEmail: "Email",
+      checkoutEmailPh: "you@example.com",
+      checkoutAddress: "Wilaya / City",
+      checkoutAddressPh: "Algiers",
+      checkoutPayment: "Payment method",
+      checkoutNote: "Notes",
+      checkoutNotePh: "Any details...",
+      checkoutTot: "Total",
+      checkoutSubmit: "Confirm & deliver",
+      checkoutNoteMsg: "We will contact you within minutes to confirm delivery.",
+      couponPlaceholder: "Coupon code (optional)",
+      couponApply: "Apply",
+      couponApplied: "Coupon applied",
+      quickView: "view",
+      addrLabel: "Address",
+      hours24: "24/7",
+      esc: "esc",
+      operatorCmd: "$"
+    }
+  };
 
   var DEFAULT_DB = {
     settings: {
-      brand: "MAJOR CYBER",
-      brandSubtitle: "TOOLS · EXPLOITS · LABS",
-      brandDescription: "متجر متخصص في أدوات الأمن السيبراني، توزيعات لينكس للاختبار، برامج اختراق، وكتب تعليمية للمحترفين والطلاب.",
-      announcement: "⚡ دورة كاملة للاختراق الأخلاقي متاحة الآن — خصم 30% لفترة محدودة",
+      brand: "MAJOR STORE",
+      brandSubtitle: {
+        ar: "أدوات اختراق وبرامج إلكترونية",
+        en: "Hacking tools & electronic programs"
+      },
+      announcement: {
+        ar: "⚡ دورة الاختراق الأخلاقي الكاملة بخصم 30% — لفترة محدودة",
+        en: "⚡ Full Ethical Hacking course 30% off — limited time"
+      },
       announcementEnabled: true,
-      heroBadge: "Ethical Hacking · Penetration Testing",
-      heroTitle: "أدوات الاختراق الأخلاقي وبرامج الأمن السيبراني",
-      heroText: "توزيعات لينكس احترافية، أدوات اختبار الاختراق، بيئات تدريب افتراضية، وكتب منهجية للمحترفين والطلاب.",
-      heroCta: "تصفح الأدوات",
-      heroSecondary: "انضم للديسكورد",
+      heroBadge: {
+        ar: "Ethical Hacking · Penetration Testing",
+        en: "Ethical Hacking · Penetration Testing"
+      },
+      heroTitle: {
+        ar: "أدوات||الاختراق الأخلاقي||وبرامج الأمن السيبراني",
+        en: "Ethical Hacking||Tools||& Cybersecurity Programs"
+      },
+      heroText: {
+        ar: I18N.ar.heroText,
+        en: I18N.en.heroText
+      },
+      heroCta: { ar: I18N.ar.heroCta, en: I18N.en.heroCta },
+      heroSecondary: { ar: I18N.ar.heroSecondary, en: I18N.en.heroSecondary },
       heroStats: [
-        { value: "500+", label: "عميل محترف" },
-        { value: "99.9%", label: "ضمان المنتجات" },
-        { value: "24/7", label: "دعم تقني" }
+        { ar: { value: "500+", label: "عميل محترف" }, en: { value: "500+", label: "Pro clients" } },
+        { ar: { value: "99.9%", label: "ضمان المنتجات" }, en: { value: "99.9%", label: "Product guarantee" } },
+        { ar: { value: "24/7", label: "دعم تقني" }, en: { value: "24/7", label: "Tech support" } }
       ],
       phone: "+213 770 12 34 56",
       whatsapp: "213770123456",
-      email: "support@majorcyber.store",
-      address: "الجزائر",
-      instagram: "@majorcyber.dz",
-      footerText: "Cybersecurity tools for professionals.",
-      currency: "دج",
-      paymentMethods: ["USDT (TRC20)", "Bitcoin (BTC)", "الدفع عند الاستلام", "BaridiMob"],
+      email: "support@majorstore.dz",
+      address: { ar: "الجزائر", en: "Algeria" },
+      instagram: "@majorstore.dz",
+      footerText: { ar: "أدوات قوية، اختيار ذكي.", en: "Cybersecurity tools for professionals." },
+      currency: "$",
+      currencyCode: "USD",
+      paymentMethods: [
+        "Bitcoin (BTC)",
+        "Ethereum (ETH)",
+        "USDT (TRC20)",
+        "USDT (ERC20)",
+        "Litecoin (LTC)",
+        "Monero (XMR)",
+        "PayPal",
+        "Visa / Mastercard",
+        "Western Union",
+        "Wise (TransferWise)",
+        "BaridiMob / CCP",
+        "الدفع عند الاستلام"
+      ],
       discordLink: "https://discord.gg/WrK7ttvq5g"
     },
     adminAuth: { user: "admin", pass: "yemavava91@@@@@#####" },
     categories: [
-      { id: "distros",  name: "توزيعات لينكس", icon: "🐧", color: "#0a2a1f" },
-      { id: "wireless", name: "أدوات WiFi والشبكة", icon: "📡", color: "#0d2438" },
-      { id: "web",     name: "اختبار تطبيقات الويب", icon: "🌐", color: "#1a0d35" },
-      { id: "exploit", name: "إطارات عمل الاختراق", icon: "💀", color: "#2a0a1a" },
-      { id: "courses", name: "دورات وكتب", icon: "📚", color: "#1d2611" },
-      { id: "malware", name: "تحليل البرمجيات الخبيثة", icon: "🦠", color: "#231510" },
-      { id: "osint",   name: "أدوات OSINT", icon: "🔍", color: "#0e1d2a" },
-      { id: "tools",   name: "برامج مساعدة", icon: "🛠️", color: "#1a1a0d" }
+      { id: "distros",   name: { ar: "توزيعات لينكس",   en: "Linux distros" },     icon: "🐧", color: "#0a2a1f" },
+      { id: "wireless",  name: { ar: "WiFi والشبكة",     en: "WiFi & network" },    icon: "📡", color: "#0d2438" },
+      { id: "web",       name: { ar: "اختبار تطبيقات الويب", en: "Web pentesting" },  icon: "🌐", color: "#1a0d35" },
+      { id: "exploit",   name: { ar: "إطارات الاختراق",   en: "Exploit frameworks" }, icon: "💀", color: "#2a0a1a" },
+      { id: "courses",   name: { ar: "دورات وكتب",         en: "Courses & books" },    icon: "📚", color: "#1d2611" },
+      { id: "malware",   name: { ar: "تحليل برمجيات خبيثة", en: "Malware analysis" },  icon: "🦠", color: "#231510" },
+      { id: "osint",     name: { ar: "أدوات OSINT",         en: "OSINT tools" },         icon: "🔍", color: "#0e1d2a" },
+      { id: "tools",     name: { ar: "برامج مساعدة",       en: "Utility tools" },       icon: "🛠", color: "#1a1a0d" }
     ],
     products: [
-      { id: "p1", category: "distros", name: "Kali Linux Pro 2026 (Pre-configured)", price: 2500, oldPrice: 3500, badge: "الأكثر مبيعاً", icon: "🐉", color: "#0d2235", stock: 25, description: "توزيعة Kali Linux مع 600+ أداة اختبار اختراق مثبتة ومُحدّثة. تشمل: Burp Suite, Metasploit, Nmap, Wireshark, John the Ripper. مع دليل تثبيت افتراضي.", rating: 4.9, reviews: 412 },
-      { id: "p2", category: "distros", name: "Parrot Security OS 6.0", price: 2300, oldPrice: 0, badge: "مستقر", icon: "🦜", color: "#0d3520", stock: 18, description: "توزيعة باروت للأمن السيبراني. مناسبة للاختبار الاحترافي والمحاكاة السحابية.", rating: 4.7, reviews: 156 },
-      { id: "p3", category: "exploit", name: "Metasploit Pro - رخصة سنوية", price: 8900, oldPrice: 12000, badge: "احترافي", icon: "💀", color: "#2a0a1a", stock: 6, description: "إطار عمل Metasploit الكامل لاختبار الاختراق (نسخة تعليمية مرخصة). يشمل تحديثات لمدة 12 شهراً.", rating: 5, reviews: 89 },
-      { id: "p4", category: "web", name: "Burp Suite Professional", price: 12500, oldPrice: 0, badge: "للويب", icon: "🌐", color: "#1a0d35", stock: 4, description: "أداة اختبار اختراق تطبيقات الويب الأشهر عالمياً. تشمل Scanner المتقدم والتحديثات السنوية.", rating: 4.9, reviews: 234 },
-      { id: "p5", category: "wireless", name: "WiFi Pineapple Mark VII", price: 18900, oldPrice: 22000, badge: "للشبكات", icon: "📡", color: "#0d2438", stock: 3, description: "جهاز اختبار اختراق الشبكات اللاسلكية الاحترافي. جاهز للعمل مع بيئة Pineapple UI.", rating: 4.8, reviews: 67 },
-      { id: "p6", category: "courses", name: "دورة OSCP الكاملة (PDF+LABS)", price: 4500, oldPrice: 0, badge: "تعليمي", icon: "🎓", color: "#1d2611", stock: 99, description: "دورة شاملة لإعداد شهادة OSCP. تشمل منهجية PDF كامل + بيئات تدريب افتراضية + تطبيقات CTF.", rating: 4.9, reviews: 512 },
-      { id: "p7", category: "courses", name: "كتاب Hacking: The Art of Exploitation", price: 1800, oldPrice: 2200, badge: "كلاسيكي", icon: "📕", color: "#1d2611", stock: 42, description: "الكتاب الكلاسيكي لتعلم الاختراق الأخلاقي وفهم استغلال الثغرات بعمق. النسخة العربية الكاملة.", rating: 4.8, reviews: 178 },
-      { id: "p8", category: "osint", name: "Maltego Community Edition", price: 0, oldPrice: 0, badge: "مجاني", icon: "🔍", color: "#0e1d2a", stock: 999, description: "أداة OSINT لتحليل العلاقات بين البيانات والمعلومات. النسخة المجانية مفتوحة المصدر.", rating: 4.7, reviews: 91 },
-      { id: "p9", category: "malware", name: "ANY.RUN Sandbox (اشتراك 3 أشهر)", price: 7600, oldPrice: 0, badge: "تحليل", icon: "🦠", color: "#231510", stock: 12, description: "بيئة رملية سحابية لتحليل البرمجيات الخبيثة بأمان. اشتراك 3 أشهر + تقارير قابلة للتصدير.", rating: 4.9, reviews: 56 },
-      { id: "p10", category: "tools", name: "Hashcat Pro (نسخة GPU)", price: 4900, oldPrice: 5800, badge: "لكسر التشفير", icon: "🔐", color: "#1a1a0d", stock: 20, description: "أداة كسر كلمات المرور الأسرع في العالم. مع جداول محدثة ودعم بطاقات GPU الحديثة.", rating: 4.8, reviews: 145 },
-      { id: "p11", category: "wireless", name: "Aircrack-ng Suite (للويندوز/لينكس)", price: 1500, oldPrice: 0, badge: "متوفر", icon: "🛜", color: "#0d2438", stock: 33, description: "حزمة Aircrack-ng الكاملة لاختبار الشبكات اللاسلكية. تشمل: airmon-ng, airodump-ng, aireplay-ng.", rating: 4.6, reviews: 88 },
-      { id: "p12", category: "courses", name: "دورة CEH v12 الكاملة (Arabic)", price: 6200, oldPrice: 7800, badge: "محدّث", icon: "📚", color: "#1d2611", stock: 50, description: "دورة Certified Ethical Hacker بنسخة عربية كاملة. تشمل محاضرات فيديو + تطبيقات LAB + امتحان تدريبي.", rating: 4.9, reviews: 367 }
+      {
+        id: "p1", category: "distros",
+        name: { ar: "Kali Linux Pro 2026", en: "Kali Linux Pro 2026" },
+        price: 18, oldPrice: 25,
+        badge: { ar: "الأكثر مبيعاً", en: "Best seller" },
+        specs: { ar: "600+ أداة مثبتة", en: "600+ tools pre-installed" },
+        icon: "🐉", color: "#0d2235", stock: 25,
+        description: { ar: "توزيعة Kali Linux مع 600+ أداة اختراق مثبتة، تشمل Metasploit، Burp، Nmap، Wireshark.", en: "Kali Linux with 600+ hacking tools pre-installed: Metasploit, Burp, Nmap, Wireshark." },
+        rating: 4.9, reviews: 412
+      },
+      {
+        id: "p2", category: "distros",
+        name: { ar: "Parrot Security OS 6.0", en: "Parrot Security OS 6.0" },
+        price: 15, oldPrice: 0,
+        badge: { ar: "مستقر", en: "Stable" },
+        specs: { ar: "توزيعة خفيفة ومرنة", en: "Lightweight & flexible" },
+        icon: "🦜", color: "#0d3520", stock: 18,
+        description: { ar: "توزيعة باروت للأمن السيبراني، مناسبة للاختبار الاحترافي والمحاكاة السحابية.", en: "Parrot OS for cybersecurity, ideal for pro pentesting and cloud labs." },
+        rating: 4.7, reviews: 156
+      },
+      {
+        id: "p3", category: "exploit",
+        name: { ar: "Metasploit Pro - رخصة سنوية", en: "Metasploit Pro - 1 Year" },
+        price: 65, oldPrice: 90,
+        badge: { ar: "احترافي", en: "Pro" },
+        specs: { ar: "12 شهراً تحديث", en: "12 months updates" },
+        icon: "💀", color: "#2a0a1a", stock: 6,
+        description: { ar: "إطار عمل Metasploit الكامل لاختبار الاختراق (نسخة تعليمية مرخصة) + تحديثات لمدة 12 شهراً.", en: "Full Metasploit framework for pentesting (educational license) + 12 months of updates." },
+        rating: 5, reviews: 89
+      },
+      {
+        id: "p4", category: "web",
+        name: { ar: "Burp Suite Professional", en: "Burp Suite Professional" },
+        price: 89, oldPrice: 0,
+        badge: { ar: "للويب", en: "Web" },
+        specs: { ar: "Scanner متقدم", en: "Advanced scanner" },
+        icon: "🌐", color: "#1a0d35", stock: 4,
+        description: { ar: "أداة اختبار تطبيقات الويب الأشهر عالمياً مع Scanner متقدم وتحديثات سنوية.", en: "The web penetration testing tool of choice worldwide, with advanced Scanner & yearly updates." },
+        rating: 4.9, reviews: 234
+      },
+      {
+        id: "p5", category: "wireless",
+        name: { ar: "WiFi Pineapple Mark VII", en: "WiFi Pineapple Mark VII" },
+        price: 140, oldPrice: 165,
+        badge: { ar: "للشبكات", en: "Network" },
+        specs: { ar: "جاهز للاستعمال", en: "Ready to use" },
+        icon: "📡", color: "#0d2438", stock: 3,
+        description: { ar: "جهاز اختبار اختراق الشبكات اللاسلكية الاحترافي مع واجهة Pineapple UI.", en: "Pro wireless pentesting device with Pineapple UI ready to operate." },
+        rating: 4.8, reviews: 67
+      },
+      {
+        id: "p6", category: "courses",
+        name: { ar: "دورة OSCP الكاملة", en: "Full OSCP Course" },
+        price: 32, oldPrice: 0,
+        badge: { ar: "تعليمي", en: "Educational" },
+        specs: { ar: "PDF + LABs + CTF", en: "PDF + LABs + CTF" },
+        icon: "🎓", color: "#1d2611", stock: 99,
+        description: { ar: "دورة شاملة لإعداد شهادة OSCP: منهجية PDF + LAB + CTF.", en: "Full course to prepare OSCP certification: PDF + LABs + CTF." },
+        rating: 4.9, reviews: 512
+      },
+      {
+        id: "p7", category: "courses",
+        name: { ar: "Hacking: The Art of Exploitation", en: "Hacking: The Art of Exploitation" },
+        price: 13, oldPrice: 16,
+        badge: { ar: "كلاسيكي", en: "Classic" },
+        specs: { ar: "نسخة عربية", en: "AR + EN edition" },
+        icon: "📕", color: "#1d2611", stock: 42,
+        description: { ar: "الكتاب الكلاسيكي لتعلم الاختراق الأخلاقي وفهم استغلال الثغرات بعمق.", en: "Classic book to master ethical hacking & exploit development in depth." },
+        rating: 4.8, reviews: 178
+      },
+      {
+        id: "p8", category: "osint",
+        name: { ar: "Maltego Community", en: "Maltego Community" },
+        price: 0, oldPrice: 0,
+        badge: { ar: "مجاني", en: "Free" },
+        specs: { ar: "مفتوح المصدر", en: "Open source" },
+        icon: "🔍", color: "#0e1d2a", stock: 999,
+        description: { ar: "أداة OSINT لتحليل العلاقات بين البيانات والمعلومات. النسخة المجانية.", en: "OSINT tool to analyze relationships between data. Free Community edition." },
+        rating: 4.7, reviews: 91
+      },
+      {
+        id: "p9", category: "malware",
+        name: { ar: "ANY.RUN Sandbox", en: "ANY.RUN Sandbox" },
+        price: 56, oldPrice: 0,
+        badge: { ar: "تحليل", en: "Analysis" },
+        specs: { ar: "3 أشهر", en: "3 months" },
+        icon: "🦠", color: "#231510", stock: 12,
+        description: { ar: "بيئة رملية سحابية لتحليل البرمجيات الخبيثة بأمان - 3 أشهر.", en: "Cloud sandbox for safely analyzing malware — 3 months subscription." },
+        rating: 4.9, reviews: 56
+      },
+      {
+        id: "p10", category: "tools",
+        name: { ar: "Hashcat Pro (GPU)", en: "Hashcat Pro (GPU)" },
+        price: 36, oldPrice: 42,
+        badge: { ar: "GPU", en: "GPU" },
+        specs: { ar: "NVIDIA/AMD", en: "NVIDIA/AMD" },
+        icon: "🔐", color: "#1a1a0d", stock: 20,
+        description: { ar: "أداة كسر كلمات المرور الأسرع في العالم مع جداول محدّثة.", en: "World's fastest password cracker with up-to-date hash tables." },
+        rating: 4.8, reviews: 145
+      },
+      {
+        id: "p11", category: "wireless",
+        name: { ar: "Aircrack-ng Suite", en: "Aircrack-ng Suite" },
+        price: 11, oldPrice: 0,
+        badge: { ar: "متوفر", en: "Available" },
+        specs: { ar: "Win/Linux", en: "Win/Linux" },
+        icon: "🛜", color: "#0d2438", stock: 33,
+        description: { ar: "حزمة Aircrack-ng الكاملة لاختبار الشبكات اللاسلكية.", en: "Full Aircrack-ng suite for wireless network testing." },
+        rating: 4.6, reviews: 88
+      },
+      {
+        id: "p12", category: "courses",
+        name: { ar: "دورة CEH v12", en: "CEH v12 Course" },
+        price: 45, oldPrice: 58,
+        badge: { ar: "محدّث", en: "Updated" },
+        specs: { ar: "عربي + امتحان", en: "AR + practice exam" },
+        icon: "📚", color: "#1d2611", stock: 50,
+        description: { ar: "دورة CEH v12 عربي: محاضرات + LABs + امتحان تدريبي.", en: "CEH v12 in Arabic: video lectures + LABs + practice exam." },
+        rating: 4.9, reviews: 367
+      }
     ],
     coupons: [
-      { code: "CYBER10", type: "percent", value: 10, active: true },
-      { code: "WELCOME", type: "fixed", value: 200, active: true }
+      { code: "MAJOR10", type: "percent", value: 10, active: true },
+      { code: "WELCOME5", type: "fixed", value: 5, active: true },
+      { code: "CRYPTO15", type: "percent", value: 15, active: true }
     ],
     orders: []
   };
+
+  var currentLang = (localStorage.getItem("major_lang_v4") === "en") ? "en" : "ar";
 
   function clone(v) { return JSON.parse(JSON.stringify(v)); }
   function merge(base, saved) {
@@ -77,19 +426,20 @@
     });
     return r;
   }
+
   function load() {
     try {
       var raw = localStorage.getItem(DB_KEY);
       if (!raw) {
-        var fresh = clone(DEFAULT_DB);
-        localStorage.setItem(DB_KEY, JSON.stringify(fresh));
-        return fresh;
+        localStorage.setItem(DB_KEY, JSON.stringify(clone(DEFAULT_DB)));
+        return clone(DEFAULT_DB);
       }
       var m = merge(DEFAULT_DB, JSON.parse(raw));
-      m.adminAuth = DEFAULT_DB.adminAuth; // لا تخزين بيانات الدخول المعدّلة من اللوحة
+      m.adminAuth = DEFAULT_DB.adminAuth;
       return m;
     } catch (e) { return clone(DEFAULT_DB); }
   }
+
   function save(db) {
     try {
       var s = clone(db);
@@ -99,13 +449,36 @@
       return true;
     } catch (e) { return false; }
   }
+
   function loadCart() {
     try { var v = JSON.parse(localStorage.getItem(CART_KEY) || "[]"); return Array.isArray(v) ? v : []; }
     catch (e) { return []; }
   }
   function saveCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); return true; } catch (e) { return false; } }
+
   function uid(p) { return (p || "id") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  function formatMoney(n, cur) { return Number(n || 0).toLocaleString("ar-DZ") + " " + (cur || "دج"); }
+
+  /* ترجمة أي قيمة بحسب اللغة الحالية */
+  function localize(v) {
+    if (v && typeof v === "object" && (v.ar !== undefined || v.en !== undefined)) return v[currentLang] || v.ar || v.en;
+    return v;
+  }
+
+  function formatMoney(n) {
+    return "$" + Number(n || 0).toFixed(2);
+  }
+
+  function setLang(lang) {
+    currentLang = (lang === "en") ? "en" : "ar";
+    localStorage.setItem("major_lang_v4", currentLang);
+    document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = currentLang;
+    window.dispatchEvent(new CustomEvent("major-lang-changed"));
+  }
+
+  function getLang() { return currentLang; }
+  function t(key) { var L = I18N[currentLang] || I18N.ar; return L[key] || I18N.ar[key] || key; }
+
   function getLogo() { return LOGO_SVG; }
   function getAdminAuth() { return Object.assign({}, DEFAULT_DB.adminAuth); }
 
@@ -113,7 +486,13 @@
     KEY: DB_KEY, load: load, save: save,
     loadCart: loadCart, saveCart: saveCart,
     uid: uid, formatMoney: formatMoney,
-    getLogo: getLogo, getAdminAuth: getAdminAuth,
+    localize: localize, getLogo: getLogo,
+    getAdminAuth: getAdminAuth, setLang: setLang,
+    getLang: getLang, t: t,
+    I18N: I18N,
     getDefault: function () { return clone(DEFAULT_DB); }
   };
+
+  /* تطبيق اللغة على الفور */
+  setLang(currentLang);
 })();

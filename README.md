@@ -1,37 +1,52 @@
-# MAJOR CYBER — Cybersecurity Tools Store
+# MAJOR STORE — Hacking Tools & Cybersecurity Programs
 
-متجر أدوات أمن سيبراني بهوية داكنة (cyber dark theme) ولوجو دائري متغيّر الألوان.
+متجر أدوات اختراق وبرامج إلكترونية بهوية cyber داكنة ولوجو دائري متغيّر الألوان، يحمل شعار "MAJOR STORE" في أعلى الموقع بشكل دائم.
 
-## الوصول
+## معلومات الدخول
 
-### المتجر
-افتح `index.html`.
+- **المتجر**: افتح `index.html`
+- **لوحة التحكم**: افتح `admin.html`
+- **username**: `admin`
+- **password**: `yemavava91@@@@@#####`
 
-### لوحة التحكم
-افتح `admin.html`:
-- **username:** `admin`
-- **password:** `yemavava91@@@@@#####`
+## مزايا الموقع
 
-## التشغيل السريع
+- ثيم cyber داكن بهوية neon (أخضر ساطع + سماوي + بنفسجي)
+- 🖼️ بارنر MAJOR STORE ثابت في أعلى الموقع (دائم الظهور)
+- 💵 أسعار بالدولار الأمريكي فقط ($)
+- 🌍 دعم اللغتين العربية والإنجليزية - زر `AR/EN` للتنقل بين اللغات
+- 💰 طرق دفع متعددة: Bitcoin, Ethereum, USDT (TRC20/ERC20), Litecoin, Monero, PayPal, Visa/Mastercard, Western Union, Wise, BaridiMob/CCP, الدفع عند الاستلام
+- 🎟️ كوبونات خصم قابلة للتعديل
+- 📝 كل نص (منتجات، أقسام، واجهة) قابل للتعديل بـ AR/EN من لوحة التحكم
+- 🛒 سلة شراء + طلب + كوبونات
+- 🏪 8 أقسام، 12 منتج جاهز
+
+## التشغيل
 
 ```bash
+cd store
 python3 -m http.server 8080
 ```
 
-ثم:
-- المتجر: http://localhost:8080/index.html
-- اللوحة: http://localhost:8080/admin.html
+ثم افتح:
+- `http://localhost:8080/index.html` → المتجر
+- `http://localhost:8080/admin.html` → لوحة التحكم
 
-## المزايا
+## بنية المشروع
 
-- تصميم cyber dark بشعار دائري متغيّر الألوان
-- بيانات افتراضية: 12 منتج، 8 أقسام، 4 أكواد خصم، 4 طرق دفع
-- لوحة تحكم كاملة (منتجات، أقسام، واجهة، طلبات، إعدادات)
-- بحث وتصفية وفرز المنتجات
-- سلة + دفع بنموذج حقيقي + كوبونات
-- إشعارات Toast عند الإضافة/الحذف
-- استجابة كاملة للجوال
+```text
+store/
+├── index.html        متجر الواجهة
+├── admin.html        لوحة التحكم
+├── css/style.css     ستايل المتجر
+├── css/admin.css     ستايل اللوحة
+├── js/store.js       قاعدة بيانات + i18n + localStorage
+├── js/app.js         منطق المتجر
+├── js/admin.js       منطق الإدارة
+├── images/major-banner.png  البانر الثابت
+├── package.json
+├── vercel.json
+└── README.md
+```
 
-## التخزين
-
-تُحفظ البيانات في `localStorage` للمتصفح، لا تحتاج GH_TOKEN أو قاعدة بيانات خارجية.
+> يتم تخزين البيانات في `localStorage` بالمتصفح. لا حاجة لـ GH_TOKEN أو سيرفر خارجي.

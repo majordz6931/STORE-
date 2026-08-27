@@ -1,4 +1,5 @@
-/* MAJOR CYBER — admin shell */
+/* MAJOR STORE — Admin control panel */
+
 :root{
   --bg:#06090f; --bg-2:#0b1322;
   --surface:#0e1729; --surface-2:#11203a;
@@ -12,12 +13,12 @@
   --shadow:0 24px 60px rgba(0,0,0,.6);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Inter","Tajawal","Cairo",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;direction:rtl;min-height:100vh}
+body{font-family:"Inter","Tajawal","Cairo",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
 button,input,textarea,select{font:inherit;color:inherit}
 button{border:0;background:0;cursor:pointer}
 a{text-decoration:none;color:inherit}
 
-/* Logo with animated ring */
+/* Animated ring logo */
 .logo-frame{position:relative;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .major-logo-svg{width:100%;height:100%;display:block;position:relative;z-index:4;filter:drop-shadow(0 0 8px rgba(34,255,181,.4))}
 .logo-frame::before{content:"";position:absolute;inset:0;border-radius:50%;padding:3px;background:conic-gradient(from 0deg,#22ffb5,#00d4ff,#7b5fff,#ff5670,#22ffb5,#fff,#22ffb5);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:logoSpin 4s linear infinite}
@@ -26,7 +27,7 @@ a{text-decoration:none;color:inherit}
 
 .login-mark,#sideMark{position:relative;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg-2);overflow:hidden}
 .login-mark::before,#sideMark::before{content:"";position:absolute;inset:0;border-radius:50%;padding:3px;background:conic-gradient(from 0deg,#22ffb5,#00d4ff,#7b5fff,#ff5670,#22ffb5,#fff,#22ffb5);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:logoSpin 4s linear infinite}
-.login-mark::after,#sideMark::after{content:"";position:absolute;inset:-8px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(34,255,181,.4),transparent 50%,rgba(0,212,255,.3),transparent);animation:logoSpin 4s linear infinite reverse;filter:blur(8px)}
+.login-mark::after,#sideMark::after{content:"";position:absolute;inset:-8px;border-radius:50%;background:conic-gradient(from 0deg,transparent,rgba(34,255,181,.4),transparent 50%,rgba(0,212,255,.3),transparent);animation:logoSpin 4s linear infinite reverse;filter:blur(8px);z-index:1}
 .login-mark svg,#sideMark svg{width:100%;height:100%;position:relative;z-index:5}
 .side-brand>span{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--bg-2);position:relative;overflow:hidden}
 .side-brand>span::before{content:"";position:absolute;inset:0;border-radius:10px;padding:2px;background:conic-gradient(from 0deg,#22ffb5,#00d4ff,#7b5fff,#ff5670,#22ffb5);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:logoSpin 4s linear infinite}
@@ -46,9 +47,9 @@ a{text-decoration:none;color:inherit}
 
 /* Login */
 .login-screen{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--bg)}
-.login-art{background:linear-gradient(145deg,#060b16,#0d2235,#11203a);position:relative;display:flex;flex-direction:column;justify-content:center;padding:8%;overflow:hidden;border-left:1px solid var(--line)}
-.login-orb{position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(34,255,181,.4),transparent 65%);filter:blur(40px);opacity:.3;top:-120px;right:-120px}
+.login-art{background:linear-gradient(145deg,#060b16,#0d2235,#11203a);position:relative;display:flex;flex-direction:column;justify-content:center;padding:8%;overflow:hidden}
 .login-art::after{content:"";position:absolute;width:550px;height:550px;border:1px dashed rgba(34,255,181,.15);border-radius:50%;left:-180px;bottom:-200px;box-shadow:0 0 0 50px rgba(34,255,181,.04),0 0 0 100px rgba(34,255,181,.025)}
+.login-orb{position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle at 30% 30%,rgba(34,255,181,.4),transparent 65%);filter:blur(40px);opacity:.3;top:-120px;right:-120px}
 .login-mark{display:flex;align-items:center;justify-content:center;margin-bottom:32px;z-index:2}
 .login-art h1{font-size:72px;line-height:.9;letter-spacing:-4px;margin:0 0 18px;color:var(--ink);z-index:2;font-weight:800}
 .login-art h1 em{font-style:normal;background:linear-gradient(120deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -65,9 +66,10 @@ a{text-decoration:none;color:inherit}
 .back-store{display:block;text-align:center;color:var(--ink-mid);font-size:13px;margin-top:26px;font-family:"Fira Code",monospace}
 .back-store:hover{color:var(--green)}
 
-/* Shell */
+/* Sidebar + shell */
 .dashboard{display:flex;min-height:100vh}
 .sidebar{width:260px;background:linear-gradient(180deg,#060b16,#0b1322);color:var(--ink-mid);display:flex;flex-direction:column;padding:24px 14px;position:fixed;inset:0 auto 0 0;z-index:15;border-right:1px solid var(--line)}
+[dir="rtl"] .sidebar{inset:0 0 0 auto;border-right:0;border-left:1px solid var(--line)}
 .side-brand{display:flex;align-items:center;gap:10px;color:var(--ink);padding:0 8px 28px}
 .side-brand b{display:block;font-size:14px;color:var(--ink)}
 .side-brand small{font-size:8px;letter-spacing:.22em;color:var(--green);font-family:"Fira Code",monospace}
@@ -87,19 +89,23 @@ a{text-decoration:none;color:inherit}
 .side-bottom a:hover,.side-bottom button:hover{color:var(--green)}
 
 .admin-main{margin-left:260px;width:calc(100% - 260px);min-height:100vh}
+[dir="rtl"] .admin-main{margin-left:0;margin-right:260px}
 .admin-header{height:90px;background:rgba(6,9,15,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 38px;position:sticky;top:0;z-index:10}
 .admin-header h1{font-size:24px;margin-top:3px;color:var(--green);font-family:"Fira Code",monospace;letter-spacing:-.5px}
-.admin-head-actions{display:flex;align-items:center;gap:18px}
+.admin-head-actions{display:flex;align-items:center;gap:14px}
 .last-sync{font-size:11px;color:var(--ink-mid);font-family:"Fira Code",monospace}
 .last-sync i{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
 .view-store{color:var(--green);font-size:12px;font-weight:700;font-family:"Fira Code",monospace;border:1px solid var(--line);padding:7px 12px;border-radius:8px}
 .view-store:hover{border-color:var(--green)}
+.lang-switch{width:42px;height:42px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:12px;font-weight:700;font-family:"Fira Code",monospace}
+.lang-switch:hover{border-color:var(--green)}
 .mobile-side{display:none}
-.admin-content{padding:30px 38px;max-width:100%}
+
+.scan-line{position:fixed;inset:0;pointer-events:none;z-index:1;background:repeating-linear-gradient(0deg,transparent 0,transparent 2px,rgba(0,212,255,.02) 3px,transparent 4px)}
+.admin-content{padding:30px 38px;max-width:100%;position:relative;z-index:5}
 .admin-panel{display:none}
 .admin-panel.active{display:block}
 .welcome-card{background:linear-gradient(135deg,var(--bg-2),#0d1f3a);border:1px solid var(--line);border-radius:18px;padding:32px 36px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
-.welcome-card::before{content:"";position:absolute;width:300px;height:300px;border:1px solid rgba(34,255,181,.15);border-radius:50%;left:-50px;top:-120px;box-shadow:0 0 0 40px rgba(34,255,181,.04)}
 .welcome-card::after{content:"$ welcome_root_user --level=admin",position:absolute;top:14px;right:36px;font-family:"Fira Code",monospace;font-size:10px;color:var(--muted);opacity:.3}
 .welcome-card h2{font-size:28px;margin:10px 0 6px;color:var(--ink);position:relative;z-index:1}
 .welcome-card h2 em{color:var(--green);font-style:normal;font-family:"Fira Code",monospace}
@@ -177,6 +183,7 @@ a{text-decoration:none;color:inherit}
 .admin-category button{color:var(--red);font-size:20px;background:transparent;border:0;cursor:pointer}
 .admin-form,.form-section{display:flex;flex-direction:column;gap:13px}
 .two-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .form-section .card-title{margin-bottom:2px}
 .form-section .card-title h3{font-size:15px;color:var(--green);font-family:"Fira Code",monospace}
 .stat-edit{display:grid;grid-template-columns:100px 1fr;gap:8px}
@@ -204,13 +211,14 @@ a{text-decoration:none;color:inherit}
 .status-cancelled{color:var(--red);border-color:var(--red)}
 .table-empty{text-align:center;padding:50px;color:var(--ink-mid);font-size:12.5px;font-family:"Fira Code",monospace}
 
-/* Product editor (slide-in) */
+/* Slide-in product editor */
 .product-editor{position:fixed;inset:0;z-index:100;visibility:hidden;pointer-events:none}
 .product-editor.open{visibility:visible;pointer-events:auto}
 .editor-backdrop{position:absolute;inset:0;background:rgba(6,9,15,.7);backdrop-filter:blur(4px);opacity:0;transition:.25s}
 .product-editor.open .editor-backdrop{opacity:1}
-.editor-panel{position:absolute;top:0;bottom:0;left:0;width:min(520px,100%);background:var(--bg-2);border-right:1px solid var(--line);padding:30px;overflow:auto;transform:translateX(-110%);transition:.3s;box-shadow:24px 0 50px rgba(0,0,0,.4)}
-.product-editor.open .editor-panel{transform:translateX(0)}
+.editor-panel{position:absolute;top:0;bottom:0;left:0;width:min(540px,100%);background:var(--bg-2);border-right:1px solid var(--line);padding:30px;overflow:auto;transform:translateX(-110%);transition:.3s;box-shadow:24px 0 50px rgba(0,0,0,.4)}
+[dir="rtl"] .editor-panel{left:auto;right:0;border-right:0;border-left:1px solid var(--line);transform:translateX(110%)}
+.product-editor.open .editor-panel,[dir="rtl"] .product-editor.open .editor-panel{transform:translateX(0)}
 .editor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
 .editor-head h2{font-size:22px;color:var(--green);font-family:"Fira Code",monospace}
 .editor-head .eyebrow.cyan{margin-bottom:0}
@@ -224,13 +232,15 @@ a{text-decoration:none;color:inherit}
 
 @media(max-width:1000px){
   .sidebar{transform:translateX(-100%);transition:.25s}
+  [dir="rtl"] .sidebar{transform:translateX(100%);border-right:0;border-left:1px solid var(--line)}
   .dashboard.side-open .sidebar{transform:translateX(0)}
-  .admin-main{margin-left:0;width:100%}
+  .admin-main{margin-left:0;margin-right:0;width:100%}
   .mobile-side{display:inline-block;font-size:22px;margin-right:8px;color:var(--green);background:transparent;border:1px solid var(--line);width:36px;height:36px;border-radius:8px}
   .admin-header{padding:0 22px}
   .admin-content{padding:24px 22px}
   .metric-grid{grid-template-columns:repeat(2,1fr)}
   .overview-grid,.category-admin-layout,.settings-layout{grid-template-columns:1fr}
+  .three-fields{grid-template-columns:1fr 1fr}
 }
 @media(max-width:620px){
   .login-screen{grid-template-columns:1fr}
@@ -248,7 +258,7 @@ a{text-decoration:none;color:inherit}
   .panel-top{align-items:flex-start;flex-direction:column;gap:12px}
   .toolbar{flex-direction:column}
   .admin-search{max-width:none;width:100%;min-height:42px}
-  .two-fields{grid-template-columns:1fr}
+  .two-fields,.three-fields{grid-template-columns:1fr}
   .editor-panel{padding:24px}
   .stat-edit{grid-template-columns:80px 1fr}
 }

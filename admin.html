@@ -3,34 +3,34 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b1322" />
-  <title>MAJOR CYBER — لوحة التحكم</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-cyber" />
+  <meta name="theme-color" content="#060b16" />
+  <title>MAJOR STORE — Control Panel</title>
+  <link rel="stylesheet" href="css/admin.css?v=2026-major2" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
     <div class="login-art">
       <div class="login-orb"></div>
       <span class="login-mark" id="loginMark"></span>
-      <h1>MAJOR<br /><em>CYBER</em></h1>
-      <p>لوحة تحكم المسؤول — حماية كاملة للبيانات.</p>
+      <h1>MAJOR<br /><em>CONTROL</em></h1>
+      <p>Admin Control Panel — full access.</p>
       <div class="login-tags">
         <span>● AES-256</span>
         <span>● TLS 1.3</span>
-        <span>● TOTP Ready</span>
+        <span>● USD pricing</span>
       </div>
     </div>
     <div class="login-box">
-      <span class="eyebrow">// admin login</span>
-      <h2>authenticate</h2>
-      <p>أدخل بيانات اعتمادك للوصول إلى لوحة التحكم.</p>
+      <span class="eyebrow">// authenticate</span>
+      <h2>login()</h2>
+      <p>أدخل بياناتك للوصول إلى لوحة الإدارة.</p>
       <form id="loginForm">
         <label>User<input id="loginUser" required autocomplete="username" value="admin" /></label>
         <label>Pass<input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••••••••" /></label>
         <button class="btn primary full" type="submit">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
-      <a class="back-store" href="index.html">← العودة إلى MAJOR CYBER</a>
+      <a class="back-store" href="index.html">← back to MAJOR STORE</a>
     </div>
   </div>
 
@@ -38,7 +38,7 @@
     <aside class="sidebar" id="sidebar">
       <div class="side-brand">
         <span id="sideMark"></span>
-        <div><b>MAJOR CYBER</b><small>CONTROL CENTER</small></div>
+        <div><b>MAJOR STORE</b><small>Control Center</small></div>
       </div>
       <div class="side-profile">
         <div class="avatar">A</div>
@@ -46,12 +46,13 @@
         <i>●</i>
       </div>
       <nav class="side-nav">
-        <p>main</p>
+        <p>// main</p>
         <button class="nav-item active" data-panel="overview"><span>⌂</span>overview</button>
         <button class="nav-item" data-panel="products"><span>▦</span>Products <b id="productBadge">0</b></button>
         <button class="nav-item" data-panel="categories"><span>◈</span>Categories</button>
-        <p>storefront</p>
-        <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & copy</button>
+        <button class="nav-item" data-panel="payments"><span>$</span>Payment Methods</button>
+        <p>// storefront</p>
+        <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & Copy</button>
         <button class="nav-item" data-panel="orders"><span>↗</span>Orders <b id="orderBadge">0</b></button>
         <button class="nav-item" data-panel="settings"><span>⚙</span>Settings</button>
       </nav>
@@ -60,6 +61,7 @@
         <button id="logoutBtn">⇥ logout</button>
       </div>
     </aside>
+
     <main class="admin-main">
       <header class="admin-header">
         <div>
@@ -68,41 +70,43 @@
           <h1 id="pageTitle">overview</h1>
         </div>
         <div class="admin-head-actions">
+          <button class="lang-switch" id="langSwitch" aria-label="Language"><span>EN</span></button>
           <span class="last-sync">all data is saved locally <i></i></span>
           <a class="view-store" href="index.html" target="_blank">live preview ↗</a>
         </div>
       </header>
+
       <div class="admin-content">
         <section class="admin-panel active" id="panel-overview">
           <div class="welcome-card">
             <div>
               <span class="eyebrow cyan">// hello admin</span>
               <h2>Welcome back, <em>root</em></h2>
-              <p>إليك ملخص سريع لعمليات MAJOR CYBER اليوم.</p>
+              <p>إليك ملخص سريع لعمليات MAJOR STORE اليوم.</p>
             </div>
             <div class="welcome-art">_<span>$</span></div>
           </div>
           <div class="metric-grid">
-            <article><span class="metric-icon cyan">▦</span><small>المنتجات</small><strong id="metricProducts">0</strong><b>نشط</b></article>
-            <article><span class="metric-icon green">↗</span><small>الطلبات</small><strong id="metricOrders">0</strong><b>محفوظ</b></article>
-            <article><span class="metric-icon orange">◷</span><small>قيد الانتظار</small><strong id="metricPending">0</strong><b>يحتاج متابعة</b></article>
-            <article><span class="metric-icon purple">$</span><small>المبيعات</small><strong id="metricRevenue">0 دج</strong><b>إجمالي</b></article>
+            <article><span class="metric-icon cyan">▦</span><small>Products</small><strong id="metricProducts">0</strong><b>active</b></article>
+            <article><span class="metric-icon green">↗</span><small>Orders</small><strong id="metricOrders">0</strong><b>total</b></article>
+            <article><span class="metric-icon orange">◷</span><small>Pending</small><strong id="metricPending">0</strong><b>needs action</b></article>
+            <article><span class="metric-icon purple">$</span><small>Revenue</small><strong id="metricRevenue">$0.00</strong><b>in USD</b></article>
           </div>
           <div class="overview-grid">
             <div class="panel-card">
               <div class="card-title">
-                <div><span class="eyebrow cyan">// recent activity</span><h3>آخر الطلبات</h3></div>
-                <button class="link-btn" data-go="orders">عرض الكل →</button>
+                <div><span class="eyebrow cyan">// recent activity</span><h3>Recent orders</h3></div>
+                <button class="link-btn" data-go="orders">view all →</button>
               </div>
               <div class="mini-orders" id="miniOrders"></div>
             </div>
             <div class="panel-card quick-actions">
               <div class="card-title">
-                <div><span class="eyebrow cyan">// quick actions</span><h3>wat u wanna do?</h3></div>
+                <div><span class="eyebrow cyan">// quick actions</span><h3>what now?</h3></div>
               </div>
-              <button data-go="products"><span>＋</span><div><b>add product</b><small>أضف منتجاً جديداً للسوق</small></div><i>⟩⟩</i></button>
-              <button data-go="homepage"><span>✦</span><div><b>edit hero copy</b><small>نصوص وأرقام الصفحة الأمامية</small></div><i>⟩⟩</i></button>
-              <button data-go="settings"><span>⚙</span><div><b>settings</b><small>إعدادات الهوية والدفع</small></div><i>⟩⟩</i></button>
+              <button data-go="products"><span>＋</span><div><b>add product</b><small>add new product to the storefront</small></div><i>⟩⟩</i></button>
+              <button data-go="payments"><span>$</span><div><b>payment methods</b><small>tweak crypto & fiat methods</small></div><i>⟩⟩</i></button>
+              <button data-go="settings"><span>⚙</span><div><b>settings</b><small>identity & contact details</small></div><i>⟩⟩</i></button>
             </div>
           </div>
         </section>
@@ -112,7 +116,7 @@
             <div>
               <span class="eyebrow cyan">// catalog</span>
               <h2>Products</h2>
-              <p>أضف، عدّل، احذف، أو فعّل المنتجات في السوق.</p>
+              <p>Add, edit, delete or toggle products. Prices in USD.</p>
             </div>
             <button class="btn primary" id="newProductBtn">＋ new product</button>
           </div>
@@ -120,8 +124,8 @@
             <div class="admin-search">grep<input id="adminProductSearch" placeholder="search products..." /></div>
             <select id="adminProductSort">
               <option value="new">newest first</option>
-              <option value="low">price asc</option>
-              <option value="high">price desc</option>
+              <option value="low">price ↑</option>
+              <option value="high">price ↓</option>
             </select>
           </div>
           <div class="product-admin-grid" id="adminProductsGrid"></div>
@@ -132,7 +136,7 @@
             <div>
               <span class="eyebrow cyan">// organization</span>
               <h2>Categories</h2>
-              <p>التحكم في فئات المنتجات التي تظهر في الواجهة الرئيسية.</p>
+              <p>Control what categories appear in the storefront.</p>
             </div>
           </div>
           <div class="category-admin-layout">
@@ -143,7 +147,7 @@
             <div class="panel-card">
               <div class="card-title"><h3>add new category</h3></div>
               <form id="categoryForm" class="admin-form">
-                <label>name<input id="categoryName" required placeholder="e.g. Mobile Security" /></label>
+                <label>name (AR / EN)<input id="categoryName" required placeholder="Mobile Security" /></label>
                 <div class="two-fields">
                   <label>icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
                   <label>color<input id="categoryColor" type="color" value="#0d2235" /></label>
@@ -154,31 +158,48 @@
           </div>
         </section>
 
+        <section class="admin-panel" id="panel-payments">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// checkout</span>
+              <h2>Payment Methods</h2>
+              <p>Add, remove or reorder the payment methods shown to customers (CRYPTO & FIAT supported).</p>
+            </div>
+            <span class="save-state" id="paymentsSaved"></span>
+          </div>
+          <div class="panel-card">
+            <form id="paymentForm" class="admin-form">
+              <label>Payment methods (one per line)<small style="color:var(--muted);margin-top:4px">Include Crypto, FIAT, E-Wallets. Examples: "Bitcoin (BTC)", "USDT (TRC20)", "PayPal"</small>
+                <textarea id="paymentMethods" rows="8" placeholder="Bitcoin (BTC)&#10;USDT (TRC20)&#10;PayPal"></textarea>
+              </label>
+              <button class="btn primary full" type="submit">save payment methods</button>
+            </form>
+          </div>
+        </section>
+
         <section class="admin-panel" id="panel-homepage">
           <div class="panel-top">
             <div>
               <span class="eyebrow cyan">// storefront</span>
               <h2>Hero & Copy</h2>
-              <p>عدّل العنوان الرئيسي والإحصائيات من لوحة الإدارة.</p>
+              <p>Update homepage text. Both Arabic and English versions must be filled.</p>
             </div>
             <span class="save-state" id="homeSaved"></span>
           </div>
           <form id="homepageForm" class="settings-layout">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>hero section</h3><span>content</span></div>
-              <label>badge<input id="homeBadge" /></label>
-              <label>title<textarea id="homeTitle" rows="3"></textarea></label>
-              <label>description<textarea id="homeText" rows="3"></textarea></label>
-              <div class="two-fields">
-                <label>CTA button<input id="homeCta" /></label>
-                <label>secondary CTA<input id="homeSecondary" /></label>
-              </div>
+              <div class="card-title"><h3>AR — Arabic</h3></div>
+              <label>badge<input id="homeBadge" dir="rtl" /></label>
+              <label>title (use || to force <br>)<textarea id="homeTitle" rows="3" dir="rtl"></textarea></label>
+              <label>description<textarea id="homeText" rows="3" dir="rtl"></textarea></label>
+              <div class="two-fields"><label>CTA<input id="homeCta" dir="rtl" /></label><label>secondary<input id="homeSecondary" dir="rtl" /></label></div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>stats (3 items)</h3><span>homepage metrics</span></div>
-              <div class="stat-edit"><input id="stat1Value" placeholder="500+" /><input id="stat1Label" placeholder="عميل محترف" /></div>
-              <div class="stat-edit"><input id="stat2Value" placeholder="99.9%" /><input id="stat2Label" placeholder="ضمان المنتجات" /></div>
-              <div class="stat-edit"><input id="stat3Value" placeholder="24/7" /><input id="stat3Label" placeholder="دعم تقني" /></div>
+              <div class="card-title"><h3>EN — English</h3></div>
+              <label>badge<input id="homeBadgeEn" /></label>
+              <label>title<textarea id="homeTitleEn" rows="3"></textarea></label>
+              <label>description<textarea id="homeTextEn" rows="3"></textarea></label>
+              <div class="two-fields"><label>CTA<input id="homeCtaEn" /></label><label>secondary<input id="homeSecondaryEn" /></label></div>
               <button class="btn primary full" type="submit">save changes</button>
             </div>
           </form>
@@ -189,15 +210,13 @@
             <div>
               <span class="eyebrow cyan">// sales</span>
               <h2>Orders</h2>
-              <p>راجع طلبات العملاء وحدث حالتها.</p>
+              <p>Review customer orders and update their status.</p>
             </div>
             <button class="btn outline" id="clearOrdersBtn">clear all</button>
           </div>
           <div class="orders-table-wrap">
             <table class="orders-table">
-              <thead>
-                <tr><th>order</th><th>client</th><th>address</th><th>total</th><th>payment</th><th>status</th><th></th></tr>
-              </thead>
+              <thead><tr><th>order</th><th>client</th><th>address</th><th>total</th><th>payment</th><th>status</th><th></th></tr></thead>
               <tbody id="ordersTable"></tbody>
             </table>
             <div class="table-empty" id="ordersEmpty">no orders yet.</div>
@@ -209,34 +228,43 @@
             <div>
               <span class="eyebrow cyan">// brand</span>
               <h2>Settings</h2>
-              <p>إعدادات الهوية، بيانات التواصل، وطرق الدفع.</p>
+              <p>Identity, contact details & currency. Prices are USD only.</p>
             </div>
             <span class="save-state" id="settingsSaved"></span>
           </div>
           <form id="settingsForm" class="settings-layout">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>identity & contact</h3></div>
+              <div class="card-title"><h3>identity</h3></div>
               <div class="two-fields">
                 <label>brand<input id="settingBrand" required /></label>
-                <label>subtitle<input id="settingSubtitle" /></label>
+                <label>codecurrency<input id="settingCurrency" value="USD" disabled /></label>
               </div>
-              <label>brand description<input id="settingDesc" /></label>
-              <label>footer text<input id="settingFooter" /></label>
+              <div class="two-fields">
+                <label>subtitle (AR)<input id="settingSubAR" dir="rtl" /></label>
+                <label>subtitle (EN)<input id="settingSubEN" /></label>
+              </div>
+              <div class="two-fields">
+                <label>footer (AR)<input id="settingFooterAR" dir="rtl" /></label>
+                <label>footer (EN)<input id="settingFooterEN" /></label>
+              </div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>contact</h3></div>
               <label>phone<input id="settingPhone" /></label>
               <div class="two-fields">
                 <label>whatsapp<input id="settingWhatsapp" /></label>
                 <label>email<input id="settingEmail" type="email" /></label>
               </div>
-              <label>address<input id="settingAddress" /></label>
+              <div class="two-fields">
+                <label>address (AR)<input id="settingAddrAR" dir="rtl" /></label>
+                <label>address (EN)<input id="settingAddrEN" /></label>
+              </div>
               <label>discord link<input id="settingDiscord" type="url" /></label>
-            </div>
-            <div class="panel-card form-section">
-              <div class="card-title"><h3>announcement bar</h3></div>
-              <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>announcement active</label>
-              <label>announcement<textarea id="settingAnnouncement" rows="3"></textarea></label>
-              <div class="card-title space-top"><h3>payment methods</h3></div>
-              <p class="hint">one method per line.</p>
-              <textarea id="settingPayments" rows="5"></textarea>
+              <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>enable announcement bar</label>
+              <div class="two-fields">
+                <label>announcement (AR)<textarea id="settingAnnouncementAR" rows="2" dir="rtl"></textarea></label>
+                <label>announcement (EN)<textarea id="settingAnnouncementEN" rows="2"></textarea></label>
+              </div>
               <button class="btn primary full" type="submit">save settings</button>
             </div>
           </form>
@@ -245,6 +273,7 @@
     </main>
   </div>
 
+  <!-- ===== محرر المنتج ===== -->
   <div class="product-editor" id="productEditor">
     <div class="editor-backdrop" data-close-editor></div>
     <div class="editor-panel">
@@ -257,24 +286,29 @@
       </div>
       <form id="productForm" class="admin-form">
         <input id="productId" type="hidden" />
-        <label>name<input id="productName" required /></label>
-        <label>name (EN)<input id="productNameEn" /></label>
         <div class="two-fields">
+          <label>name (AR)<input id="productNameAR" dir="rtl" required /></label>
+          <label>name (EN)<input id="productNameEN" required /></label>
+        </div>
+        <label>tagline (AR)<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
+        <label>tagline (EN)<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
+        <div class="three-fields">
           <label>category<select id="productCategory"></select></label>
-          <label>price<input id="productPrice" type="number" min="0" step="0.01" required /></label>
+          <label>price USD<input id="productPrice" type="number" min="0" step="0.01" required /></label>
+          <label>old price<input id="productOldPrice" type="number" min="0" step="0.01" /></label>
         </div>
-        <div class="two-fields">
-          <label>old price<input id="productOldPrice" type="number" min="0" /></label>
+        <div class="three-fields">
           <label>stock<input id="productStock" type="number" min="0" value="10" /></label>
-        </div>
-        <div class="two-fields">
           <label>icon<input id="productIcon" value="✦" maxlength="3" /></label>
           <label>color<input id="productColor" type="color" value="#0d2235" /></label>
         </div>
-        <label>badge<input id="productBadge" placeholder="new, sale..." /></label>
-        <label>description<textarea id="productDescription" rows="4" required></textarea></label>
-        <label>image url<small>(optional)</small><input id="productImage" type="url" placeholder="https://..." /></label>
-        <label>specs<small>(technical details)</small><textarea id="productSpecs" rows="3" placeholder="spec1=value1, spec2=value2"></textarea></label>
+        <div class="two-fields">
+          <label>badge (AR)<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
+          <label>badge (EN)<input id="productBadgeEN" placeholder="Best seller" /></label>
+        </div>
+        <label>description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
+        <label>description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
+        <label>image url (optional)<input id="productImage" type="url" placeholder="https://..." /></label>
         <button class="btn primary full" type="submit">save product</button>
         <button class="btn ghost full" type="button" data-close-editor>cancel</button>
       </form>
@@ -282,7 +316,7 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-cyber"></script>
-  <script src="js/admin.js?v=2026-cyber"></script>
+  <script src="js/store.js?v=2026-major2"></script>
+  <script src="js/admin.js?v=2026-major2"></script>
 </body>
 </html>

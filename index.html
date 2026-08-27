@@ -3,14 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b1322" />
-  <title>MAJOR CYBER — متجر أدوات الاختراق وبرامج الأمن السيبراني</title>
-  <link rel="stylesheet" href="css/style.css?v=2026-cyber" />
+  <meta name="theme-color" content="#060b16" />
+  <title>MAJOR STORE — Hacking tools & cybersecurity programs</title>
+  <link rel="stylesheet" href="css/style.css?v=2026-major2" />
 </head>
 <body>
+  <!-- ===== البانر الثابت في الأعلى (دائم الظهور) ===== -->
+  <div class="top-banner">
+    <img src="images/major-banner.png" alt="MAJOR STORE" class="banner-img" />
+  </div>
+
+  <!-- ===== خطوط الخلفية والشبكة ===== -->
   <div class="scan-line"></div>
   <div class="gridoverlay"></div>
 
+  <!-- ===== شريط الإعلان ===== -->
   <div class="announcement" id="announcement">
     <div class="container announcement-inner">
       <span class="ann-dot"></span>
@@ -19,23 +26,27 @@
     </div>
   </div>
 
+  <!-- ===== الهيدر ===== -->
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
       <a class="brand" href="#top" id="brandLink">
         <span class="brand-mark" id="brandMark"></span>
         <span class="brand-text">
-          <b id="brandName">MAJOR CYBER</b>
-          <small id="brandSub">TOOLS · EXPLOITS · LABS</small>
+          <b id="brandName">MAJOR STORE</b>
+          <small id="brandSub">Hacking tools & electronic programs</small>
         </span>
       </a>
       <nav class="main-nav" id="mainNav">
-        <a href="#shop">المتجر</a>
-        <a href="#categories">الأقسام</a>
-        <a href="#about">من نحن</a>
-        <a href="#contact">تواصل</a>
-        <a href="admin.html" class="nav-admin">⚙ لوحة التحكم</a>
+        <a href="#shop" data-i18n="navShop">المتجر</a>
+        <a href="#categories" data-i18n="navCats">الأقسام</a>
+        <a href="#about" data-i18n="navAbout">من نحن</a>
+        <a href="#contact" data-i18n="navContact">تواصل</a>
+        <a href="admin.html" class="nav-admin">⚙ <span data-i18n="navAdmin">لوحة التحكم</span></a>
       </nav>
       <div class="header-actions">
+        <button class="lang-switch" id="langSwitch" aria-label="Language">
+          <span>EN</span>
+        </button>
         <button class="search-toggle" id="searchToggle" aria-label="بحث">⌕</button>
         <button class="cart-trigger" id="cartTrigger" aria-label="السلة">
           <span>🛒</span><i id="cartCount">0</i>
@@ -46,13 +57,15 @@
     <div class="searchbar" id="searchbar">
       <div class="container">
         <span>$</span>
-        <input id="searchInput" type="search" placeholder="ابحث عن Kali Linux، Metasploit، Burp Suite..." />
+        <input id="searchInput" type="search" placeholder="..." />
         <button id="searchClose">esc</button>
       </div>
     </div>
   </header>
 
   <main id="top">
+
+    <!-- ===== Hero ===== -->
     <section class="hero">
       <div class="hero-grid"></div>
       <div class="hero-noise"></div>
@@ -65,11 +78,11 @@
             </div>
           </div>
           <span class="eyebrow" id="heroBadge">Ethical Hacking · Penetration Testing</span>
-          <h1 id="heroTitle">أدوات <span class="glitch" id="glitchText">الاختراق</span> وبرامج<br /><em>الأمن السيبراني</em></h1>
-          <p class="hero-text" id="heroText">توزيعات لينكس احترافية، أدوات اختبار اختراق، بيئات تدريب افتراضية، وكتب منهجية للمحترفين والطلاب.</p>
+          <h1 id="heroTitle"></h1>
+          <p class="hero-text" id="heroText"></p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#shop" id="heroCta">تصفح الأدوات <span>⟩⟩</span></a>
-            <a class="btn-outline-link" id="discordCta" target="_blank" href="#">انضم للديسكورد ↗</a>
+            <a class="btn btn-primary" href="#shop" id="heroCta"></a>
+            <a class="btn-outline-link" id="discordCta" target="_blank" href="#" data-i18n="heroSecondary">انضم للديسكورد ↗</a>
           </div>
           <div class="hero-stats" id="heroStats"></div>
         </div>
@@ -82,8 +95,8 @@
             <div class="visual-frame-body">
               <pre><code><span class="c-mut">$ </span>scan<span class="c-key"> -t</span> target.com
 <span class="c-mut">→</span> scanning <span class="c-ok">5</span> hosts...
-<span class="c-ok">✓</span> ports detected: <span class="c-key">22, 80, 443, 8080</span>
-<span class="c-warn">!</span> vuln found: <span class="c-bad">SQLi · XSS · CVE-2026-1337</span>
+<span class="c-ok">✓</span> ports: <span class="c-key">22, 80, 443, 8080</span>
+<span class="c-warn">!</span> vuln: <span class="c-bad">SQLi · XSS · CVE-2026-1337</span>
 <span class="c-mut">►</span> payload ready
 <span class="c-mut">$ </span><span class="cursor-blink">█</span></code></pre>
             </div>
@@ -96,37 +109,40 @@
           </div>
         </div>
       </div>
+
       <div class="hero-bullets">
-        <div class="container">
-          <span>⚡ <b>تجهيز فوري</b></span>
-          <span>🛡️ <b>ضمان الجودة</b></span>
-          <span>💬 <b>دعم على Discord</b></span>
-          <span>💎 <b>مدفوعات مشفرة</b></span>
+        <div class="container" id="heroBullets">
+          <span>⚡ <b data-i18n="bullet1">تجهيز فوري</b></span>
+          <span>🛡 <b data-i18n="bullet2">ضمان الجودة</b></span>
+          <span>💬 <b data-i18n="bullet3">دعم على Discord</b></span>
+          <span>💎 <b data-i18n="bullet4">مدفوعات مشفرة</b></span>
         </div>
       </div>
     </section>
 
+    <!-- ===== الأقسام ===== -->
     <section class="categories-section" id="categories">
       <div class="container">
-        <div class="section-kicker"><span>// الأقسام</span></div>
+        <div class="section-kicker"><span data-i18n="sectionCategories">// الأقسام</span></div>
         <div class="category-row" id="categoryRow"></div>
       </div>
     </section>
 
+    <!-- ===== المتجر ===== -->
     <section class="shop-section" id="shop">
       <div class="container">
         <div class="section-heading">
           <div>
-            <span class="eyebrow small">// let products = filteredList;</span>
-            <h2>أدوات <em class="green">احترافية</em></h2>
+            <span class="eyebrow small" data-i18n="sectionShop">// let products = filteredList;</span>
+            <h2><span data-i18n="sectionShopTitle1">أدوات</span> <em class="green"><span data-i18n="sectionShopTitle2">احترافية</span></em></h2>
           </div>
           <div class="shop-tools">
-            <span id="resultCount">0 منتج</span>
+            <span id="resultCount">0 <span data-i18n="resultCount">منتج</span></span>
             <select id="sortProducts">
-              <option value="featured">الأكثر تميزاً</option>
-              <option value="low">السعر: الأقل أولاً</option>
-              <option value="high">السعر: الأعلى أولاً</option>
-              <option value="rating">الأعلى تقييماً</option>
+              <option value="featured" data-i18n="sortFeatured">الأكثر تميزاً</option>
+              <option value="low" data-i18n="sortLow">السعر: الأقل أولاً</option>
+              <option value="high" data-i18n="sortHigh">السعر: الأعلى أولاً</option>
+              <option value="rating" data-i18n="sortRating">الأعلى تقييماً</option>
             </select>
           </div>
         </div>
@@ -134,62 +150,78 @@
         <div class="products-grid" id="productsGrid"></div>
         <div class="empty-view" id="emptyView" hidden>
           <span>⌕</span>
-          <h3>لم نجد نتيجة</h3>
-          <p>جرّب كلمة بحث أخرى أو تصفح جميع الأقسام.</p>
-          <button class="btn btn-outline" id="clearSearch">عرض جميع المنتجات</button>
+          <h3 data-i18n="emptyTitle">لم نجد نتيجة</h3>
+          <p data-i18n="emptyText">جرّب كلمة بحث أخرى أو تصفح جميع الأقسام.</p>
+          <button class="btn btn-outline" id="clearSearch" data-i18n="emptyAction">عرض جميع المنتجات</button>
         </div>
       </div>
     </section>
 
+    <!-- ===== المزايا ===== -->
     <section class="features-section" id="features">
       <div class="container">
         <div class="features-intro">
-          <span class="eyebrow small">// why us</span>
-          <h2>ليش يختارون المتخصصون<br /><em class="green">MAJOR CYBER؟</em></h2>
+          <span class="eyebrow small" data-i18n="featIntro">// why us</span>
+          <h2><span data-i18n="featTitle1">ليش يختارون المتخصصون</span><br /><em class="green">MAJOR STORE?</em></h2>
         </div>
         <div class="features-grid">
-          <article><span class="feat-icon">◎</span><h3>منتجات مرخّصة</h3><p>كل الأدوات تأتي مرخّصة أو من مصادر مفتوحة موثوقة، مع ضمان تفعيل.</p></article>
-          <article><span class="feat-icon">⚡</span><h3>تسليم لحظي</h3><p>تستلم كود التفعيل أو ملف التوزيعة خلال دقائق بعد تأكيد الدفع.</p></article>
-          <article><span class="feat-icon">⬢</span><h3>دعم فني حقيقي</h3><p>فريق متمكن في الأمن السيبراني، يقدّم دعماً فعلياً عبر Discord والبريد.</p></article>
-          <article><span class="feat-icon">$</span><h3>مدفوعات آمنة</h3><p>يبيّمان بنكي، Crypto, BaridiMob — كل المعاملات تتم بسرية تامة.</p></article>
+          <article><span class="feat-icon">◎</span><h3 data-i18n="feat1Title">منتجات مرخصة</h3><p data-i18n="feat1Text">كل الأدوات تأتي مرخصة أو من مصادر مفتوحة موثوقة، مع ضمان تفعيل.</p></article>
+          <article><span class="feat-icon">⚡</span><h3 data-i18n="feat2Title">تسليم لحظي</h3><p data-i18n="feat2Text">تستلم كود التفعيل أو ملف التوزيعة خلال دقائق بعد تأكيد الدفع.</p></article>
+          <article><span class="feat-icon">⬢</span><h3 data-i18n="feat3Title">دعم فني حقيقي</h3><p data-i18n="feat3Text">فريق متمكن في الأمن السيبراني يقدم دعماً فعلياً عبر Discord.</p></article>
+          <article><span class="feat-icon">$</span><h3 data-i18n="feat4Title">مدفوعات آمنة</h3><p data-i18n="feat4Text">Crypto, PayPal, Visa/Master — كل المعاملات تتم بسرية تامة.</p></article>
         </div>
       </div>
     </section>
 
+    <!-- ===== من نحن ===== -->
     <section class="about-section" id="about">
       <div class="container about-card">
         <div>
           <span class="eyebrow small">// about</span>
-          <h2>MAJOR CYBER<br /><em class="green">أدوات الاختراق الأخلاقي</em></h2>
+          <h2><span data-i18n="aboutTitle1">MAJOR STORE</span><br /><em class="green"><span data-i18n="aboutTitle2">أدوات الاختراق الأخلاقي</span></em></h2>
         </div>
-        <p>متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية. كل ما يحتاجه المتخصص، الممارس، والطالب ليتعلم ويختبر في بيئة محكومة وقانونية.</p>
-        <a href="#contact" class="btn btn-primary">تواصل معنا <span>⟩⟩</span></a>
+        <p data-i18n="aboutText">متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية.</p>
+        <a href="#contact" class="btn btn-primary"><span data-i18n="aboutCta">تواصل معنا</span> <span>⟩⟩</span></a>
       </div>
     </section>
 
+    <!-- ===== طرق الدفع ===== -->
+    <section class="payments-section" id="payments">
+      <div class="container">
+        <div class="pay-intro">
+          <span class="eyebrow small">// payment_methods</span>
+          <h2>طرق الدفع <em class="green">المتاحة</em></h2>
+          <p>جميع المعاملات تتم بخصوصية كاملة، عبر شبكات دفع آمنة ومعتمدة عالمياً.</p>
+        </div>
+        <div class="pay-grid" id="payGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== النشرة البريدية ===== -->
     <section class="contact-section" id="contact">
       <div class="container contact-grid">
         <div>
           <span class="eyebrow small">// newsletter</span>
-          <h2>اشترك في<br /><em class="green">القائمة البريدية</em></h2>
-          <p>احصل على آخر الأدوات، العروض، والـ CVE الجديدة مباشرة في بريدك.</p>
+          <h2><span data-i18n="newsletterTitle1">اشترك في</span><br /><em class="green"><span data-i18n="newsletterTitle2">القائمة البريدية</span></em></h2>
+          <p data-i18n="newsletterText">احصل على آخر الأدوات والعروض مباشرة في بريدك.</p>
         </div>
         <form class="newsletter" id="newsletterForm">
           <input type="email" id="newsletterEmail" placeholder="root@your.email" required />
-          <button class="btn btn-primary" type="submit">اشترك <span>⟩⟩</span></button>
+          <button class="btn btn-primary" type="submit"><span data-i18n="newsletterBtn">اشترك</span> <span>⟩⟩</span></button>
           <small id="newsletterMessage"></small>
         </form>
       </div>
     </section>
   </main>
 
+  <!-- ===== الفوتر ===== -->
   <footer class="site-footer">
     <div class="container footer-top">
       <a class="brand light" href="#top">
         <span class="brand-mark" id="footerMark"></span>
         <span class="brand-text">
-          <b id="footerBrand">MAJOR CYBER</b>
-          <small id="footerSub">TOOLS · EXPLOITS · LABS</small>
+          <b id="footerBrand">MAJOR STORE</b>
+          <small id="footerSub">Hacking tools & electronic programs</small>
         </span>
       </a>
       <p id="footerText">Cybersecurity tools for professionals.</p>
@@ -201,66 +233,73 @@
       </div>
     </div>
     <div class="container footer-bottom">
-      <span>© <span id="footerYear"></span> MAJOR CYBER. جميع الحقوق محفوظة.</span>
+      <span>© <span id="footerYear"></span> MAJOR STORE. <span data-i18n="copyright">جميع الحقوق محفوظة.</span></span>
       <span id="footerAddress">الجزائر</span>
     </div>
   </footer>
 
+  <!-- ===== سلة جانبية ===== -->
   <div class="overlay" id="overlay"></div>
   <aside class="cart-drawer" id="cartDrawer">
     <div class="drawer-head">
-      <div class="terminal-head small">
-        <span></span><span></span><span></span><span class="t-id">cart</span>
-      </div>
-      <h2>سلة التسوق</h2>
+      <span class="term-label">// cart</span>
+      <h2 data-i18n="cartHead">سلة التسوق</h2>
       <button class="close-btn" id="cartClose">×</button>
     </div>
     <div class="drawer-body" id="cartItems"></div>
     <div class="drawer-footer">
-      <div class="total-line"><span class="total-label">الإجمالي</span><strong id="cartTotal">0 دج</strong></div>
-      <button class="btn btn-primary full" id="checkoutOpen">إكمال الطلب <span>⟩⟩</span></button>
+      <div class="total-line"><span class="total-label" data-i18n="cartTotal">الإجمالي</span><strong id="cartTotal">$0.00</strong></div>
+      <button class="btn btn-primary full" id="checkoutOpen"><span data-i18n="cartCheckout">إكمال الطلب</span> <span>⟩⟩</span></button>
       <p class="payment-options" id="paymentPreview"></p>
     </div>
   </aside>
 
+  <!-- ===== نافذة المنتج ===== -->
   <div class="modal" id="productModal">
     <div class="modal-card product-modal-card">
       <button class="close-btn modal-close" data-close="productModal">×</button>
       <div id="productModalContent"></div>
     </div>
   </div>
+
+  <!-- ===== نافذة الدفع ===== -->
   <div class="modal" id="checkoutModal">
     <div class="modal-card checkout-card">
       <div class="modal-heading">
         <div>
           <span class="eyebrow small">// checkout</span>
-          <h2>إكمال الطلب</h2>
+          <h2 data-i18n="checkoutTitle">إكمال الطلب</h2>
         </div>
         <button class="close-btn" data-close="checkoutModal">×</button>
       </div>
       <form id="checkoutForm">
         <div class="form-grid">
-          <label>الاسم الكامل<input id="orderName" required placeholder="اسمك" /></label>
-          <label>رقم الهاتف<input id="orderPhone" required placeholder="05/07 xx xx xx xx" /></label>
+          <label><span data-i18n="checkoutName">الاسم</span><input id="orderName" required /></label>
+          <label><span data-i18n="checkoutPhone">الهاتف</span><input id="orderPhone" required /></label>
         </div>
-        <label>البريد الإلكتروني<input id="orderEmail" type="email" required placeholder="you@email.com" /></label>
-        <label>الولاية / المدينة<input id="orderAddress" required placeholder="الولاية" /></label>
-        <label>طريقة الدفع<select id="orderPayment"></select></label>
-        <label>كود الخصم<input id="orderCoupon" placeholder="إن وُجد" /></label>
-        <label>ملاحظات<textarea id="orderNote" rows="3" placeholder="أي تفاصيل إضافية..."></textarea></label>
+        <label><span data-i18n="checkoutEmail">البريد الإلكتروني</span><input id="orderEmail" type="email" required /></label>
+        <label><span data-i18n="checkoutAddress">العنوان / الولاية</span><input id="orderAddress" required /></label>
+        <label><span data-i18n="checkoutPayment">طريقة الدفع</span><select id="orderPayment" required></select></label>
+        <div class="coupon-line">
+          <input id="orderCoupon" />
+          <button class="btn small outline" type="button" id="couponApply"></button>
+          <small id="couponMsg"></small>
+        </div>
+        <label><span data-i18n="checkoutNote">ملاحظات</span><textarea id="orderNote" rows="3"></textarea></label>
         <div class="checkout-summary">
-          <span class="total-label">المجموع</span>
-          <strong id="checkoutTotal">0 دج</strong>
+          <span class="total-label" data-i18n="checkoutTot">المجموع</span>
+          <strong id="checkoutTotal">$0.00</strong>
         </div>
-        <button class="btn btn-primary full" type="submit">تأكيد وتسليم <span>✓</span></button>
-        <p class="form-note">سيتم التواصل معك عبر واتساب لتأكيد التسليم خلال دقائق.</p>
+        <button class="btn btn-primary full" type="submit"><span data-i18n="checkoutSubmit">تأكيد وتسليم</span> <span>✓</span></button>
+        <p class="form-note" data-i18n="checkoutNoteMsg">سيتواصل معك خلال دقائق لتأكيد التسليم.</p>
       </form>
     </div>
   </div>
+
   <div class="toast" id="toast"></div>
   <button class="support-fab" id="supportFab" aria-label="تواصل عبر واتساب">◔</button>
 
-  <script src="js/store.js?v=2026-cyber"></script>
-  <script src="js/app.js?v=2026-cyber"></script>
+  <script src="js/store.js?v=2026-major2"></script>
+  <script src="js/app.js?v=2026-major2"></script>
 </body>
 </html>
