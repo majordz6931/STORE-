@@ -141,6 +141,8 @@ input, select, textarea, button { font-family: inherit; }
 .topbar-badge { background: var(--border); padding: 2px 10px; border-radius: 99px; font-size: 10px; color: var(--muted); }
 。。topbar-center { flex: 1; text-align: center; }
 .topbar-greeting { color: var(--muted); font-size: 14px; }
+.topbar-live { color: var(--muted); font-size: 12px; margin-left: 16px; }
+.topbar-live span { color: #22c55e; font-weight: 800; }
 .topbar-right { display: flex; align-items: center; gap: 6px; }
 .topbar-btn {
   background: var(--bg2);

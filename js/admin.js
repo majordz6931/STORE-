@@ -620,6 +620,14 @@
         chatSocket.emit("chat:join", c.id);
       });
     });
+
+    // Live stats for admin topbar
+    chatSocket.on("live:stats", function (data) {
+      var v = document.getElementById("adminVisitorCount");
+      if (v) v.textContent = data.visitors || 0;
+      var o = document.getElementById("adminTodayOrders");
+      if (o) o.textContent = data.todayOrders || 0;
+    });
   }
 
   document.getElementById("chatList").addEventListener("click", function (e) {

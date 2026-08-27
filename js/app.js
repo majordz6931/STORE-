@@ -6,6 +6,7 @@
   var appliedCoupon = null;
   var chatId = sessionStorage.getItem("major360_chat") || "";
   var lastSeen = 0;
+  var liveSocket = null;
 
   function t(k) { return MajorI18n.t(k); }
   function money(n) { return "$" + Number(n).toFixed(2); }
@@ -352,6 +353,8 @@
       if (c) c.used = (c.used || 0) + 1;
     }
     MajorDB.save(db);
+    // Broadcast live order notification
+    try { if (liveSocket) liveSocket.emit("order:new", { name: db.orders[0].name, country: db.orders[0].country, items: db.orders[0].items.map(function(i) { return i.name; }).join(", ") }); } catch(e) {}
     cart = [];
     proofData = "";
     appliedCoupon = null;
@@ -369,8 +372,7 @@
   });
 
   /* CHAT — Socket.IO Real-time */
-  var socket = null;
-  try { socket = io(); } catch(e) { socket = null; }
+  try { liveSocket = io(); } catch(e) { liveSocket = null; }
 
   var fab = document.getElementById("chatFab");
   var win = document.getElementById("chatWin");
@@ -432,9 +434,9 @@
     });
     MajorDB.save(db);
     // Notify server — new chat + welcome message
-    if (socket) {
-      socket.emit("chat:new", { chatId: chatId, name: name });
-      socket.emit("chat:message", { chatId: chatId, message: { from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() } });
+    if (liveSocket) {
+      liveSocket.emit("chat:new", { chatId: chatId, name: name });
+      liveSocket.emit("chat:message", { chatId: chatId, message: { from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() } });
     }
     drawChat();
   }
@@ -452,15 +454,15 @@
     MajorDB.save(db);
     input.value = "";
     // Emit via socket
-    if (socket) socket.emit("chat:message", { chatId: chatId, message: msg });
+    if (liveSocket) liveSocket.emit("chat:message", { chatId: chatId, message: msg });
     drawChat();
   }
   document.getElementById("chatSend").addEventListener("click", sendUser);
   document.getElementById("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
 
   // Listen for admin replies from server
-  if (socket) {
-    socket.on("chat:message", function (data) {
+  if (liveSocket) {
+    liveSocket.on("chat:message", function (data) {
       if (data.chatId === chatId) {
         db = MajorDB.load();
         var c = db.chats.find(function (x) { return x.id === chatId; });
@@ -480,7 +482,7 @@
   if (chatId) {
     document.getElementById("chatStartBox").style.display = "none";
     document.getElementById("chatSendBox").style.display = "flex";
-    if (socket) socket.emit("chat:join", chatId);
+    if (liveSocket) liveSocket.emit("chat:join", chatId);
     drawChat();
   } else {
     drawChat();
@@ -503,6 +505,46 @@
         var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
         return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div><div class="order-body"><p class="sub">' + it + '</p><p><span>' + t("total") + '</span> <b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + ' ' + o.id + '</small></div></div>';
       }).join("");
+  }
+
+  /* ===== SOCIAL PROOF ===== */
+  var proofQueue = [];
+  var proofTimer = null;
+
+  function showSocialProof(name, country, item) {
+    var box = document.getElementById("socialProof");
+    if (!box) return;
+    var el = document.createElement("div");
+    el.className = "social-notif";
+    el.innerHTML = '<span class="sn-icon">🛒</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("bought") + ' ' + item + '<small>' + (country ? "من " + country : "") + ' · ' + t("justNow") + '</small></span>';
+    box.appendChild(el);
+    if (proofTimer) clearTimeout(proofTimer);
+    proofTimer = setTimeout(function () {
+      el.classList.add("out");
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+    }, 5000);
+    // Limit to 3 visible
+    while (box.children.length > 3) {
+      var first = box.firstChild;
+      if (first) box.removeChild(first);
+    }
+  }
+
+  function updateVisitorCount(n) {
+    var el = document.getElementById("visitorCount");
+    if (el) el.textContent = n || 0;
+  }
+
+  if (liveSocket) {
+    liveSocket.on("live:activity", function (data) {
+      showSocialProof(data.name, data.country, data.item);
+    });
+    liveSocket.on("live:stats", function (data) {
+      if (data.visitors) updateVisitorCount(data.visitors);
+    });
+    liveSocket.on("live:visitor", function (data) {
+      if (data.visitors) updateVisitorCount(data.visitors);
+    });
   }
 
   setInterval(drawChat, 1500);
