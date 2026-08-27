@@ -1,46 +1,77 @@
-# 🛒 MAJOR AM 360 — Store (v2, لأبنى من الصفر)
+# 🛒 MAJOR AM 360 — Store (v3 · بدون سيرفر إطلاقاً)
 
-متجر رقمي (أدوات جيمنج + مشاهدات + حماية) مع لوحة تحكم كاملة.
+متجر رقمي كامل يعمل **على Vercel فقط** — لا دومين، لا استضافة خارجية، لا سيرفر Node.
 
-## 🏗️ البنية
+## 🏗️ كيف يعمل
 
-- **الواجهة** (ثابتة): `index.html`, `admin.html`, `css/`, `js/` → **Vercel** أو أي استضافة ثابتة.
-- **السيرفر** (`server.js` — Express + Socket.IO): **Render/Railway** — المصدر الوحيد للبيانات:
-  - المنتجات، طرق الدفع، الطلبات، الكوبونات، الإعدادات، الدردشة (كلها ملفات JSON في `data/`)
-  - بث لحظي لكل العملاء (منتجات/طلبات/دفع/كوبونات/إعدادات)
+- **الواجهة** (ثابتة): `index.html` (المتجر) + `admin.html` (اللوحة) على Vercel.
+- **البيانات**: محفوظة في **مستودع GitHub نفسه** على فرع منفصل `db` (في مجلد `data/`).
+  - القراءة: `raw.githubusercontent.com` (CDN عام مجاني بلا حدود).
+  - الكتابة: دوال Vercel Serverless (`/api/*`) تستخدم GitHub Contents API بمفتاح `GH_TOKEN`.
+- **التحديث الحي**: استطلاع دوري قصير (Polling) بدل WebSocket — لا حاجة لأي سيرفر.
 
-## 🚀 النشر
+### الدوال (Vercel Functions — مجلد `api/`)
+| الدالة | المهمة |
+|---|---|
+| `api/products.js` | منتجات (GET/POST/DELETE) |
+| `api/payments.js` | طرق الدفع (اسم/محفظة/QR) |
+| `api/orders.js` | طلبات + تغيير الحالة |
+| `api/coupons.js` | أكواد الخصم |
+| `api/config.js` | ديسكورد/واتساب/إعلان |
+| `api/chat.js` | دردشة الزبائن (Polling) |
+| `api/sync.js` | لقطة موحّدة لكل البيانات |
+| `api/_lib/github-db.js` | طبقة القراءة/الكتابة على GitHub |
 
-### 1) السيرفر على Render (مجاني)
-1. [render.com](https://render.com) → New → Web Service → اربط مستودع GitHub.
-2. الإعدادات: Root Directory = `store` · Start Command = `node server.js` · Plan = Free.
-3. تحصل على رابط مثل `https://major-store.onrender.com`.
-4. (اختياري) UptimeRobot ليبقى السيرفر مستيقظاً.
+## 🚀 النشر على Vercel — 4 خطوات
 
-### 2) الواجهة على Vercel
-1. عدّل `js/config.js`:
-   ```js
-   window.MAJOR_CONFIG = { API_URL: "https://major-store.onrender.com" }
-   ```
-2. ارفع المستودع لـ Vercel (Vercel CLI: `vercel --prod` من داخل `store/`، أو اربط المستودع).
+### 1) اجعل المستودع عاماً (Public)
+GitHub → مستودع `STORE-` → **Settings → Danger Zone → Change visibility → Public**.
+(القراءة من raw CDN تحتاج مستودعاً عاماً — الكتابة تحتاج المفتاح فقط.)
+
+### 2) أنشئ مفتاح GitHub (PAT)
+GitHub → **Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token**
+- الصلاحية: **repo** فقط (كل الصلاحيات تحت repo)
+- انسخ المفتاح (يظهر مرة واحدة فقط!)
+
+### 3) أضف المفتاح إلى إعدادات Vercel
+Vercel → مشروعك → **Settings → Environment Variables** → أضف:
+
+| Name | Value |
+|---|---|
+| `GH_TOKEN` | (المفتاح الذي أنشأته) |
+
+> الدوال تقرأ أيضاً `GH_OWNER` / `GH_REPO` / `GH_BRANCH` كاختياري — افتراضياً `majordz6931` / `STORE-` / `db`.
+
+### 4) ارفع المشروع
+من مجلد `store/`:
+```bash
+vercel login
+vercel --prod
+```
+أو اربط المستودع بـ Vercel للرفع التلقائي عند كل `git push`.
 
 ## 🔑 لوحة التحكم
 - المستخدم: `MAJOR` · كلمة السر: `yemavava91@@@@@#####`
 
-## 🧪 محلياً
+## 📁 فرع `db` — ملفات البيانات
+| الملف | المحتوى |
+|---|---|
+| `data/products.json` | المنتجات |
+| `data/payments.json` | طرق الدفع |
+| `data/orders.json` | الطلبات + إثباتات الدفع |
+| `data/coupons.json` | أكواد الخصم |
+| `data/config.json` | الإعدادات |
+| `data/chat_data.json` | رسائل الدردشة |
+
+## 🧪 محلياً (للاختبار)
 ```bash
 cd store
 npm install
-node server.js
-# افتح http://localhost:8080
+GH_TOKEN=ghp_xxx node server.js   # يعمل على http://localhost:8080
 ```
+بدون `GH_TOKEN` تعمل القراءة فقط (الكتابة تظهر رسالة خطأ).
 
-## 📁 ملفات البيانات (في `data/`، غير مرفوعة لـ git)
-| الملف | المحتوى |
-|---|---|
-| `products.json` | المنتجات |
-| `payments.json` | طرق الدفع (اسم/محفظة/QR) |
-| `orders.json` | الطلبات + إثباتات الدفع |
-| `coupons.json` | أكواد الخصم |
-| `config.json` | ديسكورد/واتساب/إعلان |
-| `chat_data.json` | رسائل الدردشة |
+## ⚠️ ملاحظات
+- حدود Vercel مجانية: ~100K استدعاء دوال شهرياً — كافية لمثل هذا المتجر.
+- الكتابة على GitHub تخلق commit واحداً لكل عملية حفظ — تظهر في تبويب Actions/Commits على فرع `db`.
+- لو ضغط المستخدم مرتين بسرعة، تعالج الدوال تعارضات الـ sha تلقائياً (إعادة المحاولة لمرة واحدة).

@@ -1,15 +1,13 @@
 {
   "name": "major-store",
-  "version": "2.0.0",
-  "description": "MAJOR store — storefront + admin dashboard (Express + Socket.IO, file-backed data)",
+  "version": "3.0.0",
+  "description": "MAJOR store — serverless, Vercel-only (GitHub as data store)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "socket.io": "^4.8.3"
+    "express": "^5.2.1"
   }
 }

@@ -1,0 +1,43 @@
+/* =====================================================================
+   Defaults — تُستخدم حين تكون ملفات البيانات غائبة أو فارغة
+   ===================================================================== */
+var DEFAULT_PRODUCTS = [
+  { id: "c1", cat: "cyber", name: "حماية الحسابات — باقة أساسية", nameEn: "Account protection — Basic", price: 9.99, emoji: "🛡️", desc: "تعزيز حماية الحسابات وإعدادات الأمان.", descEn: "Strengthen account protection and security settings." },
+  { id: "c2", cat: "cyber", name: "حماية متقدمة + استشارة", nameEn: "Advanced protection + consult", price: 24.99, emoji: "🔐", desc: "حماية متقدمة مع استشارة عبر الديسكورد.", descEn: "Advanced protection with Discord consultation." },
+  { id: "p8", cat: "streamer", name: "مشاهدات كيك 1K", nameEn: "Kick views 1K", price: 2.49, emoji: "📺", desc: "زيادة مشاهدات Kick لجمهورك.", descEn: "Boost Kick views for your stream." },
+  { id: "p9", cat: "streamer", name: "مشاهدات كيك 5K", nameEn: "Kick views 5K", price: 7.99, emoji: "📡", desc: "باقة مشاهدات Kick أكبر.", descEn: "Larger Kick views pack." },
+  { id: "p10", cat: "streamer", name: "مشاهدات تيك توك 5K", nameEn: "TikTok views 5K", price: 1.49, emoji: "🎵", desc: "مشاهدات تيك توك طبيعية.", descEn: "Natural-looking TikTok views." },
+  { id: "p11", cat: "streamer", name: "مشاهدات تيك توك 20K", nameEn: "TikTok views 20K", price: 3.99, emoji: "📱", desc: "باقة نمو سريع لتيك توك.", descEn: "Fast growth pack for TikTok." },
+  { id: "p12", cat: "streamer", name: "مشاهدات تيك توك 50K", nameEn: "TikTok views 50K", price: 8.49, emoji: "🚀", desc: "انطلاقة قوية لفيديوهاتك.", descEn: "Strong launch for your videos." },
+  { id: "p1", cat: "gaming", name: "Blood Strike Tools — ستارتر", nameEn: "Blood Strike Tools — Starter", price: 4.99, emoji: "🎯", desc: "أدوات مساعدة مع تفعيل سريع.", descEn: "Helper tools with fast activation." },
+  { id: "p2", cat: "gaming", name: "Blood Strike Tools — برو", nameEn: "Blood Strike Tools — Pro", price: 9.99, emoji: "⚔️", desc: "باقة متقدمة مع دعم فوري عبر ديسكورد.", descEn: "Advanced pack with instant Discord support." },
+  { id: "p3", cat: "gaming", name: "فري فاير — أدوات أساسية", nameEn: "Free Fire — Basic tools", price: 5.99, emoji: "🔥", desc: "حزمة أدوات فري فاير للاعبين.", descEn: "Free Fire tools pack for players." },
+  { id: "p4", cat: "gaming", name: "فري فاير — باقة النخبة", nameEn: "Free Fire — Elite pack", price: 12.99, emoji: "👑", desc: "أقوى عروض فري فاير مع أولوية.", descEn: "Top offers with priority delivery." },
+  { id: "p5", cat: "gaming", name: "بيباس فري فاير 100", nameEn: "Free Fire Diamonds 100", price: 1.99, emoji: "💎", desc: "شحن بيباس فري فاير — سريع.", descEn: "Free Fire diamonds top-up — fast." },
+  { id: "p6", cat: "gaming", name: "بيباس فري فاير 310", nameEn: "Free Fire Diamonds 310", price: 5.49, emoji: "💠", desc: "شحن 310 بيباس.", descEn: "310 diamonds top-up." },
+  { id: "p7", cat: "gaming", name: "بيباس فري فاير 520", nameEn: "Free Fire Diamonds 520", price: 8.99, emoji: "💎", desc: "شحن 520 بيباس.", descEn: "520 diamonds top-up." }
+];
+
+var DEFAULT_COUPONS = [
+  { code: "MAJOR10", type: "percent", value: 10, used: 0, max: 100, expires: "" },
+  { code: "VIP25", type: "percent", value: 25, used: 0, max: 50, expires: "" },
+  { code: "WELCOME5", type: "fixed", value: 5, used: 0, max: 200, expires: "" }
+];
+
+var DEFAULT_CONFIG = {
+  discord: "https://discord.gg/WrK7ttvq5g",
+  whatsapp: "",
+  whatsappMsg: "مرحباً! أريد الاستفسار عن منتج",
+  announcement: "🔥 عروض حصرية — خصم 10% بكود MAJOR10",
+  announcementEn: "🔥 Exclusive offers — 10% off with code MAJOR10",
+  announcementEnabled: true
+};
+
+function clone(x) { return JSON.parse(JSON.stringify(x)); }
+
+module.exports = {
+  DEFAULT_PRODUCTS: DEFAULT_PRODUCTS,
+  DEFAULT_COUPONS: DEFAULT_COUPONS,
+  DEFAULT_CONFIG: DEFAULT_CONFIG,
+  clone: clone
+};
