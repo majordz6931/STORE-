@@ -182,8 +182,20 @@
     } else fab.style.display = "none";
   }
 
-  function openCart() { $("overlay").classList.add("show"); $("drawer").classList.add("show"); renderCart(); }
-  function closeCart() { $("overlay").classList.remove("show"); $("drawer").classList.remove("show"); }
+  function openCart() {
+    $("overlay").classList.add("show");
+    $("drawer").classList.add("show");
+    renderCart();
+  }
+  function closeCart() {
+    $("overlay").classList.remove("show");
+    $("drawer").classList.remove("show");
+  }
+  // The cart is closed on every fresh page load; only the cart button opens it.
+  function forceCartClosed() {
+    $("overlay").classList.remove("show");
+    $("drawer").classList.remove("show");
+  }
 
   /* ===== CHECKOUT ===== */
   function cartTotal() { return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0); }
@@ -404,9 +416,20 @@
   var searchInput = $("searchInput");
   if (searchInput) searchInput.addEventListener("input", function () { searchQuery = this.value; renderProducts(); });
 
-  $("openCart").addEventListener("click", openCart);
+  $("openCart").addEventListener("click", function (e) {
+    e.preventDefault();
+    openCart();
+  });
   $("overlay").addEventListener("click", closeCart);
-  $("closeCart").addEventListener("click", closeCart);
+  $("closeCart").addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closeCart();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeCart();
+  });
+  forceCartClosed();
   $("menuBtn").addEventListener("click", function () { $("navLinks").classList.toggle("open"); });
   $("cartItems").addEventListener("click", function (e) {
     if (e.target.hasAttribute("data-inc")) cart[+e.target.getAttribute("data-inc")].qty++;
