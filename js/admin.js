@@ -142,13 +142,8 @@
     clearTimeout(el._t);
     el._t = setTimeout(function () { el.textContent = ""; }, 6000);
   }
-  function storageMessage(data) {
-    var detail = data && data.detail ? data.detail : "";
-    if (detail === "github-token-missing") return "⚠️ GH_TOKEN غير مضاف في Vercel — أضفه ثم أعد النشر";
-    if (detail === "github-write-401" || detail === "github-write-403") return "⚠️ GH_TOKEN غير صالح أو لا يملك صلاحية repo";
-    if (detail === "github-read-401" || detail === "github-read-403") return "⚠️ لا يمكن قراءة GitHub — تحقق من GH_TOKEN";
-    if (detail) return "⚠️ فشل الحفظ: " + detail;
-    return t("storageError");
+  function storageMessage() {
+    return "⚠️ تعذر حفظ التغيير، حاول مرة أخرى";
   }
   function compressImage(file, max, quality, cb) {
     var url = URL.createObjectURL(file);
