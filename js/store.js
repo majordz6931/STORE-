@@ -64,6 +64,10 @@
       if (!db.wallet) db.wallet = WALLET;
       if (!db.network) db.network = DEFAULT.network;
       if (!db.payMethods) db.payMethods = [];
+      // Force remove old default BSC payment method if it still exists
+      if (db.payMethods.length) {
+        db.payMethods = db.payMethods.filter(function(p) { return p.id !== "pm1"; });
+      }
       return db;
     } catch (e) {
       return JSON.parse(JSON.stringify(DEFAULT));

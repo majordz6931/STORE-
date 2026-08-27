@@ -111,7 +111,13 @@ io.on("connection", (socket) => {
     if (!chatStore[chatId]) chatStore[chatId] = [];
     chatStore[chatId].push(message);
     saveData();
-    socket.to(chatId).emit("chat:message", { chatId, message });
+    // Broadcast to ALL clients for user msgs (admin may not be in room)
+    // For admin msgs, only to room
+    if (message.from === "user") {
+      io.emit("chat:message", { chatId, message });
+    } else {
+      socket.to(chatId).emit("chat:message", { chatId, message });
+    }
   });
 
   // Chat: delete
