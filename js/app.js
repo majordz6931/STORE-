@@ -83,6 +83,9 @@
       refreshAnnouncement();
       refreshWhatsApp();
     });
+    liveSocket.on("reconnect", function () {
+      refreshFromServer();
+    });
   }
 
   /* ===== PRODUCTS ===== */
@@ -201,6 +204,13 @@
   };
 
   refreshFromServer();
+
+  // Self-heal: if the first fetch failed (server briefly unreachable),
+  // keep retrying until the store has products.
+  setInterval(function () {
+    if (!productsList.length) refreshFromServer();
+  }, 4000);
+
   renderProducts();
   saveCart();
   renderCart();

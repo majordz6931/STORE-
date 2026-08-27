@@ -444,6 +444,16 @@
       icon: "💳",
       qrImage: payQrData || ""
     };
+    // Optimistic: show the method in the list immediately.
+    serverSource.payments.push(payload);
+    renderPayments();
+    payQrData = "";
+    $("payLabel").value = "";
+    $("payNetwork").value = "";
+    $("payWallet").value = "";
+    var pr = $("payQrPreview");
+    if (pr) { pr.src = ""; pr.classList.remove("show"); }
+    $("payQr").value = "";
     fetch("/api/payments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -451,20 +461,18 @@
     }).then(function (r) { return r.json(); })
       .then(function (m) {
         if (m && m.error) {
-          if ($("paySaved")) { $("paySaved").textContent = m.error; $("paySaved").style.color = "var(--red)"; }
+          serverSource.payments = serverSource.payments.filter(function (x) { return x.id !== payload.id; });
+          renderPayments();
+          flashMsg($("paySaved"), "⚠️ " + m.error, "var(--red)");
         } else {
-          payQrData = "";
-          $("payLabel").value = "";
-          $("payNetwork").value = "";
-          $("payWallet").value = "";
-          var pr = $("payQrPreview");
-          if (pr) { pr.src = ""; pr.classList.remove("show"); }
-          $("payQr").value = "";
-          if ($("paySaved")) { $("paySaved").textContent = t("saved"); $("paySaved").style.color = ""; }
+          flashMsg($("paySaved"), "✅ " + t("saved") + " — صارت متاحة للزبائن", "var(--green)");
         }
-        setTimeout(function () { if ($("paySaved")) $("paySaved").textContent = ""; }, 2500);
       })
-      .catch(function () {});
+      .catch(function () {
+        serverSource.payments = serverSource.payments.filter(function (x) { return x.id !== payload.id; });
+        renderPayments();
+        flashMsg($("paySaved"), "⚠️ تعذر الاتصال بالسيرفر — افتح اللوحة من المعاينة الحية", "var(--red)");
+      });
   }
 
   $("addPayment").addEventListener("click", addPaymentMethod);
@@ -527,6 +535,14 @@
     });
   });
 
+  function flashMsg(el, text, color) {
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color || "var(--green)";
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.textContent = ""; }, 4000);
+  }
+
   $("addProduct").addEventListener("submit", function (e) {
     e.preventDefault();
     var payload = {
@@ -540,18 +556,32 @@
       desc: $("pdesc").value.trim(),
       descEn: $("pdescEn").value.trim()
     };
+    if (!payload.name || !payload.price) {
+      flashMsg($("productSaved"), "⚠️ أدخل الاسم والسعر", "var(--red)");
+      return;
+    }
+    // Optimistic: show the product in the list immediately.
+    serverSource.products.unshift(payload);
+    renderProducts();
+    productImage = "";
+    var prev = $("pimagePreview");
+    if (prev) prev.classList.remove("show");
+    e.target.reset();
     fetch("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("server");
+      return r.json();
     }).then(function () {
-      productImage = "";
-      var prev = $("pimagePreview");
-      if (prev) prev.classList.remove("show");
-      e.target.reset();
-      if ($("productSaved")) { $("productSaved").textContent = t("saved"); $("productSaved").style.color = "var(--green)"; }
-      setTimeout(function () { if ($("productSaved")) $("productSaved").textContent = ""; }, 2000);
-    }).catch(function () {});
+      flashMsg($("productSaved"), "✅ " + t("saved") + " — صار في المتجر", "var(--green)");
+    }).catch(function () {
+      // Roll back so the list stays honest.
+      serverSource.products = serverSource.products.filter(function (x) { return x.id !== payload.id; });
+      renderProducts();
+      flashMsg($("productSaved"), "⚠️ تعذر الاتصال بالسيرفر — افتح اللوحة من المعاينة الحية", "var(--red)");
+    });
   });
 
   $("productTable").addEventListener("click", function (e) {
@@ -674,15 +704,28 @@
       max: Number($("cmax").value) || 0,
       expires: $("cexpires").value || ""
     };
+    if (!payload.code || !payload.value) {
+      flashMsg($("couponSaved"), "⚠️ أدخل الكود والقيمة", "var(--red)");
+      return;
+    }
+    // Optimistic: show the coupon immediately.
+    serverSource.coupons.unshift(payload);
+    renderCoupons();
+    e.target.reset();
     fetch("/api/coupons", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("server");
+      return r.json();
     }).then(function () {
-      e.target.reset();
-      if ($("couponSaved")) { $("couponSaved").textContent = t("saved"); $("couponSaved").style.color = "var(--green)"; }
-      setTimeout(function () { if ($("couponSaved")) $("couponSaved").textContent = ""; }, 2000);
-    }).catch(function () {});
+      flashMsg($("couponSaved"), "✅ " + t("saved") + " — صار متاحاً للزبائن", "var(--green)");
+    }).catch(function () {
+      serverSource.coupons = serverSource.coupons.filter(function (x) { return x.code !== payload.code; });
+      renderCoupons();
+      flashMsg($("couponSaved"), "⚠️ تعذر الاتصال بالسيرفر — افتح اللوحة من المعاينة الحية", "var(--red)");
+    });
   });
 
   $("couponTable").addEventListener("click", function (e) {

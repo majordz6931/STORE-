@@ -13,6 +13,14 @@ const PORT = 8080;
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname)));
 
+// Light request log (only non-GET) so admin actions are visible in server logs.
+app.use((req, res, next) => {
+  if (req.method !== "GET") {
+    console.log("[" + new Date().toLocaleTimeString() + "] " + req.method + " " + req.url);
+  }
+  next();
+});
+
 /* =====================================================================
    HELPERS
    ===================================================================== */
