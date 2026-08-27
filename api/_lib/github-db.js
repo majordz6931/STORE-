@@ -2,8 +2,10 @@
    GitHub-DB — قاعدة بيانات مصغّرة على مستودع GitHub (فرع "db")
    مناسبة لـ Vercel Serverless Functions (بدون دومين/استضافة خارجية).
    ---------------------------------------------------------------
-   • القراءة: raw.githubusercontent.com (CDN عام بلا حدود) — لا يحتاج مفتاح
-   • الكتابة: GitHub Contents API (يتطلب GH_TOKEN في متغيرات Vercel)
+   • القراءة (داخل الدوال): GitHub Contents API بالمفتاح — دقيقة ولحظية
+     (تعكس آخر commit فوراً). raw CDN فقط كاحتياط إن لم يتوفر المفتاح.
+   • القراءة العامة (المتصفح المباشر): raw.githubusercontent.com
+   • الكتابة: GitHub Contents API (يتطلب GH_TOKEN)
    ===================================================================== */
 var GH_TOKEN = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || "";
 var OWNER = process.env.GH_OWNER || "majordz6931";
@@ -19,26 +21,30 @@ function authHeaders() {
   return h;
 }
 
-/* قراءة — raw أولاً (بلا حدود)، ثم Contents API الاحتياطية */
+/* قراءة عبر API (دقيقة). تعيد undefined لو فشل. */
+async function readApi(file) {
+  if (!GH_TOKEN) return undefined;
+  var r = await fetch(apiUrl(file), { headers: authHeaders() });
+  if (!r.ok) return undefined;
+  var j = await r.json();
+  if (!j || !j.content) return undefined;
+  return JSON.parse(Buffer.from(j.content, "base64").toString("utf8"));
+}
+
+/* قراءة (دالة داخلية): API أولاً (دقيقة)، ثم raw كاحتياط */
 async function read(file, fallback) {
+  try {
+    var viaApi = await readApi(file);
+    if (viaApi !== undefined) return viaApi;
+  } catch (e) {}
   try {
     var r = await fetch(rawUrl(file), { cache: "no-store", headers: { "User-Agent": "major-store" } });
     if (r.ok) return JSON.parse(await r.text());
   } catch (e) {}
-  // fallback عبر API (ينفع حتى لو الريبو خاص)
-  try {
-    if (GH_TOKEN) {
-      var r2 = await fetch(apiUrl(file), { headers: authHeaders() });
-      if (r2.ok) {
-        var j = await r2.json();
-        if (j && j.content) return JSON.parse(Buffer.from(j.content, "base64").toString("utf8"));
-      }
-    }
-  } catch (e) {}
   return fallback;
 }
 
-/* كتابة — GitHub Contents API (يتطلب المفتاح) */
+/* كتابة — GitHub Contents API (يتطلب المفتاح). تعيد true عند النجاح. */
 async function write(file, data, message) {
   var content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
   if (!GH_TOKEN) return false;
@@ -63,4 +69,4 @@ async function write(file, data, message) {
   return r.ok;
 }
 
-module.exports = { read: read, write: write, OWNER: OWNER, REPO: REPO, BRANCH: BRANCH };
+module.exports = { read: read, write: write, readApi: readApi, OWNER: OWNER, REPO: REPO, BRANCH: BRANCH };

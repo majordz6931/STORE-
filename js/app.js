@@ -7,13 +7,11 @@
   var chatName = chatReady ? (sessionStorage.getItem("major360_chat_name") || "") : "";
   var chatId = chatReady && chatName ? (sessionStorage.getItem("major360_chat") || "") : "";
   var lastSeen = 0;
-  var liveSocket = null;
 
-  // Server-backed data (single source of truth)
+  // Server-backed data (read via serverless API / polling)
   var productsList = [];
   var paymentsList = [];
   var couponsList = [];
-  var ordersList = [];
   var configData = null;
 
   var selectedPayId = null;
@@ -21,19 +19,16 @@
 
   function t(k) { return MajorI18n.t(k); }
   function money(n) { return "$" + Number(n).toFixed(2); }
+  function $ (id) { return document.getElementById(id); }
+  function qsa(s) { return document.querySelectorAll(s); }
   function pname(p) { return (MajorI18n.getLang() === "en") ? (p.nameEn || p.name) : p.name; }
   function pdesc(p) { return (MajorI18n.getLang() === "en") ? (p.descEn || p.desc || "") : (p.desc || ""); }
-  function catName(c) {
-    return { cyber: t("catCyber"), streamer: t("catStream"), gaming: t("catGaming") }[c] || c;
-  }
+  function catName(c) { return { cyber: t("catCyber"), streamer: t("catStream"), gaming: t("catGaming") }[c] || c; }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) {
       return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m];
     });
   }
-  function $(id) { return document.getElementById(id); }
-  function qs(s) { return document.querySelector(s); }
-  function qsa(s) { return document.querySelectorAll(s); }
 
   function toast(msg) {
     var el = $("toast");
@@ -51,52 +46,48 @@
     if (el) el.textContent = n;
   }
 
-  /* ===== SERVER SYNC ===== */
-  try { liveSocket = io(MAJOR_SOCKET_URL()); } catch (e) { liveSocket = null; }
-
-  function refreshFromServer() {
-    fetch(MAJOR_API("/api/products"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
-      productsList = Array.isArray(d) ? d : [];
-      renderProducts();
-    }).catch(function () {});
-    fetch(MAJOR_API("/api/payments"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
-      paymentsList = Array.isArray(d) ? d : [];
-      renderPayMethods();
-    }).catch(function () {});
-    fetch(MAJOR_API("/api/coupons"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
-      couponsList = Array.isArray(d) ? d : [];
-    }).catch(function () {});
-    fetch(MAJOR_API("/api/config"), { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
-      configData = d;
-      refreshDiscord();
-      refreshAnnouncement();
-      refreshWhatsApp();
-    }).catch(function () {});
+  /* ===== SERVER SYNC (polling) ===== */
+  function refreshStore() {
+    fetch(MAJOR_API("/api/sync"), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d) return;
+        if (Array.isArray(d.products)) productsList = d.products;
+        if (Array.isArray(d.payments)) {
+          paymentsList = d.payments;
+          renderPayMethods();
+        }
+        if (Array.isArray(d.coupons)) couponsList = d.coupons;
+        if (d.config) {
+          configData = d.config;
+          refreshDiscord();
+          refreshAnnouncement();
+          refreshWhatsApp();
+        }
+        renderProducts();
+      })
+      .catch(function () {});
   }
 
-  if (liveSocket) {
-    liveSocket.on("products:set", function (d) {
-      productsList = Array.isArray(d) ? d : [];
-      renderProducts();
-    });
-    liveSocket.on("payments:updated", function (d) {
-      paymentsList = Array.isArray(d) ? d : [];
-      renderPayMethods();
-    });
-    liveSocket.on("coupons:set", function (d) {
-      couponsList = Array.isArray(d) ? d : [];
-    });
-    liveSocket.on("config:set", function (d) {
-      configData = d;
-      refreshDiscord();
-      refreshAnnouncement();
-      refreshWhatsApp();
-    });
-    liveSocket.on("orders:updated", function (d) {
-      ordersList = Array.isArray(d) ? d : [];
-      syncMyOrderStatus();
-    });
-    liveSocket.on("reconnect", refreshFromServer);
+  function refreshMyOrders() {
+    var mine = myOrdersLocal();
+    if (!mine.length) { renderOrders(); return; }
+    var ids = mine.map(function (o) { return o.id; }).join(",");
+    fetch(MAJOR_API("/api/orders?id=" + encodeURIComponent(ids)), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        if (!Array.isArray(list)) return;
+        var changed = false;
+        list.forEach(function (s) {
+          var o = mine.find(function (x) { return x.id === s.id; });
+          if (o && s.status && s.status !== (o.status || "pending")) { o.status = s.status; changed = true; }
+        });
+        if (changed) {
+          localStorage.setItem("major360_myorders", JSON.stringify(mine));
+          renderOrders();
+        }
+      })
+      .catch(function () {});
   }
 
   /* ===== PRODUCTS ===== */
@@ -116,13 +107,13 @@
     grid.innerHTML = list.map(function (p) {
       var inCart = cart.some(function (x) { return x.id === p.id; });
       var thumb = p.image ? '<img src="' + p.image + '" alt="" />' : (p.emoji || "🎮");
+      var add = inCart
+        ? '<button class="btn outline" data-added="1">' + t("addedToCart") + '</button>'
+        : '<button class="btn" data-add="' + p.id + '">' + t("addCart") + "</button>";
       return '<article class="card"><div class="thumb">' + thumb + '</div><div class="body"><div class="tag">' +
         esc(catName(p.cat)) + '</div><h4>' + esc(pname(p)) + '</h4><p class="sub">' + esc(pdesc(p)) +
-        '</p><div class="price">' + Number(p.price).toFixed(2) + '</div><div class="card-actions">' +
-        (inCart
-          ? '<button class="btn outline" data-added="1">' + t("addedToCart") + '</button><button class="btn" data-buy="' + p.id + '">' + t("buyNow") + "</button>"
-          : '<button class="btn" data-add="' + p.id + '">' + t("addCart") + '</button><button class="btn outline" data-buy="' + p.id + '">' + t("buyNow") + "</button>") +
-        "</div></article>";
+        '</p><div class="price">' + Number(p.price).toFixed(2) + '</div><div class="card-actions">' + add +
+        '<button class="btn outline" data-buy="' + p.id + '">' + t("buyNow") + "</button></div></article>";
     }).join("");
   }
 
@@ -156,7 +147,7 @@
     toast(t("added"));
   }
 
-  /* BUY NOW — skips the cart drawer, opens checkout directly */
+  /* BUY NOW — skips cart drawer, opens checkout directly */
   function buyNow(id) {
     var p = productsList.find(function (x) { return x.id === id; });
     if (!p) return;
@@ -191,67 +182,8 @@
     } else fab.style.display = "none";
   }
 
-  /* ===== NAV / CART EVENTS ===== */
-  var prev = MajorI18n.onChange;
-  MajorI18n.onChange = function () {
-    if (typeof prev === "function") prev();
-    renderProducts();
-    renderCart();
-    renderPayMethods();
-    drawChat();
-    renderOrders();
-    refreshAnnouncement();
-  };
-
-  refreshFromServer();
-  setInterval(function () { if (!productsList.length) refreshFromServer(); }, 4000);
-  renderProducts();
-  saveCart();
-  renderCart();
-
-  $("swapLang").addEventListener("click", function () {
-    MajorI18n.setLang((MajorI18n.getLang() || "ar") === "ar" ? "en" : "ar");
-  });
-
-  $("products").addEventListener("click", function (e) {
-    var addId = e.target.getAttribute("data-add");
-    if (addId) addToCart(addId);
-    var buyId = e.target.getAttribute("data-buy");
-    if (buyId) buyNow(buyId);
-  });
-
-  qsa(".cat").forEach(function (el) {
-    el.addEventListener("click", function () {
-      qsa(".cat").forEach(function (c) { c.classList.remove("active"); });
-      el.classList.add("active");
-      filter = el.getAttribute("data-cat");
-      renderProducts();
-    });
-  });
-
-  var searchInput = $("searchInput");
-  if (searchInput) {
-    searchInput.addEventListener("input", function () { searchQuery = this.value; renderProducts(); });
-  }
-
-  var overlay = $("overlay"), drawer = $("drawer");
-  function openCart() { overlay.classList.add("show"); drawer.classList.add("show"); renderCart(); }
-  function closeCart() { overlay.classList.remove("show"); drawer.classList.remove("show"); }
-  $("openCart").addEventListener("click", openCart);
-  overlay.addEventListener("click", closeCart);
-  $("closeCart").addEventListener("click", closeCart);
-  $("menuBtn").addEventListener("click", function () { $("navLinks").classList.toggle("open"); });
-
-  $("cartItems").addEventListener("click", function (e) {
-    if (e.target.hasAttribute("data-inc")) cart[+e.target.getAttribute("data-inc")].qty++;
-    if (e.target.hasAttribute("data-dec")) {
-      var i = +e.target.getAttribute("data-dec");
-      cart[i].qty--;
-      if (cart[i].qty <= 0) cart.splice(i, 1);
-    }
-    saveCart();
-    renderCart();
-  });
+  function openCart() { $("overlay").classList.add("show"); $("drawer").classList.add("show"); renderCart(); }
+  function closeCart() { $("overlay").classList.remove("show"); $("drawer").classList.remove("show"); }
 
   /* ===== CHECKOUT ===== */
   function cartTotal() { return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0); }
@@ -263,7 +195,6 @@
     }
     return total;
   }
-
   function validateCoupon(code) {
     var c = (couponsList || []).find(function (x) { return x.code.toUpperCase() === code.trim().toUpperCase(); });
     if (!c) return null;
@@ -271,7 +202,6 @@
     if (c.expires && new Date(c.expires) < new Date()) return null;
     return c;
   }
-
   function activePay() {
     return paymentsList.find(function (m) { return m.id === selectedPayId; }) || paymentsList[0] || null;
   }
@@ -285,11 +215,12 @@
       selectedPayId = null;
       return;
     }
+    if (!selectedPayId) selectedPayId = paymentsList[0].id;
     box.innerHTML = paymentsList.map(function (m) {
-      return '<button type="button" class="pay-method' + (m.id === selectedPayId || (!selectedPayId && m === paymentsList[0]) ? " sel" : "") + '" data-pay="' + m.id + '">' +
+      var sel = m.id === selectedPayId;
+      return '<button type="button" class="pay-method' + (sel ? " sel" : "") + '" data-pay="' + m.id + '">' +
         (m.icon || "💳") + " " + esc(m.label || "") + (m.network ? "<small>" + esc(m.network) + "</small>" : "") + "</button>";
     }).join("");
-    if (!selectedPayId) selectedPayId = paymentsList[0].id;
     renderPayPanel();
   }
 
@@ -308,6 +239,211 @@
     }
   }
 
+  function openCheckout() {
+    appliedCoupon = null;
+    $("couponCode").value = "";
+    $("couponMsg").textContent = "";
+    $("payAmount").textContent = money(cartTotal());
+    renderPayMethods();
+    renderPayPanel();
+    $("orderModal").classList.add("show");
+  }
+
+  /* ===== MY ORDERS ===== */
+  function myOrdersLocal() { return JSON.parse(localStorage.getItem("major360_myorders") || "[]"); }
+
+  function renderOrders() {
+    var box = $("myOrders");
+    if (!box) return;
+    var list = myOrdersLocal().slice(0, 5);
+    if (!list.length) {
+      box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + '</h2><p class="sub">' + t("noOrdersHistory") + "</p></div>";
+      return;
+    }
+    box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + "</h2></div>" +
+      list.map(function (o) {
+        var s = o.status || "pending";
+        var sk = "status" + s.charAt(0).toUpperCase() + s.slice(1);
+        var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
+        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div>' +
+          '<div class="order-body"><p class="sub">' + esc(it) + '</p><p><b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + " " + o.id + "</small></div></div>";
+      }).join("");
+  }
+
+  /* ===== CHAT (polling via /api/chat) ===== */
+  function getChat() {
+    var db = MajorDB.load();
+    if (!db.chats) db.chats = [];
+    return db.chats.find(function (c) { return c.id === chatId; });
+  }
+  function drawChat() {
+    var log = $("chatLog");
+    var c = getChat();
+    if (!c) {
+      log.innerHTML = '<p class="sub">' + t("chatHello") + "</p>";
+      $("chatStartBox").style.display = "flex";
+      $("chatSendBox").style.display = "none";
+      return;
+    }
+    $("chatStartBox").style.display = "none";
+    $("chatSendBox").style.display = "flex";
+    log.innerHTML = c.messages.map(function (m) {
+      return '<div class="bubble ' + m.from + '">' + esc(m.text) + "<time>" + esc(m.at) + "</time></div>";
+    }).join("");
+    log.scrollTop = log.scrollHeight;
+    var unread = c.messages.filter(function (m) { return m.from === "admin" && m.ts > lastSeen; }).length;
+    if (!$("chatWin").classList.contains("open")) updateBadge(unread);
+    else { lastSeen = Date.now(); updateBadge(0); }
+  }
+  function updateBadge(n) {
+    var b = $("chatBadge");
+    if (n > 0) { b.textContent = n; b.classList.add("show"); }
+    else b.classList.remove("show");
+  }
+  function startChat() {
+    var name = $("chatName").value.trim();
+    if (!name) return;
+    var db = MajorDB.load();
+    if (!db.chats) db.chats = [];
+    chatId = "c" + Date.now();
+    chatName = name;
+    sessionStorage.setItem("major360_chat", chatId);
+    sessionStorage.setItem("major360_chat_name", chatName);
+    sessionStorage.setItem("major360_chat_v2", "1");
+    db.chats.unshift({
+      id: chatId, name: name, updated: Date.now(),
+      messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
+    });
+    MajorDB.save(db);
+    fetch(MAJOR_API("/api/chat"), {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatId: chatId, name: name })
+    }).catch(function () {});
+    drawChat();
+  }
+  function pollChat() {
+    if (!chatId) return;
+    fetch(MAJOR_API("/api/chat?id=" + encodeURIComponent(chatId)), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (list) {
+        if (!Array.isArray(list) || !list.length) return;
+        var remote = list[0];
+        var db = MajorDB.load();
+        var c = db.chats.find(function (x) { return x.id === chatId; });
+        if (!c) { c = { id: chatId, name: chatName, updated: Date.now(), messages: [] }; db.chats.unshift(c); }
+        var added = false;
+        (remote.messages || []).forEach(function (m) {
+          if (m && !c.messages.some(function (x) { return x.ts === m.ts; })) { c.messages.push(m); added = true; }
+        });
+        if (added) { c.updated = Date.now(); MajorDB.save(db); }
+        drawChat();
+      })
+      .catch(function () {});
+  }
+  function sendUser() {
+    var input = $("chatInput");
+    var text = input.value.trim();
+    if (!text || !chatId || !chatName) {
+      if (!chatName) { $("chatStartBox").style.display = "flex"; $("chatName").focus(); }
+      return;
+    }
+    var db = MajorDB.load();
+    var c = db.chats.find(function (x) { return x.id === chatId; });
+    if (!c) return;
+    var msg = { from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() };
+    c.messages.push(msg);
+    c.updated = Date.now();
+    MajorDB.save(db);
+    input.value = "";
+    fetch(MAJOR_API("/api/chat"), {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatId: chatId, name: chatName, message: msg })
+    }).catch(function () {});
+    drawChat();
+  }
+
+  /* ===== INIT ===== */
+  var prev = MajorI18n.onChange;
+  MajorI18n.onChange = function () {
+    if (typeof prev === "function") prev();
+    renderProducts();
+    renderCart();
+    renderPayMethods();
+    drawChat();
+    renderOrders();
+    refreshAnnouncement();
+  };
+
+  refreshStore();
+  setInterval(refreshStore, 15000);
+  setInterval(refreshMyOrders, 15000);
+  setInterval(pollChat, 5000);
+  renderProducts();
+  saveCart();
+  renderCart();
+  refreshMyOrders();
+
+  /* ===== EVENTS ===== */
+  $("swapLang").addEventListener("click", function () {
+    MajorI18n.setLang((MajorI18n.getLang() || "ar") === "ar" ? "en" : "ar");
+  });
+  $("products").addEventListener("click", function (e) {
+    var addId = e.target.getAttribute("data-add");
+    if (addId) addToCart(addId);
+    var buyId = e.target.getAttribute("data-buy");
+    if (buyId) buyNow(buyId);
+  });
+  qsa(".cat").forEach(function (el) {
+    el.addEventListener("click", function () {
+      qsa(".cat").forEach(function (c) { c.classList.remove("active"); });
+      el.classList.add("active");
+      filter = el.getAttribute("data-cat");
+      renderProducts();
+    });
+  });
+  var searchInput = $("searchInput");
+  if (searchInput) searchInput.addEventListener("input", function () { searchQuery = this.value; renderProducts(); });
+
+  $("openCart").addEventListener("click", openCart);
+  $("overlay").addEventListener("click", closeCart);
+  $("closeCart").addEventListener("click", closeCart);
+  $("menuBtn").addEventListener("click", function () { $("navLinks").classList.toggle("open"); });
+  $("cartItems").addEventListener("click", function (e) {
+    if (e.target.hasAttribute("data-inc")) cart[+e.target.getAttribute("data-inc")].qty++;
+    if (e.target.hasAttribute("data-dec")) {
+      var i = +e.target.getAttribute("data-dec");
+      cart[i].qty--;
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+    }
+    saveCart();
+    renderCart();
+  });
+
+  $("checkout").addEventListener("click", function () {
+    if (!cart.length) return toast(t("emptyCart"));
+    closeCart();
+    openCheckout();
+  });
+  $("closeOrder").addEventListener("click", function () { $("orderModal").classList.remove("show"); });
+
+  $("couponApply").addEventListener("click", function () {
+    var code = $("couponCode").value.trim();
+    if (!code) return;
+    var coupon = validateCoupon(code);
+    var msg = $("couponMsg");
+    if (!coupon) {
+      msg.textContent = t("couponInvalid");
+      msg.style.color = "var(--bad)";
+      appliedCoupon = null;
+      $("payAmount").textContent = money(cartTotal());
+      return;
+    }
+    appliedCoupon = coupon;
+    msg.textContent = t("couponApplied") + " (-" + (coupon.type === "percent" ? coupon.value + "%" : "$" + coupon.value) + ")";
+    msg.style.color = "var(--ok)";
+    $("payAmount").textContent = money(cartTotalWithDiscount());
+  });
+
   document.addEventListener("click", function (e) {
     var card = e.target.closest("[data-pay]");
     if (card) {
@@ -325,44 +461,6 @@
     }
   });
 
-  function openCheckout() {
-    appliedCoupon = null;
-    $("couponCode").value = "";
-    $("couponMsg").textContent = "";
-    $("payAmount").textContent = money(cartTotal());
-    renderPayMethods();
-    renderPayPanel();
-    $("orderModal").classList.add("show");
-  }
-
-  $("checkout").addEventListener("click", function () {
-    if (!cart.length) return toast(t("emptyCart"));
-    closeCart();
-    openCheckout();
-  });
-  $("closeOrder").addEventListener("click", function () { $("orderModal").classList.remove("show"); });
-
-  /* COUPON */
-  $("couponApply").addEventListener("click", applyCoupon);
-  function applyCoupon() {
-    var code = $("couponCode").value.trim();
-    if (!code) return;
-    var coupon = validateCoupon(code);
-    var msg = $("couponMsg");
-    if (!coupon) {
-      msg.textContent = t("couponInvalid");
-      msg.style.color = "var(--bad)";
-      appliedCoupon = null;
-      $("payAmount").textContent = money(cartTotal());
-      return;
-    }
-    appliedCoupon = coupon;
-    msg.textContent = t("couponApplied") + " (-" + (coupon.type === "percent" ? coupon.value + "%" : "$" + coupon.value) + ")";
-    msg.style.color = "var(--ok)";
-    $("payAmount").textContent = money(cartTotalWithDiscount());
-  }
-
-  /* PROOF UPLOAD */
   $("cproof").addEventListener("change", function (e) {
     var file = e.target.files && e.target.files[0];
     if (!file) { proofData = ""; return; }
@@ -383,7 +481,7 @@
     img.src = url;
   });
 
-  /* SUBMIT ORDER → SERVER */
+  /* SUBMIT ORDER */
   $("orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
     if (!proofData) return toast(t("proofNeed"));
@@ -405,19 +503,16 @@
       at: new Date().toLocaleString()
     };
     fetch(MAJOR_API("/api/orders"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(order)
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(order)
     }).then(function (r) { return r.json(); })
       .then(function (saved) {
         if (saved && saved.id) {
-          var myOrders = JSON.parse(localStorage.getItem("major360_myorders") || "[]");
+          var myOrders = myOrdersLocal();
           myOrders.unshift(saved);
           localStorage.setItem("major360_myorders", JSON.stringify(myOrders));
           renderOrders();
         }
       }).catch(function () {});
-    try { if (liveSocket) liveSocket.emit("order:new", { name: order.name, country: order.country, items: order.items.map(function (i) { return i.name; }).join(", ") }); } catch (err) {}
     cart = [];
     proofData = "";
     appliedCoupon = null;
@@ -430,191 +525,21 @@
     e.target.reset();
   });
 
-  /* ===== MY ORDERS (live status via orders:updated) ===== */
-  function myOrdersLocal() {
-    return JSON.parse(localStorage.getItem("major360_myorders") || "[]");
-  }
-  function syncMyOrderStatus() {
-    var mine = myOrdersLocal();
-    var changed = false;
-    mine.forEach(function (o) {
-      var s = ordersList.find(function (x) { return x.id === o.id; });
-      if (s && s.status !== (o.status || "pending")) { o.status = s.status; changed = true; }
-    });
-    if (changed) {
-      localStorage.setItem("major360_myorders", JSON.stringify(mine));
-      renderOrders();
-    }
-  }
-
-  function renderOrders() {
-    var box = $("myOrders");
-    if (!box) return;
-    var list = myOrdersLocal().slice(0, 5);
-    if (!list.length) {
-      box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + '</h2><p class="sub">' + t("noOrdersHistory") + "</p></div>";
-      return;
-    }
-    box.innerHTML = '<div class="section-head"><h2>' + t("myOrders") + "</h2></div>" +
-      list.map(function (o) {
-        var s = o.status || "pending";
-        var sk = "status" + s.charAt(0).toUpperCase() + s.slice(1);
-        var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
-        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div>' +
-          '<div class="order-body"><p class="sub">' + esc(it) + '</p><p><b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + " " + o.id + "</small></div></div>";
-      }).join("");
-  }
-
-  /* ===== CHAT ===== */
-  var fab = $("chatFab"), win = $("chatWin");
-  fab.addEventListener("click", function () {
-    win.classList.toggle("open");
-    if (win.classList.contains("open")) { lastSeen = Date.now(); updateBadge(0); drawChat(); }
+  /* ===== CHAT EVENTS ===== */
+  $("chatFab").addEventListener("click", function () {
+    $("chatWin").classList.toggle("open");
+    if ($("chatWin").classList.contains("open")) { lastSeen = Date.now(); updateBadge(0); drawChat(); }
   });
-  $("chatClose").addEventListener("click", function () { win.classList.remove("open"); });
-
-  function getChat() {
-    var db = MajorDB.load();
-    if (!db.chats) db.chats = [];
-    return db.chats.find(function (c) { return c.id === chatId; });
-  }
-
-  function drawChat() {
-    var log = $("chatLog");
-    var c = getChat();
-    if (!c) {
-      log.innerHTML = '<p class="sub">' + t("chatHello") + "</p>";
-      $("chatStartBox").style.display = "flex";
-      $("chatSendBox").style.display = "none";
-      return;
-    }
-    $("chatStartBox").style.display = "none";
-    $("chatSendBox").style.display = "flex";
-    log.innerHTML = c.messages.map(function (m) {
-      return '<div class="bubble ' + m.from + '">' + esc(m.text) + "<time>" + esc(m.at) + "</time></div>";
-    }).join("");
-    log.scrollTop = log.scrollHeight;
-    var unread = c.messages.filter(function (m) { return m.from === "admin" && m.ts > lastSeen; }).length;
-    if (!win.classList.contains("open")) updateBadge(unread);
-    else { lastSeen = Date.now(); updateBadge(0); }
-  }
-
-  function updateBadge(n) {
-    var b = $("chatBadge");
-    if (n > 0) { b.textContent = n; b.classList.add("show"); }
-    else b.classList.remove("show");
-  }
-
+  $("chatClose").addEventListener("click", function () { $("chatWin").classList.remove("open"); });
   $("chatStart").addEventListener("click", startChat);
   $("chatName").addEventListener("keydown", function (e) { if (e.key === "Enter") startChat(); });
-
-  function startChat() {
-    var name = $("chatName").value.trim();
-    if (!name) return;
-    var db = MajorDB.load();
-    if (!db.chats) db.chats = [];
-    chatId = "c" + Date.now();
-    chatName = name;
-    sessionStorage.setItem("major360_chat", chatId);
-    sessionStorage.setItem("major360_chat_name", chatName);
-    sessionStorage.setItem("major360_chat_v2", "1");
-    db.chats.unshift({
-      id: chatId, name: name, updated: Date.now(),
-      messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
-    });
-    MajorDB.save(db);
-    if (liveSocket) {
-      liveSocket.emit("chat:new", { chatId: chatId, name: name });
-      liveSocket.emit("chat:message", { chatId: chatId, message: { from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() } });
-    }
-    drawChat();
-  }
-
-  function sendUser() {
-    var input = $("chatInput");
-    var text = input.value.trim();
-    if (!text || !chatId || !chatName) {
-      if (!chatName) { $("chatStartBox").style.display = "flex"; $("chatName").focus(); }
-      return;
-    }
-    var db = MajorDB.load();
-    var c = db.chats.find(function (x) { return x.id === chatId; });
-    if (!c) return;
-    var msg = { from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() };
-    c.messages.push(msg);
-    c.updated = Date.now();
-    MajorDB.save(db);
-    input.value = "";
-    if (liveSocket) liveSocket.emit("chat:message", { chatId: chatId, name: chatName, message: msg });
-    drawChat();
-  }
   $("chatSend").addEventListener("click", sendUser);
   $("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
-
-  if (liveSocket) {
-    liveSocket.on("chat:message", function (data) {
-      if (data.chatId === chatId) {
-        var db = MajorDB.load();
-        var c = db.chats.find(function (x) { return x.id === chatId; });
-        if (c) {
-          var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
-          if (!exists) { c.messages.push(data.message); MajorDB.save(db); }
-        }
-        drawChat();
-      }
-    });
-  }
 
   if (chatId) {
     $("chatStartBox").style.display = "none";
     $("chatSendBox").style.display = "flex";
-    if (liveSocket) liveSocket.emit("chat:join", chatId);
     drawChat();
   } else drawChat();
-
-  /* ===== SOCIAL PROOF ===== */
-  function showSocialProof(name, country, item) {
-    var box = $("socialProof");
-    if (!box) return;
-    var el = document.createElement("div");
-    el.className = "social-notif";
-    el.innerHTML = '<span class="sn-icon">🛒</span><span class="sn-text"><b>' + esc(name || "زبون") + "</b> " + t("bought") + " " + esc(item) + "<small>" + (country ? "من " + esc(country) : "") + " · " + t("justNow") + "</small></span>";
-    box.appendChild(el);
-    el._t = setTimeout(function () {
-      el.classList.add("out");
-      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
-    }, 5000);
-    while (box.children.length > 3 && box.firstChild) box.removeChild(box.firstChild);
-  }
-
-  function showVisit(name, country) {
-    var box = $("socialProof");
-    if (!box) return;
-    var el = document.createElement("div");
-    el.className = "social-notif";
-    el.innerHTML = '<span class="sn-icon">👋</span><span class="sn-text"><b>' + esc(name || "زبون") + "</b> " + t("visiting") + "<small>" + (country ? "من " + esc(country) : "") + " · " + t("justNow") + "</small></span>";
-    box.appendChild(el);
-    el._t = setTimeout(function () {
-      el.classList.add("out");
-      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
-    }, 3200);
-    while (box.children.length > 3 && box.firstChild) box.removeChild(box.firstChild);
-  }
-
-  function updateVisitorCount(n) {
-    var el = $("visitorCount");
-    if (el) el.textContent = n || 0;
-  }
-  updateVisitorCount(["1", "2", "3", "4", "5", "6", "7"][Math.floor(Math.random() * 7)]);
-
-  if (liveSocket) {
-    liveSocket.on("live:activity", function (d) { showSocialProof(d.name, d.country, d.item); });
-    liveSocket.on("live:visit", function (d) { showVisit(d.name, d.country); });
-    liveSocket.on("live:stats", function (d) { if (d.visitors) updateVisitorCount(d.visitors); });
-    liveSocket.on("live:visitor", function (d) { if (d.visitors) updateVisitorCount(d.visitors); });
-  }
-
-  setInterval(drawChat, 1500);
   window.addEventListener("storage", function () { drawChat(); });
-  renderOrders();
 })();

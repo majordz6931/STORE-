@@ -79,7 +79,8 @@
       used: "الاسم مستخدم", adminAdded: "تمت إضافة المشرف", colUser: "المستخدم",
       chatTitle: "المحادثات", noChats: "لا توجد محادثات بعد", newChat: "بدأ محادثة جديدة", reply: "رد",
       typeMsg: "اكتب رسالتك...", send: "إرسال",
-      confirmDelete: "تأكيد الحذف؟", err: "خطأ", retry: "إعادة"
+      confirmDelete: "تأكيد الحذف؟", err: "خطأ", retry: "إعادة",
+      storageError: "تعذر حفظ البيانات — أضف GH_TOKEN في إعدادات Vercel ثم أعد المحاولة"
     },
     en: {
       dir: "ltr", htmlLang: "en",
@@ -158,7 +159,8 @@
       used: "Username already used", adminAdded: "Admin added", colUser: "User",
       chatTitle: "Chats", noChats: "No chats yet", newChat: "started a new chat", reply: "Reply",
       typeMsg: "Type a message...", send: "Send",
-      confirmDelete: "Confirm delete?", err: "Error", retry: "Retry"
+      confirmDelete: "Confirm delete?", err: "Error", retry: "Retry",
+      storageError: "Could not save — add GH_TOKEN in Vercel settings and retry"
     }
   };
 
