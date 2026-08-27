@@ -1,7 +1,7 @@
 {
-  "name": "major-store",
-  "version": "2.0.0",
+  "name": "major-cyber-store",
+  "version": "3.0.0",
   "private": true,
-  "description": "MAJOR STORE — gaming & consoles with local admin dashboard",
+  "description": "MAJOR CYBER — Cybersecurity Tools store with cyber dark theme",
   "scripts": { "start": "python3 -m http.server 8080" }
 }

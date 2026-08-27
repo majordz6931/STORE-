@@ -3,43 +3,264 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#ed1c4a" />
-  <title>MAJOR STORE — ألعاب، بطاقات رقمية، وإكسسوارات PlayStation</title>
-  <link rel="stylesheet" href="css/style.css?v=2026-major" />
+  <meta name="theme-color" content="#0b1322" />
+  <title>MAJOR CYBER — متجر أدوات الاختراق وبرامج الأمن السيبراني</title>
+  <link rel="stylesheet" href="css/style.css?v=2026-cyber" />
 </head>
 <body>
-  <div class="announcement" id="announcement"><div class="container announcement-inner"><span>✦</span><p id="announcementText"></p><button id="announcementClose" aria-label="إغلاق">×</button></div></div>
+  <div class="scan-line"></div>
+  <div class="gridoverlay"></div>
+
+  <div class="announcement" id="announcement">
+    <div class="container announcement-inner">
+      <span class="ann-dot"></span>
+      <p id="announcementText"></p>
+      <button id="announcementClose" aria-label="إغلاق">×</button>
+    </div>
+  </div>
+
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
-      <a class="brand" href="#top" id="brandLink"><span class="brand-mark" id="brandMark"></span><span><b id="brandName">MAJOR STORE</b><small id="brandSub">AM 360 GAMES</small></span></a>
-      <nav class="main-nav" id="mainNav"><a href="#shop">المتجر</a><a href="#benefits">لماذا نحن</a><a href="#about">عنMAJOR</a><a href="#contact">تواصل معنا</a></nav>
-      <div class="header-actions"><button class="search-toggle" id="searchToggle" aria-label="بحث">⌕</button><a class="admin-link" href="admin.html">لوحة التحكم</a><button class="cart-trigger" id="cartTrigger" aria-label="السلة"><span>🛍</span><i id="cartCount">0</i></button><button class="menu-toggle" id="menuToggle">☰</button></div>
+      <a class="brand" href="#top" id="brandLink">
+        <span class="brand-mark" id="brandMark"></span>
+        <span class="brand-text">
+          <b id="brandName">MAJOR CYBER</b>
+          <small id="brandSub">TOOLS · EXPLOITS · LABS</small>
+        </span>
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <a href="#shop">المتجر</a>
+        <a href="#categories">الأقسام</a>
+        <a href="#about">من نحن</a>
+        <a href="#contact">تواصل</a>
+        <a href="admin.html" class="nav-admin">⚙ لوحة التحكم</a>
+      </nav>
+      <div class="header-actions">
+        <button class="search-toggle" id="searchToggle" aria-label="بحث">⌕</button>
+        <button class="cart-trigger" id="cartTrigger" aria-label="السلة">
+          <span>🛒</span><i id="cartCount">0</i>
+        </button>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+      </div>
     </div>
-    <div class="searchbar" id="searchbar"><div class="container"><span>⌕</span><input id="searchInput" type="search" placeholder="ابحث عن ألعاب، بطاقات PSN، إكسسوارات..." /><button id="searchClose">×</button></div></div>
+    <div class="searchbar" id="searchbar">
+      <div class="container">
+        <span>$</span>
+        <input id="searchInput" type="search" placeholder="ابحث عن Kali Linux، Metasploit، Burp Suite..." />
+        <button id="searchClose">esc</button>
+      </div>
+    </div>
   </header>
 
   <main id="top">
-    <section class="hero"><div class="hero-glow glow-one"></div><div class="hero-glow glow-two"></div><div class="container hero-grid"><div class="hero-copy"><div class="eyebrow" id="heroBadge">منصة وكلاءلعبة المتخصصة <span>✦</span></div><h1 id="heroTitle">ألعاب حقيقية<br /><em>إكسسوارات أصلية</em><br />و بطاقات رقمية</h1><p id="heroText">MAJOR STORE يختار لك الأدوات واللعب التي يستعملها اللاعبون الحقيقيون. تسليم سريع ودعم قبل وبعد الشراء.</p><div class="hero-actions"><a class="btn btn-primary" href="#shop" id="heroCta">تصفح المنتجات <span>←</span></a><a class="text-link" href="#benefits" id="heroSecondary">تواصل معنا <span>↗</span></a></div><div class="hero-stats" id="heroStats"></div></div><div class="hero-visual"><div class="visual-orbit orbit-a"></div><div class="visual-orbit orbit-b"></div><div class="device-card main-device"><div class="device-top"><span class="device-dot"></span><span>MAJOR / 01</span></div><div class="device-icon">⌁</div><div class="device-line"></div><div class="device-bars"><i></i><i></i><i></i><i></i><i></i><i></i></div><b>MAJOR<br /><span>GAMES</span></b></div><div class="floating-chip chip-one">⚡ <span>توصيل سريع</span></div><div class="floating-chip chip-two">◉ <span>4.9 rating</span></div><div class="floating-chip chip-three">✦ <span>New drop</span></div></div></div></section>
+    <section class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-noise"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <div class="hero-terminal">
+            <div class="terminal-head"><span></span><span></span><span></span><span class="t-id">root@major:~#</span></div>
+            <div class="terminal-body">
+              <p>$ <span class="typed" id="typedLine"></span><span class="cursor">█</span></p>
+            </div>
+          </div>
+          <span class="eyebrow" id="heroBadge">Ethical Hacking · Penetration Testing</span>
+          <h1 id="heroTitle">أدوات <span class="glitch" id="glitchText">الاختراق</span> وبرامج<br /><em>الأمن السيبراني</em></h1>
+          <p class="hero-text" id="heroText">توزيعات لينكس احترافية، أدوات اختبار اختراق، بيئات تدريب افتراضية، وكتب منهجية للمحترفين والطلاب.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#shop" id="heroCta">تصفح الأدوات <span>⟩⟩</span></a>
+            <a class="btn-outline-link" id="discordCta" target="_blank" href="#">انضم للديسكورد ↗</a>
+          </div>
+          <div class="hero-stats" id="heroStats"></div>
+        </div>
+        <div class="hero-visual">
+          <div class="visual-frame">
+            <div class="visual-frame-head">
+              <span class="vf-dot r"></span><span class="vf-dot y"></span><span class="vf-dot g"></span>
+              <span class="vf-title">MAJOR/CYBER—01.root</span>
+            </div>
+            <div class="visual-frame-body">
+              <pre><code><span class="c-mut">$ </span>scan<span class="c-key"> -t</span> target.com
+<span class="c-mut">→</span> scanning <span class="c-ok">5</span> hosts...
+<span class="c-ok">✓</span> ports detected: <span class="c-key">22, 80, 443, 8080</span>
+<span class="c-warn">!</span> vuln found: <span class="c-bad">SQLi · XSS · CVE-2026-1337</span>
+<span class="c-mut">►</span> payload ready
+<span class="c-mut">$ </span><span class="cursor-blink">█</span></code></pre>
+            </div>
+          </div>
+          <div class="visual-tags">
+            <span class="vtag">▸ Kali Linux</span>
+            <span class="vtag">▸ Burp Suite Pro</span>
+            <span class="vtag">▸ OWASP ZAP</span>
+            <span class="vtag">▸ John the Ripper</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bullets">
+        <div class="container">
+          <span>⚡ <b>تجهيز فوري</b></span>
+          <span>🛡️ <b>ضمان الجودة</b></span>
+          <span>💬 <b>دعم على Discord</b></span>
+          <span>💎 <b>مدفوعات مشفرة</b></span>
+        </div>
+      </div>
+    </section>
 
-    <section class="category-section"><div class="container"><div class="section-kicker"><span>استكشف حسب الفئة</span><a href="#shop" id="viewAll">عرض الكل ←</a></div><div class="category-row" id="categoryRow"></div></div></section>
-    <section class="shop-section" id="shop"><div class="container"><div class="section-heading"><div><span class="eyebrow small">منتجاتنا</span><h2>اختيارات ذكية، <em>مصممة لك</em></h2></div><div class="shop-tools"><span id="resultCount">0 منتج</span><select id="sortProducts" aria-label="ترتيب المنتجات"><option value="featured">الأكثر تميزا</option><option value="low">السعر: الأقل أولاً</option><option value="high">السعر: الأعلى أولاً</option><option value="rating">الأعلى تقييماً</option></select></div></div><div class="filter-pills" id="filterPills"></div><div class="products-grid" id="productsGrid"></div><div class="empty-view" id="emptyView" hidden><span>⌕</span><h3>لم نجد ما تبحث عنه</h3><p>جرب كلمة أخرى أو تصفح جميع الفئات.</p><button class="btn btn-outline" id="clearSearch">عرض جميع المنتجات</button></div></div></section>
+    <section class="categories-section" id="categories">
+      <div class="container">
+        <div class="section-kicker"><span>// الأقسام</span></div>
+        <div class="category-row" id="categoryRow"></div>
+      </div>
+    </section>
 
-    <section class="benefits-section" id="benefits"><div class="container"><div class="benefits-intro"><span class="eyebrow small">تجربة MAJOR</span><h2>أكثر من متجر<br /><em>نحن نفهم اللاعب</em></h2><p>نختار كل منتج نزاً ونختبر قبعاً من اللاعبين الحقيقيين حتى تصل لك أفضل قيمة مقابل سعر.</p></div><div class="benefits-grid"><article><span class="benefit-icon">◆</span><h3>منتجات موثوقة</h3><p>كودهات أصلية وأجهزة ضمان، مختارة من موردين يمان.</p></article><article><span class="benefit-icon">◴</span><h3>تجهيز سريع</h3><p>نجهز طلبك ونشحنه بأسرع وقت، مع متابعة مباشرة للكودات.</p></article><article><span class="benefit-icon">♡</span><h3>دعم اللاعبين</h3><p>فريقنا يفهم اللعب، ويساعدك في الاختيار والاستعمال.</p></article></div></div></section>
+    <section class="shop-section" id="shop">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow small">// let products = filteredList;</span>
+            <h2>أدوات <em class="green">احترافية</em></h2>
+          </div>
+          <div class="shop-tools">
+            <span id="resultCount">0 منتج</span>
+            <select id="sortProducts">
+              <option value="featured">الأكثر تميزاً</option>
+              <option value="low">السعر: الأقل أولاً</option>
+              <option value="high">السعر: الأعلى أولاً</option>
+              <option value="rating">الأعلى تقييماً</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-pills" id="filterPills"></div>
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="empty-view" id="emptyView" hidden>
+          <span>⌕</span>
+          <h3>لم نجد نتيجة</h3>
+          <p>جرّب كلمة بحث أخرى أو تصفح جميع الأقسام.</p>
+          <button class="btn btn-outline" id="clearSearch">عرض جميع المنتجات</button>
+        </div>
+      </div>
+    </section>
 
-    <section class="about-section" id="about"><div class="container about-card"><div><span class="eyebrow small">من نحن</span><h2>MAJOR STORE<br /><em>اختيار اللاعب الحقيقي</em></h2></div><p>MAJOR STORE ليس مجرد متجر، بل نقطة تجمع للألعاب الإلكترونية، حيث اللاعب الجزائري يحصل على كل ما يحتاجه – بطاقات رقمية، ألعاب، أجهزة، إكسسوارات – بثقة وجودة عالية وخدمة بشرحها.</p><a href="#contact" class="btn btn-dark">تواصل معنا <span>←</span></a></div></section>
-    <section class="contact-section" id="contact"><div class="container contact-grid"><div><span class="eyebrow small">اشترك في النشرة</span><h2>احصل على<br /><em>آخر الأخبار والعروض</em></h2></div><form class="newsletter" id="newsletterForm"><input type="email" id="newsletterEmail" placeholder="بريدك الإلكتروني" required /><button class="btn btn-primary" type="submit">اشترك <span>←</span></button><small id="newsletterMessage"></small></form></div></section>
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="features-intro">
+          <span class="eyebrow small">// why us</span>
+          <h2>ليش يختارون المتخصصون<br /><em class="green">MAJOR CYBER؟</em></h2>
+        </div>
+        <div class="features-grid">
+          <article><span class="feat-icon">◎</span><h3>منتجات مرخّصة</h3><p>كل الأدوات تأتي مرخّصة أو من مصادر مفتوحة موثوقة، مع ضمان تفعيل.</p></article>
+          <article><span class="feat-icon">⚡</span><h3>تسليم لحظي</h3><p>تستلم كود التفعيل أو ملف التوزيعة خلال دقائق بعد تأكيد الدفع.</p></article>
+          <article><span class="feat-icon">⬢</span><h3>دعم فني حقيقي</h3><p>فريق متمكن في الأمن السيبراني، يقدّم دعماً فعلياً عبر Discord والبريد.</p></article>
+          <article><span class="feat-icon">$</span><h3>مدفوعات آمنة</h3><p>يبيّمان بنكي، Crypto, BaridiMob — كل المعاملات تتم بسرية تامة.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="container about-card">
+        <div>
+          <span class="eyebrow small">// about</span>
+          <h2>MAJOR CYBER<br /><em class="green">أدوات الاختراق الأخلاقي</em></h2>
+        </div>
+        <p>متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية. كل ما يحتاجه المتخصص، الممارس، والطالب ليتعلم ويختبر في بيئة محكومة وقانونية.</p>
+        <a href="#contact" class="btn btn-primary">تواصل معنا <span>⟩⟩</span></a>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="container contact-grid">
+        <div>
+          <span class="eyebrow small">// newsletter</span>
+          <h2>اشترك في<br /><em class="green">القائمة البريدية</em></h2>
+          <p>احصل على آخر الأدوات، العروض، والـ CVE الجديدة مباشرة في بريدك.</p>
+        </div>
+        <form class="newsletter" id="newsletterForm">
+          <input type="email" id="newsletterEmail" placeholder="root@your.email" required />
+          <button class="btn btn-primary" type="submit">اشترك <span>⟩⟩</span></button>
+          <small id="newsletterMessage"></small>
+        </form>
+      </div>
+    </section>
   </main>
 
-  <footer class="site-footer"><div class="container footer-top"><a class="brand light" href="#top"><span class="brand-mark" id="footerMark"></span><span><b>MAJOR STORE</b><small id="footerSub">AM 360 GAMES</small></span></a><p id="footerText">Gaming أقوى. اختيار أذكى.</p><div class="socials"><a id="instagramLink" href="#" target="_blank">ig</a><a id="whatsappLink" href="#" target="_blank">wa</a><a id="emailLink" href="#">@</a></div></div><div class="container footer-bottom"><span>© <span id="footerYear"></span> MAJOR STORE. جميع الحقوق محفوظة.</span><span id="footerAddress">البليدة، الجزائر</span></div></footer>
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <a class="brand light" href="#top">
+        <span class="brand-mark" id="footerMark"></span>
+        <span class="brand-text">
+          <b id="footerBrand">MAJOR CYBER</b>
+          <small id="footerSub">TOOLS · EXPLOITS · LABS</small>
+        </span>
+      </a>
+      <p id="footerText">Cybersecurity tools for professionals.</p>
+      <div class="socials">
+        <a id="discordLink" href="#" target="_blank" title="Discord">dc</a>
+        <a id="instagramLink" href="#" target="_blank" title="Instagram">ig</a>
+        <a id="whatsappLink" href="#" target="_blank" title="WhatsApp">wa</a>
+        <a id="emailLink" href="#" title="Email">@</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="footerYear"></span> MAJOR CYBER. جميع الحقوق محفوظة.</span>
+      <span id="footerAddress">الجزائر</span>
+    </div>
+  </footer>
 
   <div class="overlay" id="overlay"></div>
-  <aside class="cart-drawer" id="cartDrawer"><div class="drawer-head"><div><span class="eyebrow small">مشترياتك</span><h2>سلة التسوق</h2></div><button class="close-btn" id="cartClose">×</button></div><div class="drawer-body" id="cartItems"></div><div class="drawer-footer"><div class="total-line"><span>الإجمالي</span><strong id="cartTotal">0 دج</strong></div><button class="btn btn-primary full" id="checkoutOpen">متابعة الطلب <span>←</span></button><p>الدفع الآمن عند الاستلام أو كود PSN</p></div></aside>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="drawer-head">
+      <div class="terminal-head small">
+        <span></span><span></span><span></span><span class="t-id">cart</span>
+      </div>
+      <h2>سلة التسوق</h2>
+      <button class="close-btn" id="cartClose">×</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-footer">
+      <div class="total-line"><span class="total-label">الإجمالي</span><strong id="cartTotal">0 دج</strong></div>
+      <button class="btn btn-primary full" id="checkoutOpen">إكمال الطلب <span>⟩⟩</span></button>
+      <p class="payment-options" id="paymentPreview"></p>
+    </div>
+  </aside>
 
-  <div class="modal" id="productModal"><div class="modal-card product-modal-card"><button class="close-btn modal-close" data-close="productModal">×</button><div id="productModalContent"></div></div></div>
-  <div class="modal" id="checkoutModal"><div class="modal-card checkout-card"><div class="modal-heading"><div><span class="eyebrow small">الخطوة الأخيرة</span><h2>أكمل طلبك</h2></div><button class="close-btn" data-close="checkoutModal">×</button></div><form id="checkoutForm"><div class="form-grid"><label>الاسم الكامل<input id="orderName" required placeholder="اكتب اسمك" /></label><label>رقم الهاتف<input id="orderPhone" required placeholder="07 xx xx xx xx" /></label></div><label>العنوان / الولاية<input id="orderAddress" required placeholder="الولاية والعنوان" /></label><label>طريقة الدفع<select id="orderPayment"></select></label><label>ملاحظات<textarea id="orderNote" rows="3" placeholder="أي ملاحظة حول طلبك؟"></textarea></label><div class="checkout-summary"><span>المجموع</span><strong id="checkoutTotal">0 دج</strong></div><button class="btn btn-primary full" type="submit">تأكيد الطلب <span>✓</span></button><p class="form-note">MAJOR STORE سيتصل بك لتأكيد طلبك وموعد التسليم.</p></form></div></div>
+  <div class="modal" id="productModal">
+    <div class="modal-card product-modal-card">
+      <button class="close-btn modal-close" data-close="productModal">×</button>
+      <div id="productModalContent"></div>
+    </div>
+  </div>
+  <div class="modal" id="checkoutModal">
+    <div class="modal-card checkout-card">
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow small">// checkout</span>
+          <h2>إكمال الطلب</h2>
+        </div>
+        <button class="close-btn" data-close="checkoutModal">×</button>
+      </div>
+      <form id="checkoutForm">
+        <div class="form-grid">
+          <label>الاسم الكامل<input id="orderName" required placeholder="اسمك" /></label>
+          <label>رقم الهاتف<input id="orderPhone" required placeholder="05/07 xx xx xx xx" /></label>
+        </div>
+        <label>البريد الإلكتروني<input id="orderEmail" type="email" required placeholder="you@email.com" /></label>
+        <label>الولاية / المدينة<input id="orderAddress" required placeholder="الولاية" /></label>
+        <label>طريقة الدفع<select id="orderPayment"></select></label>
+        <label>كود الخصم<input id="orderCoupon" placeholder="إن وُجد" /></label>
+        <label>ملاحظات<textarea id="orderNote" rows="3" placeholder="أي تفاصيل إضافية..."></textarea></label>
+        <div class="checkout-summary">
+          <span class="total-label">المجموع</span>
+          <strong id="checkoutTotal">0 دج</strong>
+        </div>
+        <button class="btn btn-primary full" type="submit">تأكيد وتسليم <span>✓</span></button>
+        <p class="form-note">سيتم التواصل معك عبر واتساب لتأكيد التسليم خلال دقائق.</p>
+      </form>
+    </div>
+  </div>
   <div class="toast" id="toast"></div>
   <button class="support-fab" id="supportFab" aria-label="تواصل عبر واتساب">◔</button>
 
-  <script src="js/store.js?v=2026-major"></script><script src="js/app.js?v=2026-major"></script>
+  <script src="js/store.js?v=2026-cyber"></script>
+  <script src="js/app.js?v=2026-cyber"></script>
 </body>
 </html>

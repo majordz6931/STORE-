@@ -1,16 +1,288 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="theme-color" content="#11142c" /><title>MAJOR STORE — لوحة التحكم</title><link rel="stylesheet" href="css/admin.css?v=2026-major" /></head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b1322" />
+  <title>MAJOR CYBER — لوحة التحكم</title>
+  <link rel="stylesheet" href="css/admin.css?v=2026-cyber" />
+</head>
 <body>
-  <div class="login-screen" id="loginScreen"><div class="login-art"><div class="login-orb"></div><span class="login-mark" id="loginMark"></span><h1>MAJOR<br /><em>CONTROL</em></h1><p>تحكم كامل في متجر الألعابالإلكترونية.</p></div><div class="login-box"><span class="eyebrow">لوحة الإدارة</span><h2>مرحباً بعودتك</h2><p>سجّل الدخول لإدارة متجرك من مكان واحد.</p><form id="loginForm"><label>اسم المستخدم<input id="loginUser" required autocomplete="username" value="admin" /></label><label>كلمة المرور<input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••" /></label><button class="btn primary full" type="submit">دخول إلى اللوحة <span>←</span></button><small id="loginError"></small></form><a class="back-store" href="index.html">← العودة إلى MAJOR STORE</a></div></div>
-  <div class="dashboard" id="dashboard" hidden><aside class="sidebar"><div class="side-brand"><span id="sideMark"></span><div><b>MAJOR STORE</b><small>CONTROL CENTER</small></div></div><div class="side-profile"><div class="avatar">A</div><div><b>Admin</b><small>مدير المتجر</small></div><i>●</i></div><nav class="side-nav"><p>المساحة الرئيسية</p><button class="nav-item active" data-panel="overview"><span>⌂</span>نظرة عامة</button><button class="nav-item" data-panel="products"><span>▦</span>المنتجات <b id="productBadge">0</b></button><button class="nav-item" data-panel="categories"><span>◈</span>الأقسام</button><p>إدارة المتجر</p><button class="nav-item" data-panel="homepage"><span>✦</span>واجهة المتجر</button><button class="nav-item" data-panel="orders"><span>↗</span>الطلبات <b id="orderBadge">0</b></button><button class="nav-item" data-panel="settings"><span>⚙</span>الإعدادات</button></nav><div class="side-bottom"><a href="index.html" target="_blank">↗ فتح المتجر</a><button id="logoutBtn">⇥ تسجيل الخروج</button></div></aside><main class="admin-main"><header class="admin-header"><div><button class="mobile-side" id="mobileSide">☰</button><span class="eyebrow">مساحة الإدارة</span><h1 id="pageTitle">نظرة عامة</h1></div><div class="admin-head-actions"><span class="last-sync">محلياً على هذا المتصفح <i></i></span><a class="view-store" href="index.html" target="_blank">مشاهدة MAJOR STORE ↗</a></div></header><div class="admin-content">
-    <section class="admin-panel active" id="panel-overview"><div class="welcome-card"><div><span class="eyebrow">أهلاً بك في MAJOR CONTROL</span><h2>جاهز لتطوير تجربة <em>اللاعب الجزائري؟</em></h2><p>إليك ملخص سريع لما يحدث في MAJOR STORE اليوم.</p></div><div class="welcome-art">M<span>✦</span></div></div><div class="metric-grid"><article><span class="metric-icon purple">▦</span><small>إجمالي المنتجات</small><strong id="metricProducts">0</strong><b>منتج نشط</b></article><article><span class="metric-icon green">↗</span><small>إجمالي الطلبات</small><strong id="metricOrders">0</strong><b>طلب محفوظ</b></article><article><span class="metric-icon orange">◷</span><small>طلبات قيد الانتظار</small><strong id="metricPending">0</strong><b>تحتاج متابعة</b></article><article><span class="metric-icon blue">◉</span><small>قيمة المبيعات</small><strong id="metricRevenue">0 دج</strong><b>من الطلبات الحالية</b></article></div><div class="overview-grid"><div class="panel-card"><div class="card-title"><div><span class="eyebrow">آخر النشاطات</span><h3>الطلبات الأخيرة</h3></div><button class="link-btn" data-go="orders">عرض الكل ←</button></div><div class="mini-orders" id="miniOrders"></div></div><div class="panel-card quick-actions"><div class="card-title"><div><span class="eyebrow">اختصارات</span><h3>إجراء سريع</h3></div></div><button data-go="products"><span>＋</span><div><b>إضافة منتج جديد</b><small>أضف منتجاً إلى المتجر</small></div><i>←</i></button><button data-go="homepage"><span>✦</span><div><b>تعديل واجهة المتجر</b><small>غّر النصوص الرئيسية</small></div><i>←</i></button><button data-go="settings"><span>⚙</span><div><b>إعدادات المتجر</b><small>بيانات التواصل والدفع</small></div><i>←</i></button></div></div></section>
-    <section class="admin-panel" id="panel-products"><div class="panel-top"><div><span class="eyebrow">كتالوج MAJOR</span><h2>إدارة المنتجات</h2><p>أضف، عدّل، أو احذف أي منتج من MAJOR STORE.</p></div><button class="btn primary" id="newProductBtn">＋ منتج جديد</button></div><div class="toolbar"><div class="admin-search">⌕<input id="adminProductSearch" placeholder="ابحث في منتجات MAJOR..." /></div><select id="adminProductSort"><option value="new">الأحدث أولاً</option><option value="low">السعر الأقل</option><option value="high">السعر الأعلى</option></select></div><div class="product-admin-grid" id="adminProductsGrid"></div></section>
-    <section class="admin-panel" id="panel-categories"><div class="panel-top"><div><span class="eyebrow">تنظيم MAJOR STORE</span><h2>الأقسام</h2><p>تحكم في فئات المنتجات كما تظهر للزوار.</p></div></div><div class="category-admin-layout"><div class="panel-card"><div class="card-title"><h3>الأقسام الحالية</h3><span class="count" id="categoryCount">0</span></div><div id="adminCategoriesList"></div></div><div class="panel-card"><div class="card-title"><h3>إضافة قسم جديد</h3></div><form id="categoryForm" class="admin-form"><label>اسم القسم<input id="categoryName" required placeholder="مثال: أجهزة Xbox" /></label><div class="two-fields"><label>الأيقونة<input id="categoryIcon" value="✦" maxlength="3" /></label><label>اللون<input id="categoryColor" type="color" value="#e8e7ff" /></label></div><button class="btn primary full">إضافة القسم</button></form></div></div></section>
-    <section class="admin-panel" id="panel-homepage"><div class="panel-top"><div><span class="eyebrow">تخصيص الواجهة</span><h2>واجهة MAJOR STORE</h2><p>عدّل المحتوى الذي يظهر في الصفحة الرئيسية بدون لمس الكود.</p></div><span class="save-state" id="homeSaved"></span></div><form id="homepageForm" class="settings-layout"><div class="panel-card form-section"><div class="card-title"><h3>قسم البداية</h3><span>Hero section</span></div><label>الشارة الصغيرة<input id="homeBadge" /></label><label>العنوان الرئيسي<textarea id="homeTitle" rows="2"></textarea></label><label>الوصف التعريفي<textarea id="homeText" rows="3"></textarea></label><div class="two-fields"><label>زر الدعوة<input id="homeCta" /></label><label>الرابط الثانوي<input id="homeSecondary" /></label></div></div><div class="panel-card form-section"><div class="card-title"><h3>إحصائيات الثقة</h3><span>3 أرقام مختصرة</span></div><div class="stat-edit"><input id="stat1Value" placeholder="24h" /><input id="stat1Label" placeholder="تجهيز سريع" /></div><div class="stat-edit"><input id="stat2Value" placeholder="100%" /><input id="stat2Label" placeholder="منتجات مختارة" /></div><div class="stat-edit"><input id="stat3Value" placeholder="4.9/5" /><input id="stat3Label" placeholder="رضا اللاعبين" /></div><button class="btn primary full" type="submit">حفظ تغييرات الواجهة</button></div></form></section>
-    <section class="admin-panel" id="panel-orders"><div class="panel-top"><div><span class="eyebrow">متابعة مبيعات MAJOR</span><h2>الطلبات</h2><p>راجع طلبات اللاعبين وحدث حالتها.</p></div><button class="btn outline" id="clearOrdersBtn">مسح الطلبات</button></div><div class="orders-table-wrap"><table class="orders-table"><thead><tr><th>الطلب</th><th>العميل</th><th>العنوان</th><th>المجموع</th><th>الدفع</th><th>الحالة</th><th></th></tr></thead><tbody id="ordersTable"></tbody></table><div class="table-empty" id="ordersEmpty">لا توجد طلبات حتى الآن.</div></div></section>
-    <section class="admin-panel" id="panel-settings"><div class="panel-top"><div><span class="eyebrow">هوية MAJOR</span><h2>الإعدادات العامة</h2><p>عدّل بيانات التواصل، الهوية، وطرق الدفع.</p></div><span class="save-state" id="settingsSaved"></span></div><form id="settingsForm" class="settings-layout"><div class="panel-card form-section"><div class="card-title"><h3>الهوية والتواصل</h3></div><div class="two-fields"><label>اسم المتجر<input id="settingBrand" required /></label><label>وصف مختصر<input id="settingDesc" /></label></div><label>النص أسفل الشعار<input id="settingFooter" /></label><label>رقم الهاتف<input id="settingPhone" /></label><div class="two-fields"><label>واتساب بدون +<input id="settingWhatsapp" /></label><label>البريد الإلكتروني<input id="settingEmail" type="email" /></label></div><label>العنوان<input id="settingAddress" /></label><label>إنستغرام<input id="settingInstagram" /></label></div><div class="panel-card form-section"><div class="card-title"><h3>شريط الإعلان</h3></div><label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>إظهار شريط الإعلان</label><label>نص الإعلان<textarea id="settingAnnouncement" rows="3"></textarea></label><div class="card-title space-top"><h3>طرق الدفع</h3></div><p class="hint">ضع كل طريقة في سطر منفصل.</p><textarea id="settingPayments" rows="5"></textarea><button class="btn primary full" type="submit">حفظ الإعدادات</button></div></form></section>
-  </div></main></div>
-  <div class="product-editor" id="productEditor"><div class="editor-backdrop" data-close-editor></div><div class="editor-panel"><div class="editor-head"><div><span class="eyebrow">كتالوج MAJOR</span><h2 id="editorTitle">إضافة منتج</h2></div><button class="close-editor" data-close-editor">×</button></div><form id="productForm" class="admin-form"><input id="productId" type="hidden" /><label>اسم المنتج<input id="productName" required /></label><label>الاسم بالإنجليزية<input id="productNameEn" /></label><div class="two-fields"><label>القسم<select id="productCategory"></select></label><label>السعر (دج)<input id="productPrice" type="number" min="1" required /></label></div><div class="two-fields"><label>السعر القديم<input id="productOldPrice" type="number" min="0" /></label><label>المخزون<input id="productStock" type="number" min="0" value="10" /></label></div><div class="two-fields"><label>الأيقونة<input id="productIcon" value="✦" maxlength="3" /></label><label>لون البطاقة<input id="productColor" type="color" value="#ffeaef" /></label></div><label>شارة المنتج<input id="productBadge" placeholder="جديد، عرض اليوم..." /></label><label>وصف المنتج<textarea id="productDescription" rows="3" required></textarea></label><label>رابط صورة اختياري<input id="productImage" type="url" placeholder="https://..." /></label><button class="btn primary full" type="submit">حفظ المنتج</button><button class="btn ghost full" type="button" data-close-editor">إلغاء</button></form></div></div>
-  <div class="toast" id="adminToast"></div><script src="js/store.js?v=2026-major"></script><script src="js/admin.js?v=2026-major"></script>
-</body></html>
+  <div class="login-screen" id="loginScreen">
+    <div class="login-art">
+      <div class="login-orb"></div>
+      <span class="login-mark" id="loginMark"></span>
+      <h1>MAJOR<br /><em>CYBER</em></h1>
+      <p>لوحة تحكم المسؤول — حماية كاملة للبيانات.</p>
+      <div class="login-tags">
+        <span>● AES-256</span>
+        <span>● TLS 1.3</span>
+        <span>● TOTP Ready</span>
+      </div>
+    </div>
+    <div class="login-box">
+      <span class="eyebrow">// admin login</span>
+      <h2>authenticate</h2>
+      <p>أدخل بيانات اعتمادك للوصول إلى لوحة التحكم.</p>
+      <form id="loginForm">
+        <label>User<input id="loginUser" required autocomplete="username" value="admin" /></label>
+        <label>Pass<input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••••••••" /></label>
+        <button class="btn primary full" type="submit">login <span>$</span></button>
+        <small id="loginError"></small>
+      </form>
+      <a class="back-store" href="index.html">← العودة إلى MAJOR CYBER</a>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard" hidden>
+    <aside class="sidebar" id="sidebar">
+      <div class="side-brand">
+        <span id="sideMark"></span>
+        <div><b>MAJOR CYBER</b><small>CONTROL CENTER</small></div>
+      </div>
+      <div class="side-profile">
+        <div class="avatar">A</div>
+        <div><b id="profileName">admin</b><small>root access</small></div>
+        <i>●</i>
+      </div>
+      <nav class="side-nav">
+        <p>main</p>
+        <button class="nav-item active" data-panel="overview"><span>⌂</span>overview</button>
+        <button class="nav-item" data-panel="products"><span>▦</span>Products <b id="productBadge">0</b></button>
+        <button class="nav-item" data-panel="categories"><span>◈</span>Categories</button>
+        <p>storefront</p>
+        <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & copy</button>
+        <button class="nav-item" data-panel="orders"><span>↗</span>Orders <b id="orderBadge">0</b></button>
+        <button class="nav-item" data-panel="settings"><span>⚙</span>Settings</button>
+      </nav>
+      <div class="side-bottom">
+        <a href="index.html" target="_blank">↗ open store</a>
+        <button id="logoutBtn">⇥ logout</button>
+      </div>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <button class="mobile-side" id="mobileSide">☰</button>
+          <span class="eyebrow">> cd /admin/panel</span>
+          <h1 id="pageTitle">overview</h1>
+        </div>
+        <div class="admin-head-actions">
+          <span class="last-sync">all data is saved locally <i></i></span>
+          <a class="view-store" href="index.html" target="_blank">live preview ↗</a>
+        </div>
+      </header>
+      <div class="admin-content">
+        <section class="admin-panel active" id="panel-overview">
+          <div class="welcome-card">
+            <div>
+              <span class="eyebrow cyan">// hello admin</span>
+              <h2>Welcome back, <em>root</em></h2>
+              <p>إليك ملخص سريع لعمليات MAJOR CYBER اليوم.</p>
+            </div>
+            <div class="welcome-art">_<span>$</span></div>
+          </div>
+          <div class="metric-grid">
+            <article><span class="metric-icon cyan">▦</span><small>المنتجات</small><strong id="metricProducts">0</strong><b>نشط</b></article>
+            <article><span class="metric-icon green">↗</span><small>الطلبات</small><strong id="metricOrders">0</strong><b>محفوظ</b></article>
+            <article><span class="metric-icon orange">◷</span><small>قيد الانتظار</small><strong id="metricPending">0</strong><b>يحتاج متابعة</b></article>
+            <article><span class="metric-icon purple">$</span><small>المبيعات</small><strong id="metricRevenue">0 دج</strong><b>إجمالي</b></article>
+          </div>
+          <div class="overview-grid">
+            <div class="panel-card">
+              <div class="card-title">
+                <div><span class="eyebrow cyan">// recent activity</span><h3>آخر الطلبات</h3></div>
+                <button class="link-btn" data-go="orders">عرض الكل →</button>
+              </div>
+              <div class="mini-orders" id="miniOrders"></div>
+            </div>
+            <div class="panel-card quick-actions">
+              <div class="card-title">
+                <div><span class="eyebrow cyan">// quick actions</span><h3>wat u wanna do?</h3></div>
+              </div>
+              <button data-go="products"><span>＋</span><div><b>add product</b><small>أضف منتجاً جديداً للسوق</small></div><i>⟩⟩</i></button>
+              <button data-go="homepage"><span>✦</span><div><b>edit hero copy</b><small>نصوص وأرقام الصفحة الأمامية</small></div><i>⟩⟩</i></button>
+              <button data-go="settings"><span>⚙</span><div><b>settings</b><small>إعدادات الهوية والدفع</small></div><i>⟩⟩</i></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="panel-products">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// catalog</span>
+              <h2>Products</h2>
+              <p>أضف، عدّل، احذف، أو فعّل المنتجات في السوق.</p>
+            </div>
+            <button class="btn primary" id="newProductBtn">＋ new product</button>
+          </div>
+          <div class="toolbar">
+            <div class="admin-search">grep<input id="adminProductSearch" placeholder="search products..." /></div>
+            <select id="adminProductSort">
+              <option value="new">newest first</option>
+              <option value="low">price asc</option>
+              <option value="high">price desc</option>
+            </select>
+          </div>
+          <div class="product-admin-grid" id="adminProductsGrid"></div>
+        </section>
+
+        <section class="admin-panel" id="panel-categories">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// organization</span>
+              <h2>Categories</h2>
+              <p>التحكم في فئات المنتجات التي تظهر في الواجهة الرئيسية.</p>
+            </div>
+          </div>
+          <div class="category-admin-layout">
+            <div class="panel-card">
+              <div class="card-title"><h3>current categories</h3><span class="count" id="categoryCount">0</span></div>
+              <div id="adminCategoriesList"></div>
+            </div>
+            <div class="panel-card">
+              <div class="card-title"><h3>add new category</h3></div>
+              <form id="categoryForm" class="admin-form">
+                <label>name<input id="categoryName" required placeholder="e.g. Mobile Security" /></label>
+                <div class="two-fields">
+                  <label>icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
+                  <label>color<input id="categoryColor" type="color" value="#0d2235" /></label>
+                </div>
+                <button class="btn primary full">add category</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="panel-homepage">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// storefront</span>
+              <h2>Hero & Copy</h2>
+              <p>عدّل العنوان الرئيسي والإحصائيات من لوحة الإدارة.</p>
+            </div>
+            <span class="save-state" id="homeSaved"></span>
+          </div>
+          <form id="homepageForm" class="settings-layout">
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>hero section</h3><span>content</span></div>
+              <label>badge<input id="homeBadge" /></label>
+              <label>title<textarea id="homeTitle" rows="3"></textarea></label>
+              <label>description<textarea id="homeText" rows="3"></textarea></label>
+              <div class="two-fields">
+                <label>CTA button<input id="homeCta" /></label>
+                <label>secondary CTA<input id="homeSecondary" /></label>
+              </div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>stats (3 items)</h3><span>homepage metrics</span></div>
+              <div class="stat-edit"><input id="stat1Value" placeholder="500+" /><input id="stat1Label" placeholder="عميل محترف" /></div>
+              <div class="stat-edit"><input id="stat2Value" placeholder="99.9%" /><input id="stat2Label" placeholder="ضمان المنتجات" /></div>
+              <div class="stat-edit"><input id="stat3Value" placeholder="24/7" /><input id="stat3Label" placeholder="دعم تقني" /></div>
+              <button class="btn primary full" type="submit">save changes</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="admin-panel" id="panel-orders">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// sales</span>
+              <h2>Orders</h2>
+              <p>راجع طلبات العملاء وحدث حالتها.</p>
+            </div>
+            <button class="btn outline" id="clearOrdersBtn">clear all</button>
+          </div>
+          <div class="orders-table-wrap">
+            <table class="orders-table">
+              <thead>
+                <tr><th>order</th><th>client</th><th>address</th><th>total</th><th>payment</th><th>status</th><th></th></tr>
+              </thead>
+              <tbody id="ordersTable"></tbody>
+            </table>
+            <div class="table-empty" id="ordersEmpty">no orders yet.</div>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="panel-settings">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// brand</span>
+              <h2>Settings</h2>
+              <p>إعدادات الهوية، بيانات التواصل، وطرق الدفع.</p>
+            </div>
+            <span class="save-state" id="settingsSaved"></span>
+          </div>
+          <form id="settingsForm" class="settings-layout">
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>identity & contact</h3></div>
+              <div class="two-fields">
+                <label>brand<input id="settingBrand" required /></label>
+                <label>subtitle<input id="settingSubtitle" /></label>
+              </div>
+              <label>brand description<input id="settingDesc" /></label>
+              <label>footer text<input id="settingFooter" /></label>
+              <label>phone<input id="settingPhone" /></label>
+              <div class="two-fields">
+                <label>whatsapp<input id="settingWhatsapp" /></label>
+                <label>email<input id="settingEmail" type="email" /></label>
+              </div>
+              <label>address<input id="settingAddress" /></label>
+              <label>discord link<input id="settingDiscord" type="url" /></label>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>announcement bar</h3></div>
+              <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>announcement active</label>
+              <label>announcement<textarea id="settingAnnouncement" rows="3"></textarea></label>
+              <div class="card-title space-top"><h3>payment methods</h3></div>
+              <p class="hint">one method per line.</p>
+              <textarea id="settingPayments" rows="5"></textarea>
+              <button class="btn primary full" type="submit">save settings</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="product-editor" id="productEditor">
+    <div class="editor-backdrop" data-close-editor></div>
+    <div class="editor-panel">
+      <div class="editor-head">
+        <div>
+          <span class="eyebrow cyan">// catalog</span>
+          <h2 id="editorTitle">new product</h2>
+        </div>
+        <button class="close-editor" data-close-editor>×</button>
+      </div>
+      <form id="productForm" class="admin-form">
+        <input id="productId" type="hidden" />
+        <label>name<input id="productName" required /></label>
+        <label>name (EN)<input id="productNameEn" /></label>
+        <div class="two-fields">
+          <label>category<select id="productCategory"></select></label>
+          <label>price<input id="productPrice" type="number" min="0" step="0.01" required /></label>
+        </div>
+        <div class="two-fields">
+          <label>old price<input id="productOldPrice" type="number" min="0" /></label>
+          <label>stock<input id="productStock" type="number" min="0" value="10" /></label>
+        </div>
+        <div class="two-fields">
+          <label>icon<input id="productIcon" value="✦" maxlength="3" /></label>
+          <label>color<input id="productColor" type="color" value="#0d2235" /></label>
+        </div>
+        <label>badge<input id="productBadge" placeholder="new, sale..." /></label>
+        <label>description<textarea id="productDescription" rows="4" required></textarea></label>
+        <label>image url<small>(optional)</small><input id="productImage" type="url" placeholder="https://..." /></label>
+        <label>specs<small>(technical details)</small><textarea id="productSpecs" rows="3" placeholder="spec1=value1, spec2=value2"></textarea></label>
+        <button class="btn primary full" type="submit">save product</button>
+        <button class="btn ghost full" type="button" data-close-editor>cancel</button>
+      </form>
+    </div>
+  </div>
+  <div class="toast" id="adminToast"></div>
+
+  <script src="js/store.js?v=2026-cyber"></script>
+  <script src="js/admin.js?v=2026-cyber"></script>
+</body>
+</html>

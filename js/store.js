@@ -1,76 +1,82 @@
 (function () {
   "use strict";
 
-  var DB_KEY = "major_store_db_v1";
-  var CART_KEY = "major_store_cart_v1";
+  var DB_KEY = "major_cyber_db_v3";
+  var CART_KEY = "major_cyber_cart_v3";
 
-  var LOGO_SVG = "<div class=\"logo-frame\" aria-label=\"MAJOR STORE\"><svg class=\"major-logo-svg\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><g transform=\"translate(50 38)\"><path d=\"M-20 7 C-23 7 -23 -2 -16 -7 L-12 -9 Q-9 -10 -6 -10 L6 -10 Q9 -10 12 -9 L16 -7 C23 -2 23 7 20 7 L13 7 Q8 1 4 1 Q0 1 -4 1 Q-8 1 -13 7 Z\" fill=\"#ff1a3a\"/><rect x=\"-15.5\" y=\"-1\" width=\"9\" height=\"2.2\" fill=\"#fff\" rx=\"0.6\"/><rect x=\"-12\" y=\"-4.5\" width=\"2.2\" height=\"9\" fill=\"#fff\" rx=\"0.6\"/><circle cx=\"9\" cy=\"-2\" r=\"1.7\" fill=\"#fff\"/><circle cx=\"13\" cy=\"0.6\" r=\"1.7\" fill=\"#fff\"/><circle cx=\"9\" cy=\"3.2\" r=\"1.7\" fill=\"#fff\"/><circle cx=\"5\" cy=\"0.6\" r=\"1.7\" fill=\"#fff\"/></g><text x=\"50\" y=\"76\" text-anchor=\"middle\" font-family=\"'Arial Black','Helvetica',sans-serif\" font-size=\"14\" font-weight=\"900\" fill=\"#ff1a3a\" letter-spacing=\"1.6\">MAJOR</text><text x=\"50\" y=\"90\" text-anchor=\"middle\" font-family=\"Arial,sans-serif\" font-size=\"4.4\" font-weight=\"700\" fill=\"#cdd2e6\" letter-spacing=\"3\">AM&nbsp;&nbsp;360</text></svg></div>";
+  /* الشعار الدائري مع الحلقة اللونية المتغيرة باستمرار */
+  var LOGO_SVG = "<div class='logo-frame'><svg class='major-logo-svg' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><defs><linearGradient id='majorGlow' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#22ffb5'/><stop offset='1' stop-color='#00d4ff'/></linearGradient></defs><circle cx='50' cy='50' r='34' fill='none' stroke='url(#majorGlow)' stroke-width='2'/><circle cx='50' cy='50' r='28' fill='#0b1322'/><g stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'><path d='M50 26 L74 40 L74 60 Q74 70 50 78 Q26 70 26 60 L26 40 Z'/></g><circle cx='40' cy='46' r='2.6' fill='#22ffb5'/><circle cx='60' cy='46' r='2.6' fill='#22ffb5'/><path d='M42 56 Q50 62 58 56' stroke='#22ffb5' stroke-width='2' fill='none' stroke-linecap='round'/><path d='M30 84 L26 96 M50 86 L50 98 M70 84 L74 96' stroke='#22ffb5' stroke-width='2'/><text x='50' y='108' text-anchor='middle' font-family='Consolas,monospace' font-size='6' font-weight='700' fill='#22ffb5' letter-spacing='3'>CYBER&#160;TOOLS</text></svg></div>";
 
   var DEFAULT_DB = {
     settings: {
-      brand: "MAJOR STORE",
-      brandMark: LOGO_SVG,
-      brandSubtitle: "AM 360 GAMES",
-      brandDescription: "ألعاب، إكسسوارات gaming، وبطاقات رقمية مختارة لوكلاء اللعب في الجزائر.",
-      announcement: "شحن سريع لكل ولايات الجزائر · الدفع عند الاستلام متاح",
+      brand: "MAJOR CYBER",
+      brandSubtitle: "TOOLS · EXPLOITS · LABS",
+      brandDescription: "متجر متخصص في أدوات الأمن السيبراني، توزيعات لينكس للاختبار، برامج اختراق، وكتب تعليمية للمحترفين والطلاب.",
+      announcement: "⚡ دورة كاملة للاختراق الأخلاقي متاحة الآن — خصم 30% لفترة محدودة",
       announcementEnabled: true,
-      heroBadge: "منصة وكلاءلعاب",
-      heroTitle: "ألعاب حقيقية، إكسسوارات أصلية، وأسعار عالية",
-      heroText: "MAJOR STORE يختار لك الأدوات واللعب التي يستعملها اللاعبون الحقيقيون. تسليم سريع ودعم قبل وبعد الشراء.",
-      heroCta: "تصفح المنتجات",
-      heroSecondary: "تواصل معنا",
+      heroBadge: "Ethical Hacking · Penetration Testing",
+      heroTitle: "أدوات الاختراق الأخلاقي وبرامج الأمن السيبراني",
+      heroText: "توزيعات لينكس احترافية، أدوات اختبار الاختراق، بيئات تدريب افتراضية، وكتب منهجية للمحترفين والطلاب.",
+      heroCta: "تصفح الأدوات",
+      heroSecondary: "انضم للديسكورد",
       heroStats: [
-        { value: "24h", label: "تجهيز الطلب" },
-        { value: "100%", label: "منتجات مختارة" },
-        { value: "4.9/5", label: "رضا اللاعبين" }
+        { value: "500+", label: "عميل محترف" },
+        { value: "99.9%", label: "ضمان المنتجات" },
+        { value: "24/7", label: "دعم تقني" }
       ],
       phone: "+213 770 12 34 56",
       whatsapp: "213770123456",
-      email: "hello@majorstore.dz",
-      address: "البليدة، الجزائر",
-      instagram: "@majorstore.dz",
-      footerText: "Gaming أقوى. اختيار أذكى.",
+      email: "support@majorcyber.store",
+      address: "الجزائر",
+      instagram: "@majorcyber.dz",
+      footerText: "Cybersecurity tools for professionals.",
       currency: "دج",
-      paymentMethods: ["الدفع عند الاستلام", "CCP / BaridiMob", "بطاقة EDH"]
+      paymentMethods: ["USDT (TRC20)", "Bitcoin (BTC)", "الدفع عند الاستلام", "BaridiMob"],
+      discordLink: "https://discord.gg/WrK7ttvq5g"
     },
+    adminAuth: { user: "admin", pass: "yemavava91@@@@@#####" },
     categories: [
-      { id: "gaming", name: "ألعاب", icon: "🎮", color: "#ffe1ea" },
-      { id: "consoles", name: "أجهزةPlayStation", icon: "🕹️", color: "#e6e4ff" },
-      { id: "cards", name: "بطاقات رقمية", icon: "🎁", color: "#dff8f2" },
-      { id: "accessories", name: "إكسسوارات الألعاب", icon: "🎧", color: "#fff0d8" },
-      { id: "accounts", name: "حسابات واشتراكات", icon: "👤", color: "#e1eaff" }
+      { id: "distros",  name: "توزيعات لينكس", icon: "🐧", color: "#0a2a1f" },
+      { id: "wireless", name: "أدوات WiFi والشبكة", icon: "📡", color: "#0d2438" },
+      { id: "web",     name: "اختبار تطبيقات الويب", icon: "🌐", color: "#1a0d35" },
+      { id: "exploit", name: "إطارات عمل الاختراق", icon: "💀", color: "#2a0a1a" },
+      { id: "courses", name: "دورات وكتب", icon: "📚", color: "#1d2611" },
+      { id: "malware", name: "تحليل البرمجيات الخبيثة", icon: "🦠", color: "#231510" },
+      { id: "osint",   name: "أدوات OSINT", icon: "🔍", color: "#0e1d2a" },
+      { id: "tools",   name: "برامج مساعدة", icon: "🛠️", color: "#1a1a0d" }
     ],
     products: [
-      { id: "p1", category: "gaming", name: "FIFA 25 – PS5", nameEn: "FIFA 25 PS5", price: 7800, oldPrice: 8900, badge: "الأكثر مبيعاً", icon: "⚽", color: "#ffe1ea", rating: 4.9, reviews: 312, description: "نسخة الديجيتال الأصلية مع كود التفعيل المباشر على حسابك.", stock: 18 },
-      { id: "p2", category: "consoles", name: "PlayStation 5 Slim", nameEn: "PS5 Slim Console", price: 89000, oldPrice: 0, badge: "الأحدث", icon: "🕹️", color: "#e6e4ff", rating: 4.9, reviews: 88, description: "النسخة Slim من PS5 مع يد إضافية ونسخة ألعاب GTA V مدمجة.", stock: 4 },
-      { id: "p3", category: "gaming", name: "GTA V – PS5 Premium", nameEn: "GTA V Premium PS5", price: 6500, oldPrice: 7400, badge: "عرض اليوم", icon: "🚗", color: "#fff0d8", rating: 4.8, reviews: 219, description: "النسخة الكاملة كود رقمي جاهز على PlayStation Network.", stock: 22 },
-      { id: "p4", category: "accessories", name: "يد DualSense أبيض", nameEn: "DualSense White Controller", price: 9800, oldPrice: 11000, badge: "طلب مرتفع", icon: "🎮", color: "#dff8f2", rating: 4.8, reviews: 154, description: "يد PlayStation 5 الأصلية بلون أبيض لمسي مع تقنية Haptic.", stock: 11 },
-      { id: "p5", category: "accessories", name: "سماعة HyperX Cloud III", nameEn: "HyperX Cloud III Headset", price: 11500, oldPrice: 0, badge: "للاعب المحترف", icon: "🎧", color: "#e1eaff", rating: 4.9, reviews: 67, description: "صوت محيطي 7.1 ومايكروفون قابل للفصل مع راحة طويلة.", stock: 9 },
-      { id: "p6", category: "cards", name: "بطاقةPSN 100$", nameEn: "PSN Card $100", price: 14500, oldPrice: 0, badge: "هدية", icon: "🎁", color: "#ffe1ea", rating: 4.7, reviews: 410, description: "بطاقة رصيد PlayStation Network جاهزة للاستعمال فوراً.", stock: 47 },
-      { id: "p7", category: "accounts", name: "اشتراك PlayStation Plus سنوي", nameEn: "PS Plus 12 Months", price: 8900, oldPrice: 9800, badge: "أونلاين", icon: "👑", color: "#e6e4ff", rating: 4.8, reviews: 231, description: "اشتراك سنوي يفعّل اللعب الجماعي واللعاب المجانية الشهرية.", stock: 35 },
-      { id: "p8", category: "gaming", name: "لعبة Call of Duty Black Ops 6", nameEn: "Black Ops 6 PS5", price: 8200, oldPrice: 9500, badge: "جديد", icon: "🎯", color: "#ffeaef", rating: 4.7, reviews: 58, description: "أحدث ألعاب الإطلاق بمناورات وطور جماعي مدفوع.", stock: 14 }
+      { id: "p1", category: "distros", name: "Kali Linux Pro 2026 (Pre-configured)", price: 2500, oldPrice: 3500, badge: "الأكثر مبيعاً", icon: "🐉", color: "#0d2235", stock: 25, description: "توزيعة Kali Linux مع 600+ أداة اختبار اختراق مثبتة ومُحدّثة. تشمل: Burp Suite, Metasploit, Nmap, Wireshark, John the Ripper. مع دليل تثبيت افتراضي.", rating: 4.9, reviews: 412 },
+      { id: "p2", category: "distros", name: "Parrot Security OS 6.0", price: 2300, oldPrice: 0, badge: "مستقر", icon: "🦜", color: "#0d3520", stock: 18, description: "توزيعة باروت للأمن السيبراني. مناسبة للاختبار الاحترافي والمحاكاة السحابية.", rating: 4.7, reviews: 156 },
+      { id: "p3", category: "exploit", name: "Metasploit Pro - رخصة سنوية", price: 8900, oldPrice: 12000, badge: "احترافي", icon: "💀", color: "#2a0a1a", stock: 6, description: "إطار عمل Metasploit الكامل لاختبار الاختراق (نسخة تعليمية مرخصة). يشمل تحديثات لمدة 12 شهراً.", rating: 5, reviews: 89 },
+      { id: "p4", category: "web", name: "Burp Suite Professional", price: 12500, oldPrice: 0, badge: "للويب", icon: "🌐", color: "#1a0d35", stock: 4, description: "أداة اختبار اختراق تطبيقات الويب الأشهر عالمياً. تشمل Scanner المتقدم والتحديثات السنوية.", rating: 4.9, reviews: 234 },
+      { id: "p5", category: "wireless", name: "WiFi Pineapple Mark VII", price: 18900, oldPrice: 22000, badge: "للشبكات", icon: "📡", color: "#0d2438", stock: 3, description: "جهاز اختبار اختراق الشبكات اللاسلكية الاحترافي. جاهز للعمل مع بيئة Pineapple UI.", rating: 4.8, reviews: 67 },
+      { id: "p6", category: "courses", name: "دورة OSCP الكاملة (PDF+LABS)", price: 4500, oldPrice: 0, badge: "تعليمي", icon: "🎓", color: "#1d2611", stock: 99, description: "دورة شاملة لإعداد شهادة OSCP. تشمل منهجية PDF كامل + بيئات تدريب افتراضية + تطبيقات CTF.", rating: 4.9, reviews: 512 },
+      { id: "p7", category: "courses", name: "كتاب Hacking: The Art of Exploitation", price: 1800, oldPrice: 2200, badge: "كلاسيكي", icon: "📕", color: "#1d2611", stock: 42, description: "الكتاب الكلاسيكي لتعلم الاختراق الأخلاقي وفهم استغلال الثغرات بعمق. النسخة العربية الكاملة.", rating: 4.8, reviews: 178 },
+      { id: "p8", category: "osint", name: "Maltego Community Edition", price: 0, oldPrice: 0, badge: "مجاني", icon: "🔍", color: "#0e1d2a", stock: 999, description: "أداة OSINT لتحليل العلاقات بين البيانات والمعلومات. النسخة المجانية مفتوحة المصدر.", rating: 4.7, reviews: 91 },
+      { id: "p9", category: "malware", name: "ANY.RUN Sandbox (اشتراك 3 أشهر)", price: 7600, oldPrice: 0, badge: "تحليل", icon: "🦠", color: "#231510", stock: 12, description: "بيئة رملية سحابية لتحليل البرمجيات الخبيثة بأمان. اشتراك 3 أشهر + تقارير قابلة للتصدير.", rating: 4.9, reviews: 56 },
+      { id: "p10", category: "tools", name: "Hashcat Pro (نسخة GPU)", price: 4900, oldPrice: 5800, badge: "لكسر التشفير", icon: "🔐", color: "#1a1a0d", stock: 20, description: "أداة كسر كلمات المرور الأسرع في العالم. مع جداول محدثة ودعم بطاقات GPU الحديثة.", rating: 4.8, reviews: 145 },
+      { id: "p11", category: "wireless", name: "Aircrack-ng Suite (للويندوز/لينكس)", price: 1500, oldPrice: 0, badge: "متوفر", icon: "🛜", color: "#0d2438", stock: 33, description: "حزمة Aircrack-ng الكاملة لاختبار الشبكات اللاسلكية. تشمل: airmon-ng, airodump-ng, aireplay-ng.", rating: 4.6, reviews: 88 },
+      { id: "p12", category: "courses", name: "دورة CEH v12 الكاملة (Arabic)", price: 6200, oldPrice: 7800, badge: "محدّث", icon: "📚", color: "#1d2611", stock: 50, description: "دورة Certified Ethical Hacker بنسخة عربية كاملة. تشمل محاضرات فيديو + تطبيقات LAB + امتحان تدريبي.", rating: 4.9, reviews: 367 }
     ],
     coupons: [
-      { code: "WELCOME10", type: "percent", value: 10, active: true },
-      { code: "MAJOR500", type: "fixed", value: 500, active: true }
+      { code: "CYBER10", type: "percent", value: 10, active: true },
+      { code: "WELCOME", type: "fixed", value: 200, active: true }
     ],
     orders: []
   };
 
-  function clone(value) { return JSON.parse(JSON.stringify(value)); }
-
+  function clone(v) { return JSON.parse(JSON.stringify(v)); }
   function merge(base, saved) {
-    var result = clone(base);
-    if (!saved || typeof saved !== "object") return result;
-    Object.keys(saved).forEach(function (key) {
-      if (Array.isArray(saved[key])) result[key] = saved[key];
-      else if (saved[key] && typeof saved[key] === "object" && result[key] && typeof result[key] === "object") {
-        result[key] = Object.assign({}, result[key], saved[key]);
-      } else if (saved[key] !== undefined) result[key] = saved[key];
+    var r = clone(base);
+    if (!saved || typeof saved !== "object") return r;
+    Object.keys(saved).forEach(function (k) {
+      if (Array.isArray(saved[k])) r[k] = saved[k];
+      else if (saved[k] && typeof saved[k] === "object" && r[k] && typeof r[k] === "object") r[k] = Object.assign({}, r[k], saved[k]);
+      else if (saved[k] !== undefined) r[k] = saved[k];
     });
-    return result;
+    return r;
   }
-
   function load() {
     try {
       var raw = localStorage.getItem(DB_KEY);
@@ -79,51 +85,35 @@
         localStorage.setItem(DB_KEY, JSON.stringify(fresh));
         return fresh;
       }
-      var merged = merge(DEFAULT_DB, JSON.parse(raw));
-      // Always restore the logo SVG (in case it was overwritten)
-      merged.settings.brandMark = LOGO_SVG;
-      return merged;
-    } catch (e) {
-      return clone(DEFAULT_DB);
-    }
+      var m = merge(DEFAULT_DB, JSON.parse(raw));
+      m.adminAuth = DEFAULT_DB.adminAuth; // لا تخزين بيانات الدخول المعدّلة من اللوحة
+      return m;
+    } catch (e) { return clone(DEFAULT_DB); }
   }
-
   function save(db) {
     try {
-      // Don't persist the heavy SVG markup in the DB
-      var snapshot = clone(db);
-      if (snapshot.settings) snapshot.settings.brandMark = "";
-      localStorage.setItem(DB_KEY, JSON.stringify(snapshot));
+      var s = clone(db);
+      delete s.adminAuth;
+      localStorage.setItem(DB_KEY, JSON.stringify(s));
       window.dispatchEvent(new CustomEvent("major-db-updated"));
       return true;
     } catch (e) { return false; }
   }
-
   function loadCart() {
-    try {
-      var value = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-      return Array.isArray(value) ? value : [];
-    } catch (e) { return []; }
+    try { var v = JSON.parse(localStorage.getItem(CART_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
   }
-
-  function saveCart(cart) {
-    try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); return true; } catch (e) { return false; }
-  }
-
-  function uid(prefix) { return (prefix || "id") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  function formatMoney(amount, currency) { return Number(amount || 0).toLocaleString("ar-DZ") + " " + (currency || "دج"); }
+  function saveCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); return true; } catch (e) { return false; } }
+  function uid(p) { return (p || "id") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function formatMoney(n, cur) { return Number(n || 0).toLocaleString("ar-DZ") + " " + (cur || "دج"); }
   function getLogo() { return LOGO_SVG; }
-  function getDefault() { return clone(DEFAULT_DB); }
+  function getAdminAuth() { return Object.assign({}, DEFAULT_DB.adminAuth); }
 
   window.ElectroDB = {
-    KEY: DB_KEY,
-    load: load,
-    save: save,
-    loadCart: loadCart,
-    saveCart: saveCart,
-    uid: uid,
-    formatMoney: formatMoney,
-    getLogo: getLogo,
-    getDefault: getDefault
+    KEY: DB_KEY, load: load, save: save,
+    loadCart: loadCart, saveCart: saveCart,
+    uid: uid, formatMoney: formatMoney,
+    getLogo: getLogo, getAdminAuth: getAdminAuth,
+    getDefault: function () { return clone(DEFAULT_DB); }
   };
 })();
