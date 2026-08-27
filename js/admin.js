@@ -575,6 +575,8 @@
           messages: []
         });
         MajorDB.save(db);
+        // Join the room so admin receives messages
+        chatSocket.emit("chat:join", data.chatId);
       }
       renderChats();
       newChatsCount++;
