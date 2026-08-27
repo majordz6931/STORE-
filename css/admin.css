@@ -377,3 +377,10 @@ a{text-decoration:none;color:inherit}
 @media(max-width:640px){
   .admin-topnav{top:70px;padding:8px 14px}
 }
+
+/* Login password visibility toggle */
+.pass-wrap{display:flex;gap:8px;align-items:center}
+.pass-wrap input{flex:1}
+.pass-toggle{width:40px;height:40px;min-width:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink-mid);font-size:15px;display:grid;place-items:center}
+.pass-toggle:hover{border-color:var(--green);color:var(--green)}
+#loginError{line-height:1.6}

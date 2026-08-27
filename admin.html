@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major4" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major5" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -25,12 +25,17 @@
       <h2>login()</h2>
       <p>أدخل بياناتك للوصول إلى لوحة الإدارة.</p>
       <form id="loginForm">
-        <label>User<input id="loginUser" required autocomplete="username" value="admin" /></label>
-        <label>Pass<input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••••••••" /></label>
+        <label>User<input id="loginUser" required autocomplete="username" placeholder="admin or full email" /></label>
+        <label>Pass
+          <span class="pass-wrap">
+            <input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••••••••" />
+            <button type="button" class="pass-toggle" id="passToggle" aria-label="Show password">👁</button>
+          </span>
+        </label>
         <button class="btn primary full" type="submit">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
-      <p class="login-hint">🔒 Protected — real credentials are required.<br />Use the admin user created in <b>Supabase → Authentication → Users</b><br />(e.g. <b>admin@majorstore.store</b>). No offline bypass exists.<br />You must first run <b>supabase-setup.sql</b>, then create that user.</p>
+      <p class="login-hint">🔒 Protected — real credentials are required.<br />Use the admin user created in <b>Supabase → Authentication → Users</b><br />(e.g. <b>admin@majorstore.store</b> + the password you set there).<br />No offline bypass exists. If login fails, read the red message above.</p>
       <a class="back-store" href="index.html">← back to MAJOR STORE</a>
     </div>
   </div>
@@ -453,8 +458,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major4"></script>
-  <script src="js/cloud.js?v=2026-major4"></script>
-  <script src="js/admin.js?v=2026-major4"></script>
+  <script src="js/store.js?v=2026-major5"></script>
+  <script src="js/cloud.js?v=2026-major5"></script>
+  <script src="js/admin.js?v=2026-major5"></script>
 </body>
 </html>

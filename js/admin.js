@@ -294,6 +294,12 @@
       if (sync) sync.innerHTML = window.MajorCloud && MajorCloud.isAdmin() ? "cloud sync: online <i></i>" : "local mode <i></i>";
       renderAll();
     }
+    var passToggle = $("passToggle");
+    if (passToggle) passToggle.onclick = function () {
+      var inp = $("loginPass");
+      inp.type = inp.type === "password" ? "text" : "password";
+      passToggle.textContent = inp.type === "password" ? "👁" : "🙈";
+    };
     $("loginForm").onsubmit = function (e) {
       e.preventDefault();
       var u = $("loginUser").value.trim(), pw = $("loginPass").value;
@@ -306,12 +312,24 @@
         sessionStorage.setItem("major_admin_user", u);
         enterDashboard();
       }).catch(function (err) {
-        $("loginError").textContent = "// ACCESS DENIED — invalid credentials. Create the admin user in Supabase > Authentication > Users.";
+        $("loginError").textContent = "// ACCESS DENIED — " + describeAuthError(err);
         $("loginPass").value = "";
       }).finally(function () {
         if (btn) { btn.disabled = false; btn.textContent = "login $"; }
       });
     };
+    /* ترجمة سبب خطأ Supabase إلى رسالة واضحة */
+    function describeAuthError(err) {
+      var raw = ((err && err.message) || "").toString();
+      if (/Invalid login credentials|invalid_grant/.test(raw)) return "wrong email or password — check them and try again";
+      if (/Email not confirmed|unverified/i.test(raw)) return "this email is not confirmed — turn OFF \"Confirm email\" in Supabase > Auth > Providers > Email, or re-create the user";
+      if (/not found|User already registered|user already/i.test(raw)) return "this user does not exist in Supabase — create it in Authentication > Users";
+      if (/rate limit|too many|429/i.test(raw)) return "too many attempts — wait a few minutes and try again";
+      if (/Email.*(disabled|not allowed|signup)|provider/i.test(raw)) return "the Email provider is disabled — enable it in Supabase > Authentication > Providers";
+      if (/fetch|network|typeerror|failed/i.test(raw)) return "cannot reach Supabase — check your internet connection";
+      if (/jwt|api key|invalid.*key|unauthorized/i.test(raw)) return "Supabase keys are wrong — check Project URL & anon key in js/cloud.js";
+      return raw || "unknown error — check Supabase Authentication settings";
+    }
     function doLogout() {
       sessionStorage.removeItem("major_admin_v4"); sessionStorage.removeItem("major_admin_user");
       if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.signOut().catch(function () {});
