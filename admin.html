@@ -30,6 +30,7 @@
         <button class="btn primary full" type="submit">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
+      <p class="login-hint">Supabase Auth — sign in with the user you created under<br />Authentication → Users (e.g. <b>admin@majorstore.store</b>).<br />When offline, local credentials are accepted.</p>
       <a class="back-store" href="index.html">← back to MAJOR STORE</a>
     </div>
   </div>
@@ -54,6 +55,7 @@
         <p>// storefront</p>
         <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & Copy</button>
         <button class="nav-item" data-panel="orders"><span>↗</span>Orders <b id="orderBadge">0</b></button>
+        <button class="nav-item" data-panel="messages"><span>✉</span>Messages <b id="messageBadge">0</b></button>
         <button class="nav-item" data-panel="settings"><span>⚙</span>Settings</button>
       </nav>
       <div class="side-bottom">
@@ -223,6 +225,18 @@
           </div>
         </section>
 
+        <section class="admin-panel" id="panel-messages">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// inbox</span>
+              <h2>Messages</h2>
+              <p>Visitor messages from the storefront contact button. Reply, mark done, or delete.</p>
+            </div>
+          </div>
+          <div class="messages-list" id="messagesList"></div>
+          <div class="table-empty" id="messagesEmpty">no messages yet.</div>
+        </section>
+
         <section class="admin-panel" id="panel-settings">
           <div class="panel-top">
             <div>
@@ -317,6 +331,7 @@
   <div class="toast" id="adminToast"></div>
 
   <script src="js/store.js?v=2026-major2"></script>
+  <script src="js/cloud.js?v=2026-major2"></script>
   <script src="js/admin.js?v=2026-major2"></script>
 </body>
 </html>

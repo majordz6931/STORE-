@@ -207,7 +207,7 @@
         </div>
         <form class="newsletter" id="newsletterForm">
           <input type="email" id="newsletterEmail" placeholder="root@your.email" required />
-          <button class="btn btn-primary" type="submit"><span data-i18n="newsletterBtn">اشترك</span> <span>⟩⟩</span></button>
+          <button class="btn btn-primary" type="submit" id="newsletterBtn"><span data-i18n="newsletterBtn">اشترك</span> <span>⟩⟩</span></button>
           <small id="newsletterMessage"></small>
         </form>
       </div>
@@ -296,10 +296,33 @@
     </div>
   </div>
 
+  <!-- ===== نافذة التواصل مع المالك ===== -->
+  <div class="modal" id="contactModal">
+    <div class="modal-card contact-card">
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow small">// contact</span>
+          <h2 data-i18n="contactTitle">راسلنا</h2>
+        </div>
+        <button class="close-btn" data-close="contactModal">×</button>
+      </div>
+      <form id="contactForm" class="contact-form">
+        <div class="form-grid">
+          <label><span data-i18n="contactName">الاسم</span><input id="cntName" required /></label>
+          <label><span data-i18n="contactEmail">البريد الإلكتروني</span><input id="cntEmail" type="email" /></label>
+        </div>
+        <label><span data-i18n="contactMessage">رسالتك</span><textarea id="cntMsg" rows="4" required></textarea></label>
+        <button class="btn btn-primary full" type="submit"><span data-i18n="contactSubmit">إرسال الرسالة</span> <span>➤</span></button>
+        <p class="form-note" id="contactMsgStatus"></p>
+      </form>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
-  <button class="support-fab" id="supportFab" aria-label="تواصل عبر واتساب">◔</button>
+  <button class="support-fab" id="supportFab" aria-label="تواصل معنا">✉</button>
 
   <script src="js/store.js?v=2026-major2"></script>
+  <script src="js/cloud.js?v=2026-major2"></script>
   <script src="js/app.js?v=2026-major2"></script>
 </body>
 </html>

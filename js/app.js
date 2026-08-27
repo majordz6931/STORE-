@@ -68,7 +68,12 @@
     $("whatsappLink").href = "https://wa.me/" + String(s.whatsapp || "").replace(/\D/g, "");
     $("emailLink").href = "mailto:" + s.email;
     if ($("paymentPreview")) $("paymentPreview").textContent = "[ " + (s.paymentMethods || []).join(" · ") + " ]";
-    $("supportFab").onclick = function () { window.open("https://wa.me/" + String(s.whatsapp || "").replace(/\D/g, ""), "_blank"); };
+    var fab = $("supportFab");
+    if (fab) {
+      fab.setAttribute("aria-label", T("supportButton"));
+      fab.title = T("supportButton");
+      fab.onclick = function () { openContactModal(); };
+    }
   }
 
   function updateHero() {
@@ -240,6 +245,50 @@
     $("checkoutForm").reset(); closeOverlays(); renderCart(); renderProducts();
     $("couponMsg").textContent = "";
     toast(T("toastOrderOk").replace("{id}", order.id));
+    if (window.MajorCloud && typeof MajorCloud.createOrder === "function") {
+      var cloudOrder = {
+        id: order.id, name: order.name, phone: order.phone, email: order.email,
+        address: order.address, payment: order.payment, note: order.note,
+        items: order.items, subtotal: order.subtotal, coupon: order.coupon,
+        total: order.total, status: "pending"
+      };
+      MajorCloud.createOrder(cloudOrder).catch(function (e) { toast(T("toastCloudFail"), true); });
+    }
+  }
+
+  function openContactModal() {
+    var m = $("contactModal"); if (!m) return;
+    m.classList.add("show"); document.body.classList.add("locked");
+  }
+
+  function closeContactModal() {
+    var m = $("contactModal"); if (!m) return;
+    m.classList.remove("show"); document.body.classList.remove("locked");
+  }
+
+  function cloudSignature() {
+    return JSON.stringify([db.products, db.categories, db.coupons, db.settings]);
+  }
+
+  function mergeCloudStore(cloud) {
+    if (!cloud || typeof cloud !== "object") return false;
+    var changed = false;
+    if (Array.isArray(cloud.products)) { db.products = cloud.products; changed = true; }
+    if (Array.isArray(cloud.categories)) { db.categories = cloud.categories; changed = true; }
+    if (Array.isArray(cloud.coupons)) { db.coupons = cloud.coupons; changed = true; }
+    if (cloud.settings && typeof cloud.settings === "object") { db.settings = Object.assign({}, db.settings, cloud.settings); changed = true; }
+    return changed;
+  }
+
+  /* جلب بيانات المتجر من قاعدة Supabase المشتركة (دون الكتابة الزائدة عند التساوي) */
+  function refreshCloudStore() {
+    if (!window.MajorCloud || typeof MajorCloud.getStore !== "function") return;
+    MajorCloud.getStore().then(function (cloud) {
+      if (!cloud) return;
+      var before = cloudSignature();
+      mergeCloudStore(cloud);
+      if (cloudSignature() !== before) { ElectroDB.save(db); refresh(); }
+    }).catch(function () { /* keep local data offline */ });
   }
 
   function refresh() {
@@ -293,8 +342,33 @@
   $("checkoutForm").onsubmit = submitOrder;
   $("clearSearch").onclick = function () { search = ""; activeCategory = "all"; $("searchInput").value = ""; renderCategories(); renderProducts(); };
   $("newsletterForm").onsubmit = function (e) { e.preventDefault(); $("newsletterMessage").textContent = T("newsletterMsg"); e.target.reset(); };
+  if ($("contactForm")) $("contactForm").onsubmit = function (e) {
+    e.preventDefault();
+    var nm = $("cntName").value.trim(), em = $("cntEmail").value.trim(), msg = $("cntMsg").value.trim();
+    var st = $("contactMsgStatus");
+    if (!nm || !msg) { st.textContent = T("contactRequired"); st.style.color = "var(--red)"; return; }
+    if (!window.MajorCloud || typeof MajorCloud.createMessage !== "function") {
+      st.textContent = T("contactFail"); st.style.color = "var(--red)"; return;
+    }
+    st.textContent = T("contactSending"); st.style.color = "var(--green)";
+    var payload = { visitor_name: nm, visitor_email: em, message: msg };
+    MajorCloud.createMessage(payload).then(function () {
+      st.textContent = T("contactSuccess");
+      toast("✓ " + T("contactSuccess"));
+      e.target.reset();
+      setTimeout(closeContactModal, 1300);
+    }).catch(function () { st.textContent = T("contactFail"); st.style.color = "var(--red)"; });
+  };
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeOverlays(); });
 
   window.addEventListener("major-db-updated", refresh);
   window.addEventListener("major-lang-changed", refresh);
+  window.addEventListener("storage", function (e) {
+    if (!e.key || e.key === ElectroDB.KEY) refresh();
+  });
+
+  /* مزامنة مع قاعدة Supabase المشتركة: عند الفتح، عند العودة للتبويب، وكل 30 ثانية */
+  refreshCloudStore();
+  window.addEventListener("focus", refreshCloudStore);
+  window.setInterval(function () { if (!document.hidden) refreshCloudStore(); }, 30000);
 })();

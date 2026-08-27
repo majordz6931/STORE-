@@ -262,3 +262,36 @@ a{text-decoration:none;color:inherit}
   .editor-panel{padding:24px}
   .stat-edit{grid-template-columns:80px 1fr}
 }
+/* ===========================================================
+   Messages panel (visitor inbox)
+   =========================================================== */
+.messages-list{display:grid;gap:14px}
+.message-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.message-card.new{border-color:rgba(245,166,35,.55);box-shadow:0 0 0 1px rgba(245,166,35,.15)}
+.message-card header{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.msg-avatar{width:36px;height:36px;min-width:36px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+.msg-who{flex:1;min-width:0}
+.msg-who b{display:block;color:var(--ink);font-size:13px;font-weight:700}
+.msg-who small{display:block;color:var(--ink-mid);font-size:10px;margin-top:3px;font-family:"Fira Code",monospace}
+.msg-status{margin-right:auto;font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;border:1px solid var(--line);color:var(--ink-mid);padding:3px 9px;border-radius:999px;font-family:"Fira Code",monospace}
+[dir="rtl"] .msg-status{margin-right:0;margin-left:auto}
+.msg-status.new{color:var(--orange);border-color:rgba(245,166,35,.5)}
+.msg-status.replied{color:var(--green);border-color:rgba(34,255,181,.4)}
+.msg-status.done{color:var(--cyan);border-color:rgba(0,212,255,.4)}
+.msg-text{font-size:13px;color:var(--ink);line-height:1.65;white-space:pre-wrap;background:#0a0f1c;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px}
+.msg-reply-done{border-right:2px solid var(--green);padding:8px 12px;margin-bottom:12px;background:rgba(34,255,181,.05);border-radius:8px}
+[dir="rtl"] .msg-reply-done{border-right:0;border-left:2px solid var(--green)}
+.msg-reply-done b{color:var(--green);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-family:"Fira Code",monospace}
+.msg-reply-done p{color:var(--ink-mid);font-size:12px;margin-top:4px;line-height:1.55}
+.msg-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.msg-actions input{flex:1;min-width:180px;background:#0a0f1c;border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--ink);font:inherit;font-size:12.5px}
+.msg-actions input:focus{outline:none;border-color:var(--cyan)}
+.btn.small{padding:8px 12px;font-size:11.5px;border-radius:8px}
+.btn.outline{border:1px solid var(--line-strong);color:var(--ink-mid)}
+.btn.outline:hover{border-color:var(--cyan);color:var(--cyan)}
+.icon-danger{color:var(--red);font-size:16px;font-weight:800;border:1px solid rgba(255,86,112,.35);border-radius:8px;width:32px;height:32px;display:inline-grid;place-items:center}
+.icon-danger:hover{background:rgba(255,86,112,.12)}
+
+/* Login hint */
+.login-hint{display:block;margin:12px 0 14px;font-size:10.5px;color:var(--muted);font-family:"Fira Code",monospace;line-height:1.7;border-top:1px dashed var(--line);padding-top:12px}
+.login-hint b{color:var(--cyan);font-weight:700}

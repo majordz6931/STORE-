@@ -1,0 +1,33 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "name": "Wireless Mouse",
+      "category": "Accessories",
+      "price": 25,
+      "oldPrice": 35,
+      "image": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200",
+      "desc": "Ergonomic wireless mouse"
+    },
+    {
+      "id": "p2",
+      "name": "Mechanical Keyboard",
+      "category": "Accessories",
+      "price": 60,
+      "oldPrice": 80,
+      "image": "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=200",
+      "desc": "RGB mechanical keyboard"
+    }
+  ],
+  "categories": ["Accessories"],
+  "settings": {
+    "storeName": "MAJOR STORE",
+    "whatsapp": "+213000000000",
+    "announcement": "Welcome",
+    "currency": "$"
+  },
+  "coupons": [
+    { "code": "MAJOR10", "type": "percent", "value": 10 },
+    { "code": "WELCOME5", "type": "fixed", "value": 5 }
+  ]
+}

@@ -405,3 +405,15 @@ section{padding:60px 0;position:relative}
   .banner-img{max-height:240px;object-fit:cover}
 }
 @media (min-width:981px){.menu-toggle{display:none}}
+/* ===========================================================
+   Contact modal (visitor → owner messages)
+   =========================================================== */
+.contact-form label{display:flex;flex-direction:column;font-size:12px;color:var(--ink-mid);font-weight:600;font-family:"Fira Code",monospace;gap:6px}
+.contact-form input,.contact-form textarea{padding:13px 16px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--surface);color:var(--ink);font-size:14px;font-weight:500}
+.contact-form input:focus,.contact-form textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
+.contact-form .form-note{margin-top:12px;min-height:14px}
+
+/* Support FAB → opens the contact modal (was WhatsApp-only) */
+.support-fab{background:linear-gradient(135deg,#22ffb5,#00d4ff);color:#031;box-shadow:0 12px 30px rgba(0,212,255,.35)}
+[dir="rtl"] .support-fab{right:auto;left:24px}
+@media (max-width:640px){.support-fab{width:48px;height:48px;font-size:22px;bottom:18px}}

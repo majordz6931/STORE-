@@ -1,13 +1,80 @@
 (function () {
   "use strict";
-  var logged = sessionStorage.getItem("major_admin_v4") === "1";
+  var logged = (window.MajorCloud ? MajorCloud.isAdmin() : false) || sessionStorage.getItem("major_admin_v4") === "1";
   var db = ElectroDB.load();
   var editingId = null;
+  var cloudMessages = [];
   var $ = function (id) { return document.getElementById(id); };
   function all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m]; }); }
   function money(n) { return ElectroDB.formatMoney(n); }
-  function save() { ElectroDB.save(db); }
+  function save() {
+    ElectroDB.save(db);
+    pushCloudStore();
+  }
+  /* دفع بيانات المتجر (منتجات/أقسام/إعدادات/كوبونات) إلى Supabase — يتطلب تسجيل دخول الإدارة */
+  function pushCloudStore() {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    var payload = { products: db.products, categories: db.categories, settings: db.settings, coupons: db.coupons };
+    MajorCloud.saveStore(payload).catch(function (e) { toast("cloud sync failed: " + ((e && e.message) || "error"), true); });
+  }
+  function syncCloudOrders() {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    MajorCloud.getOrders().then(function (rows) {
+      var map = {};
+      (db.orders || []).forEach(function (o) { map[o.id] = o; });
+      (rows || []).forEach(function (o) {
+        if (!o.date) { try { o.date = new Date(o.created_at).toLocaleString(); } catch (e) { o.date = o.created_at || ""; } }
+        map[o.id] = o;
+      });
+      db.orders = Object.keys(map).map(function (k) { return map[k]; })
+        .sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+      renderOrders(); renderOverview();
+    }).catch(function () {});
+  }
+  function syncMessages() {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    MajorCloud.getMessages().then(function (rows) {
+      cloudMessages = rows || [];
+      renderMessages();
+    }).catch(function () {});
+  }
+  function renderMessages() {
+    var box = $("messagesList"), empty = $("messagesEmpty");
+    var newCount = cloudMessages.filter(function (m) { return (m.status || "new") === "new"; }).length;
+    var badge = $("messageBadge"); if (badge) badge.textContent = newCount || "";
+    if (!cloudMessages.length) { if (box) box.innerHTML = ""; if (empty) empty.hidden = false; return; }
+    if (empty) empty.hidden = true;
+    if (!box) return;
+    box.innerHTML = cloudMessages.map(function (m) {
+      var when = "";
+      try { when = new Date(m.created_at).toLocaleString(); } catch (e) { when = m.created_at || ""; }
+      var st = m.status || "new";
+      var replyBlock = m.reply ? "<div class='msg-reply-done'><b>↩ reply</b><p>" + esc(m.reply) + "</p></div>" : "";
+      return "<article class='message-card " + esc(st) + "'>" +
+        "<header><span class='msg-avatar'>" + esc(String(m.visitor_name || "?").charAt(0).toUpperCase()) + "</span>" +
+        "<div class='msg-who'><b>" + esc(m.visitor_name) + "</b><small>" + esc(m.visitor_email || "—") + " · " + esc(when) + "</small></div>" +
+        "<span class='msg-status " + esc(st) + "'>" + esc(st) + "</span></header>" +
+        "<p class='msg-text'>" + esc(m.message) + "</p>" + replyBlock +
+        "<div class='msg-actions'><input data-msg-input='" + esc(m.id) + "' placeholder='write reply...' value='" + (m.reply ? esc(m.reply) : "") + "' />" +
+        "<button class='btn small primary' data-msg-send='" + esc(m.id) + "'>reply ⇥</button>" +
+        "<button class='btn small outline' data-msg-done='" + esc(m.id) + "'>done</button>" +
+        "<button class='icon-danger' data-msg-delete='" + esc(m.id) + "'>×</button></div>" +
+      "</article>";
+    }).join("");
+  }
+  function sendMessageReply(id) {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    var input = document.querySelector("[data-msg-input='" + id + "']");
+    var v = input ? input.value.trim() : "";
+    MajorCloud.updateMessage(id, { reply: v, status: "replied", replied_at: new Date().toISOString() })
+      .then(syncMessages).catch(function () { toast("reply failed", true); });
+  }
+  function markMessageDone(id) {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    MajorCloud.updateMessage(id, { status: "done" })
+      .then(syncMessages).catch(function () { toast("update failed", true); });
+  }
   function toast(msg, bad) {
     var e = $("adminToast"); e.textContent = msg; e.className = "toast show" + (bad ? " bad" : "");
     clearTimeout(e._t); e._t = setTimeout(function () { e.classList.remove("show"); }, 2400);
@@ -113,6 +180,7 @@
     db = ElectroDB.load();
     renderBrand(); renderOverview(); renderProducts(); renderCategories();
     renderHomepage(); renderSettings(); renderPayments(); renderOrders();
+    syncCloudOrders(); syncMessages();
   }
 
   function openEditor(id) {
@@ -145,18 +213,46 @@
     if (window.innerWidth < 1000) $("dashboard").classList.remove("side-open");
   }
   function bind() {
+    function enterDashboard() {
+      logged = true;
+      $("loginScreen").hidden = true; $("dashboard").hidden = false;
+      var sync = document.querySelector(".last-sync");
+      if (sync) sync.innerHTML = window.MajorCloud && MajorCloud.isAdmin() ? "cloud sync: online <i></i>" : "local mode <i></i>";
+      renderAll();
+    }
     $("loginForm").onsubmit = function (e) {
       e.preventDefault();
       var u = $("loginUser").value.trim(), pw = $("loginPass").value;
       var stored = ElectroDB.getAdminAuth();
-      if (u === stored.user && pw === stored.pass) {
+      var localOk = (u === stored.user && pw === stored.pass);
+      if (!window.MajorCloud) {
+        if (localOk) { sessionStorage.setItem("major_admin_v4", "1"); sessionStorage.setItem("major_admin_user", u); enterDashboard(); }
+        else $("loginError").textContent = "// ACCESS DENIED — invalid credentials";
+        return;
+      }
+      var btn = e.target.querySelector("button[type=submit]");
+      if (btn) { btn.disabled = true; btn.textContent = "logging in..."; }
+      MajorCloud.signIn(u, pw).then(function () {
         sessionStorage.setItem("major_admin_v4", "1");
         sessionStorage.setItem("major_admin_user", u);
-        logged = true;
-        $("loginScreen").hidden = true; $("dashboard").hidden = false; renderAll();
-      } else $("loginError").textContent = "// ACCESS DENIED — invalid credentials";
+        enterDashboard();
+      }).catch(function (err) {
+        var offline = !err || (err.status >= 500) || (err.status === undefined) || (/fetch|network|typeerror/i.test(err.message || ""));
+        if (offline && localOk) {
+          sessionStorage.setItem("major_admin_v4", "1");
+          sessionStorage.setItem("major_admin_user", u);
+          toast("offline mode — local credentials accepted", true);
+          enterDashboard();
+        } else $("loginError").textContent = "// ACCESS DENIED — invalid credentials";
+      }).finally(function () {
+        if (btn) { btn.disabled = false; btn.textContent = "login $"; }
+      });
     };
-    $("logoutBtn").onclick = function () { sessionStorage.removeItem("major_admin_v4"); sessionStorage.removeItem("major_admin_user"); location.reload(); };
+    $("logoutBtn").onclick = function () {
+      sessionStorage.removeItem("major_admin_v4"); sessionStorage.removeItem("major_admin_user");
+      if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.signOut().catch(function () {});
+      location.reload();
+    };
     all(".nav-item").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });
     $("mobileSide").onclick = function () { $("dashboard").classList.toggle("side-open"); };
@@ -198,13 +294,26 @@
     };
 
     document.addEventListener("click", function (e) {
+      var ms = e.target.closest("[data-msg-send]");
+      if (ms) { sendMessageReply(ms.getAttribute("data-msg-send")); return; }
+      var md = e.target.closest("[data-msg-done]");
+      if (md) { markMessageDone(md.getAttribute("data-msg-done")); return; }
+      var mdel = e.target.closest("[data-msg-delete]");
+      if (mdel && confirm("delete message?")) {
+        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteMessage(mdel.getAttribute("data-msg-delete")).then(syncMessages).catch(function () { toast("delete failed", true); });
+        return;
+      }
       var ep = e.target.closest("[data-edit-product]"); if (ep) openEditor(ep.getAttribute("data-edit-product"));
       var dp = e.target.closest("[data-delete-product]");
       if (dp && confirm("delete product?")) { db.products = db.products.filter(function (x) { return x.id !== dp.getAttribute("data-delete-product"); }); save(); renderAll(); toast("✓ product deleted"); }
       var dc = e.target.closest("[data-delete-category]");
       if (dc && confirm("delete category?")) { db.categories = db.categories.filter(function (x) { return x.id !== dc.getAttribute("data-delete-category"); }); save(); renderAll(); toast("✓ category deleted"); }
       var dord = e.target.closest("[data-delete-order]");
-      if (dord && confirm("delete order?")) { db.orders = db.orders.filter(function (x) { return x.id !== dord.getAttribute("data-delete-order"); }); save(); renderAll(); toast("✓ order deleted"); }
+      if (dord && confirm("delete order?")) {
+        var oid = dord.getAttribute("data-delete-order");
+        db.orders = db.orders.filter(function (x) { return x.id !== oid; }); save(); renderAll(); toast("✓ order deleted");
+        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteOrder(oid).catch(function () {});
+      }
     });
 
     $("categoryForm").onsubmit = function (e) {
@@ -256,9 +365,21 @@
     $("ordersTable").addEventListener("change", function (e) {
       var id = e.target.getAttribute("data-order-status"); if (!id) return;
       var o = db.orders.find(function (x) { return x.id === id; });
-      if (o) { o.status = e.target.value; save(); renderAll(); toast("✓ status: " + e.target.value); }
+      if (o) {
+        o.status = e.target.value; save(); renderAll(); toast("✓ status: " + e.target.value);
+        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.updateOrder(id, { status: o.status }).catch(function () {});
+      }
     });
-    $("clearOrdersBtn").onclick = function () { if (db.orders.length && confirm("clear ALL orders?")) { db.orders = []; save(); renderAll(); toast("all orders cleared"); } };
+    $("clearOrdersBtn").onclick = function () {
+      if (!db.orders.length || !confirm("clear ALL orders?")) return;
+      var ids = db.orders.map(function (o) { return o.id; });
+      db.orders = []; save(); renderAll(); toast("all orders cleared");
+      if (window.MajorCloud && MajorCloud.isAdmin()) {
+        var chain = Promise.resolve();
+        ids.forEach(function (id) { chain = chain.then(function () { return MajorCloud.deleteOrder(id).catch(function () {}); }); });
+        chain.then(syncCloudOrders);
+      }
+    };
     $("langSwitch").onclick = function () { ElectroDB.setLang(ElectroDB.getLang() === "ar" ? "en" : "ar"); };
   }
   bind();
@@ -271,4 +392,8 @@
   window.addEventListener("major-lang-changed", function () {
     renderBrand(); renderCategories(); renderHomepage(); renderSettings();
   });
+  /* استقبال الطلبات والرسائل الجديدة من Supabase أثناء فتح اللوحة */
+  window.setInterval(function () {
+    if (logged && !document.hidden) { syncCloudOrders(); syncMessages(); }
+  }, 20000);
 })();
