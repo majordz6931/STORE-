@@ -393,6 +393,7 @@ section{padding:60px 0;position:relative}
 @media (max-width:980px){
   .main-nav{position:absolute;top:100%;right:0;left:0;background:var(--bg-2);flex-direction:column;padding:18px 24px;display:none;border-bottom:1px solid var(--line);align-items:flex-start;margin:0}
   .main-nav.open{display:flex}
+  .main-nav .nav-admin{order:-1;margin-bottom:8px;align-self:stretch;text-align:center;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.3);font-weight:700}
   .menu-toggle{display:flex}
   .hero{padding:40px 0 30px}
   .hero-inner{grid-template-columns:1fr;gap:32px}
@@ -445,3 +446,9 @@ section{padding:60px 0;position:relative}
 .pay-qr img{width:150px;height:150px;object-fit:contain;image-rendering:pixelated}
 .pay-qr small{font-family:"Fira Code",monospace;font-size:11px;color:#0a1120;font-weight:700}
 .pay-note{font-size:11px;color:var(--muted);font-family:"Fira Code",monospace;line-height:1.6;margin:0}
+
+@media(max-width:640px){
+  .site-header .lang-switch{min-width:96px;height:36px;background-position:calc(100% - 12px) 50%,calc(100% - 7px) 50%}
+  [dir="rtl"] .site-header .lang-switch{background-position:12px 50%,7px 50%}
+  .header-actions{gap:8px}
+}

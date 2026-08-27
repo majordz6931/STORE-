@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var logged = (window.MajorCloud ? MajorCloud.isAdmin() : false) || sessionStorage.getItem("major_admin_v4") === "1";
+  var logged = sessionStorage.getItem("major_admin_v4") === "1";
   var db = ElectroDB.load();
   var editingId = null;
   var cloudMessages = [];
@@ -201,7 +201,7 @@
       "<div class='tri tri-text'><label>text AR<textarea data-about='text-ar' dir='rtl' rows='3'>" + esc((s.about && s.about.text && s.about.text.ar) || "") + "</textarea></label><label>text FR<textarea data-about='text-fr' rows='3'>" + esc((s.about && s.about.text && s.about.text.fr) || "") + "</textarea></label><label>text EN<textarea data-about='text-en' rows='3'>" + esc((s.about && s.about.text && s.about.text.en) || "") + "</textarea></label></div>";
     $("statsFields").innerHTML = (s.heroStats || []).map(function (x, i) {
       var v = localizeSafe(x);
-      return "<div class='tri'><label>" + (i + 1) + " value<input data-stat='value' data-i='" + i + "' value='" + esc(v.value) + "' /></label><label>label AR<input data-stat='ar' data-i='" + i + "' dir='rtl' value='" + esc((x.ar && x.ar.label) || "") + "' /></label><label>label FR<input data-stat='fr' data-i='" + i + "' value='" + esc((x.fr && x.fr.label) || "") + "' /></label><label class='stat-en'>EN<input data-stat='en' data-i='" + i + "' value='" + esc((x.en && x.en.label) || "") + "' /></label></div>";
+      return "<div class='stats-row'><label>" + (i + 1) + " value<input data-stat='value' data-i='" + i + "' value='" + esc(v.value) + "' /></label><label>label AR<input data-stat='ar' data-i='" + i + "' dir='rtl' value='" + esc((x.ar && x.ar.label) || "") + "' /></label><label>label FR<input data-stat='fr' data-i='" + i + "' value='" + esc((x.fr && x.fr.label) || "") + "' /></label><label>label EN<input data-stat='en' data-i='" + i + "' value='" + esc((x.en && x.en.label) || "") + "' /></label></div>";
     }).join("");
   }
   function localizeSafe(x) { return ElectroDB.localize(x) || { value: "", label: "" }; }
@@ -280,6 +280,7 @@
   function closeEditor() { $("productEditor").classList.remove("open"); }
   function setPanel(name) {
     all(".nav-item").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === name); });
+    all(".tnav").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === name); });
     all(".admin-panel").forEach(function (x) { x.classList.toggle("active", x.id === "panel-" + name); });
     var nav = document.querySelector("[data-panel='" + name + "']");
     $("pageTitle").textContent = nav ? nav.textContent.replace(/\d+/g, "").trim() : "panel";
@@ -296,13 +297,8 @@
     $("loginForm").onsubmit = function (e) {
       e.preventDefault();
       var u = $("loginUser").value.trim(), pw = $("loginPass").value;
-      var stored = ElectroDB.getAdminAuth();
-      var localOk = (u === stored.user && pw === stored.pass);
-      if (!window.MajorCloud) {
-        if (localOk) { sessionStorage.setItem("major_admin_v4", "1"); sessionStorage.setItem("major_admin_user", u); enterDashboard(); }
-        else $("loginError").textContent = "// ACCESS DENIED — invalid credentials";
-        return;
-      }
+      if (!u || !pw) { $("loginError").textContent = "// enter username and password"; return; }
+      if (!window.MajorCloud) { $("loginError").textContent = "// auth service unavailable — check your connection"; return; }
       var btn = e.target.querySelector("button[type=submit]");
       if (btn) { btn.disabled = true; btn.textContent = "logging in..."; }
       MajorCloud.signIn(u, pw).then(function () {
@@ -310,23 +306,21 @@
         sessionStorage.setItem("major_admin_user", u);
         enterDashboard();
       }).catch(function (err) {
-        var offline = !err || (err.status >= 500) || (err.status === undefined) || (/fetch|network|typeerror/i.test(err.message || ""));
-        if (offline && localOk) {
-          sessionStorage.setItem("major_admin_v4", "1");
-          sessionStorage.setItem("major_admin_user", u);
-          toast("offline mode — local credentials accepted", true);
-          enterDashboard();
-        } else $("loginError").textContent = "// ACCESS DENIED — invalid credentials";
+        $("loginError").textContent = "// ACCESS DENIED — invalid credentials. Create the admin user in Supabase > Authentication > Users.";
+        $("loginPass").value = "";
       }).finally(function () {
         if (btn) { btn.disabled = false; btn.textContent = "login $"; }
       });
     };
-    $("logoutBtn").onclick = function () {
+    function doLogout() {
       sessionStorage.removeItem("major_admin_v4"); sessionStorage.removeItem("major_admin_user");
       if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.signOut().catch(function () {});
       location.reload();
-    };
+    }
+    $("logoutBtn").onclick = doLogout;
+    var topLogout = $("topLogoutBtn"); if (topLogout) topLogout.onclick = doLogout;
     all(".nav-item").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
+    all(".tnav").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });
     $("mobileSide").onclick = function () { $("dashboard").classList.toggle("side-open"); };
     $("newProductBtn").onclick = function () { openEditor(); };

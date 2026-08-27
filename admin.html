@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major3" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major4" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -30,7 +30,7 @@
         <button class="btn primary full" type="submit">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
-      <p class="login-hint">Supabase Auth — sign in with the user you created under<br />Authentication → Users (e.g. <b>admin@majorstore.store</b>).<br />When offline, local credentials are accepted.</p>
+      <p class="login-hint">🔒 Protected — real credentials are required.<br />Use the admin user created in <b>Supabase → Authentication → Users</b><br />(e.g. <b>admin@majorstore.store</b>). No offline bypass exists.<br />You must first run <b>supabase-setup.sql</b>, then create that user.</p>
       <a class="back-store" href="index.html">← back to MAJOR STORE</a>
     </div>
   </div>
@@ -67,6 +67,18 @@
     </aside>
 
     <main class="admin-main">
+      <nav class="admin-topnav" id="adminTopnav" aria-label="Dashboard sections">
+        <button class="tnav active" data-panel="overview">⌂ Overview</button>
+        <button class="tnav" data-panel="products">▦ Products</button>
+        <button class="tnav" data-panel="categories">◈ Categories</button>
+        <button class="tnav" data-panel="coupons">🎟 Coupons</button>
+        <button class="tnav" data-panel="payments">$ Payments</button>
+        <button class="tnav" data-panel="homepage">✦ Hero</button>
+        <button class="tnav" data-panel="sections">◫ Sections</button>
+        <button class="tnav" data-panel="orders">↗ Orders</button>
+        <button class="tnav" data-panel="messages">✉ Messages</button>
+        <button class="tnav" data-panel="settings">⚙ Settings</button>
+      </nav>
       <header class="admin-header">
         <div>
           <button class="mobile-side" id="mobileSide">☰</button>
@@ -81,6 +93,7 @@
           </select>
           <span class="last-sync">all data is saved locally <i></i></span>
           <a class="view-store" href="index.html" target="_blank">live preview ↗</a>
+          <button class="btn small outline" id="topLogoutBtn">⇥ logout</button>
         </div>
       </header>
 
@@ -440,8 +453,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major3"></script>
-  <script src="js/cloud.js?v=2026-major3"></script>
-  <script src="js/admin.js?v=2026-major3"></script>
+  <script src="js/store.js?v=2026-major4"></script>
+  <script src="js/cloud.js?v=2026-major4"></script>
+  <script src="js/admin.js?v=2026-major4"></script>
 </body>
 </html>

@@ -483,7 +483,7 @@
       },
       discordLink: "https://discord.gg/WrK7ttvq5g"
     },
-    adminAuth: { user: "admin", pass: "yemavava91@@@@@#####" },
+    adminAuth: { user: "", pass: "" },
     categories: [
       { id: "distros",   name: { ar: "توزيعات لينكس",   en: "Linux distros" },     icon: "🐧", color: "#0a2a1f" },
       { id: "wireless",  name: { ar: "WiFi والشبكة",     en: "WiFi & network" },    icon: "📡", color: "#0d2438" },
@@ -691,14 +691,13 @@
   function t(key) { var L = I18N[currentLang] || I18N.ar; return L[key] || I18N.ar[key] || key; }
 
   function getLogo() { return LOGO_SVG; }
-  function getAdminAuth() { return Object.assign({}, DEFAULT_DB.adminAuth); }
 
   window.ElectroDB = {
     KEY: DB_KEY, load: load, save: save,
     loadCart: loadCart, saveCart: saveCart,
     uid: uid, formatMoney: formatMoney,
     localize: localize, getLogo: getLogo,
-    getAdminAuth: getAdminAuth, setLang: setLang,
+    setLang: setLang,
     getLang: getLang, t: t,
     I18N: I18N,
     getDefault: function () { return clone(DEFAULT_DB); }

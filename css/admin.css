@@ -362,3 +362,18 @@ a{text-decoration:none;color:inherit}
   .stat-edit{grid-template-columns:80px 1fr}
   .crypto-qr-row{flex-direction:column;align-items:flex-start}
 }
+/* ================= TOP NAV (dashboard at top) ================= */
+.admin-topnav{display:flex;gap:6px;padding:10px 34px;background:rgba(10,17,32,.85);border-bottom:1px solid var(--line);overflow-x:auto;position:sticky;top:76px;z-index:9;scrollbar-width:thin}
+.admin-topnav::-webkit-scrollbar{height:4px}
+.admin-topnav::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:4px}
+.tnav{white-space:nowrap;font-family:"Fira Code",monospace;font-size:11px;font-weight:700;color:var(--ink-mid);border:1px solid transparent;border-radius:9px;padding:7px 12px;transition:.15s}
+.tnav:hover{color:var(--ink);background:var(--green-soft)}
+.tnav.active{color:#031;background:var(--grad);border-color:transparent;box-shadow:0 4px 14px rgba(34,255,181,.3)}
+
+/* hero stats row fix (value + 3 languages) */
+.stats-row{display:grid;grid-template-columns:70px 1fr 1fr 1fr;gap:12px}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr}}
+
+@media(max-width:640px){
+  .admin-topnav{top:70px;padding:8px 14px}
+}
