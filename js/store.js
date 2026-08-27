@@ -1,44 +1,17 @@
 (function () {
-  var KEY = "major360_db_v4";
-  var WALLET = "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3";
+  var KEY = "major360_db_v5";
 
+  /* Local-only DB. Products, payments, orders, coupons and site settings
+     are now shared through the server (single source of truth).
+     localStorage only keeps what is private to this browser:
+       - admin login (admins are kept local for simple auth)
+       - theme preference
+       - chat threads for this browser (user side)
+     The storefront cart lives in its own key: major360_cart. */
   var DEFAULT = {
-    discord: "https://discord.gg/WrK7ttvq5g",
-    whatsapp: "+213XXXXXXXXX",
-    whatsappMsg: "مرحباً! أريد الاستفسار عن منتج",
-    announcement: "🔥 عروض حصرية — خصم 10% باستخدام كود MAJOR10",
-    announcementEn: "🔥 Exclusive offers — 10% off with code MAJOR10",
-    announcementEnabled: true,
-    siteName: "MAJOR AM 360",
-    wallet: WALLET,
-    network: "BNB Smart Chain (BEP20)",
-    payMethods: [],
     theme: "dark",
     admins: [{ user: "MAJOR", pass: "yemavava91@@@@@#####" }],
-    coupons: [
-      { code: "MAJOR10", type: "percent", value: 10, used: 0, max: 100, expires: "" },
-      { code: "VIP25", type: "percent", value: 25, used: 0, max: 50, expires: "" },
-      { code: "WELCOME5", type: "fixed", value: 5, used: 0, max: 200, expires: "" }
-    ],
-    products: [
-      { id: "c1", cat: "cyber", name: "حماية الحسابات — باقة أساسية", nameEn: "Account protection — Basic", price: 9.99, emoji: "🛡️", desc: "تعزيز حماية الحسابات والإعدادات الأمنية.", descEn: "Strengthen account protection and security settings." },
-      { id: "c2", cat: "cyber", name: "حماية متقدمة + استشارة", nameEn: "Advanced protection + consult", price: 24.99, emoji: "🔐", desc: "حماية متقدمة مع استشارة عبر الديسكورد.", descEn: "Advanced protection with Discord consultation." },
-      { id: "p8", cat: "streamer", name: "مشاهدات كيك 1K", nameEn: "Kick views 1K", price: 2.49, emoji: "📺", desc: "زيادة مشاهدات Kick لجمهورك.", descEn: "Boost Kick views for your stream." },
-      { id: "p9", cat: "streamer", name: "مشاهدات كيك 5K", nameEn: "Kick views 5K", price: 7.99, emoji: "📡", desc: "باقة مشاهدات Kick أكبر.", descEn: "Larger Kick views pack." },
-      { id: "p10", cat: "streamer", name: "مشاهدات تيك توك 5K", nameEn: "TikTok views 5K", price: 1.49, emoji: "🎵", desc: "مشاهدات تيك توك حقيقية المظهر.", descEn: "Natural-looking TikTok views." },
-      { id: "p11", cat: "streamer", name: "مشاهدات تيك توك 20K", nameEn: "TikTok views 20K", price: 3.99, emoji: "📱", desc: "باقة نمو سريع لتيك توك.", descEn: "Fast growth pack for TikTok." },
-      { id: "p12", cat: "streamer", name: "مشاهدات تيك توك 50K", nameEn: "TikTok views 50K", price: 8.49, emoji: "🚀", desc: "انطلاقة قوية لفيديوهاتك.", descEn: "Strong launch for your videos." },
-      { id: "p1", cat: "gaming", name: "Blood Strike Tools — باقة ستارتر", nameEn: "Blood Strike Tools — Starter", price: 4.99, emoji: "🎯", desc: "أدوات مساعدة لبلود سترايك مع تفعيل سريع.", descEn: "Blood Strike helper tools with fast activation." },
-      { id: "p2", cat: "gaming", name: "Blood Strike Tools — برو", nameEn: "Blood Strike Tools — Pro", price: 9.99, emoji: "⚔️", desc: "باقة متقدمة مع دعم فوري عبر ديسكورد.", descEn: "Advanced pack with instant Discord support." },
-      { id: "p3", cat: "gaming", name: "فري فاير — أدوات أساسية", nameEn: "Free Fire — Basic tools", price: 5.99, emoji: "🔥", desc: "حزمة أدوات فري فاير للاعبين.", descEn: "Free Fire tools pack for players." },
-      { id: "p4", cat: "gaming", name: "فري فاير — باقة النخبة", nameEn: "Free Fire — Elite pack", price: 12.99, emoji: "👑", desc: "أقوى عروض فري فاير مع أولوية التنفيذ.", descEn: "Top Free Fire offers with priority delivery." },
-      { id: "p5", cat: "gaming", name: "بيباس فري فاير 100", nameEn: "Free Fire Diamonds 100", price: 1.99, emoji: "💎", desc: "شحن بيباس فري فاير — تسليم سريع.", descEn: "Free Fire diamonds top-up — fast delivery." },
-      { id: "p6", cat: "gaming", name: "بيباس فري فاير 310", nameEn: "Free Fire Diamonds 310", price: 5.49, emoji: "💠", desc: "شحن 310 بيباس.", descEn: "310 diamonds top-up." },
-      { id: "p7", cat: "gaming", name: "بيباس فري فاير 520", nameEn: "Free Fire Diamonds 520", price: 8.99, emoji: "💎", desc: "شحن 520 بيباس.", descEn: "520 diamonds top-up." }
-    ],
-    orders: [],
-    chats: [],
-    users: []
+    chats: []
   };
 
   function load() {
@@ -50,30 +23,13 @@
       }
       var db = JSON.parse(raw);
       if (!db.admins || !db.admins.length) db.admins = DEFAULT.admins.slice();
-      if (!db.products) db.products = DEFAULT.products.slice();
-      if (!db.orders) db.orders = [];
-      if (!db.chats) db.chats = [];
-      if (!db.users) db.users = [];
-      if (!db.coupons) db.coupons = DEFAULT.coupons.slice();
-      if (!db.discord) db.discord = DEFAULT.discord;
-      if (!db.whatsapp) db.whatsapp = DEFAULT.whatsapp;
-      if (!db.whatsappMsg) db.whatsappMsg = DEFAULT.whatsappMsg;
-      if (!db.announcement) db.announcement = DEFAULT.announcement;
-      if (!db.announcementEn) db.announcementEn = DEFAULT.announcementEn;
-      if (db.announcementEnabled === undefined) db.announcementEnabled = DEFAULT.announcementEnabled;
-      if (!db.wallet) db.wallet = WALLET;
-      if (!db.network) db.network = DEFAULT.network;
-      // One-time migration: remove the old built-in BSC method only.
-      // Custom methods created from the dashboard are preserved.
-      if (!db.paymentsResetV2) {
-        db.payMethods = (Array.isArray(db.payMethods) ? db.payMethods : []).filter(function (p) {
-          return p.id !== "pm1" && p.wallet !== WALLET;
-        });
-        db.paymentsResetV2 = true;
-        localStorage.setItem(KEY, JSON.stringify(db));
-      } else if (!Array.isArray(db.payMethods)) {
-        db.payMethods = [];
-      }
+      if (!db.theme) db.theme = DEFAULT.theme;
+      if (!Array.isArray(db.chats)) db.chats = [];
+      // Drop legacy shared fields that are now server-owned; keep admins/chats only.
+      ["products", "payMethods", "orders", "coupons", "discord", "whatsapp", "whatsappMsg",
+       "announcement", "announcementEn", "wallet", "network"].forEach(function (k) {
+        delete db[k];
+      });
       return db;
     } catch (e) {
       return JSON.parse(JSON.stringify(DEFAULT));
@@ -84,5 +40,5 @@
     localStorage.setItem(KEY, JSON.stringify(db));
   }
 
-  window.MajorDB = { load: load, save: save, KEY: KEY, WALLET: WALLET };
+  window.MajorDB = { load: load, save: save, KEY: KEY };
 })();

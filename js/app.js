@@ -1,15 +1,19 @@
 (function () {
-  var db = MajorDB.load();
   var cart = JSON.parse(localStorage.getItem("major360_cart") || "[]");
   var filter = "all";
   var searchQuery = "";
   var appliedCoupon = null;
   var chatReady = sessionStorage.getItem("major360_chat_v2") === "1";
   var chatName = chatReady ? (sessionStorage.getItem("major360_chat_name") || "") : "";
-  // Old sessions must enter their name again before messaging.
   var chatId = chatReady && chatName ? (sessionStorage.getItem("major360_chat") || "") : "";
   var lastSeen = 0;
   var liveSocket = null;
+
+  // Server-backed data (single source of truth, synced via Socket.IO)
+  var productsList = [];
+  var paymentsList = [];
+  var couponsList = [];
+  var configData = null;
 
   function t(k) { return MajorI18n.t(k); }
   function money(n) { return "$" + Number(n).toFixed(2); }
@@ -39,11 +43,54 @@
     if (el) el.textContent = n;
   }
 
+  /* ===== SERVER SYNC — initial fetch + live socket updates ===== */
+  try { liveSocket = io(); } catch (e) { liveSocket = null; }
+
+  function refreshFromServer() {
+    fetch("/api/products", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      productsList = Array.isArray(d) ? d : [];
+      renderProducts();
+    }).catch(function () {});
+    fetch("/api/payments", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      paymentsList = Array.isArray(d) ? d : [];
+    }).catch(function () {});
+    fetch("/api/coupons", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      couponsList = Array.isArray(d) ? d : [];
+    }).catch(function () {});
+    fetch("/api/config", { cache: "no-store" }).then(function (r) { return r.json(); }).then(function (d) {
+      configData = d;
+      refreshDiscord();
+      refreshAnnouncement();
+      refreshWhatsApp();
+    }).catch(function () {});
+  }
+
+  if (liveSocket) {
+    liveSocket.on("products:set", function (d) {
+      productsList = Array.isArray(d) ? d : [];
+      renderProducts();
+      renderCart();
+    });
+    liveSocket.on("payments:updated", function (d) {
+      paymentsList = Array.isArray(d) ? d : [];
+    });
+    liveSocket.on("coupons:set", function (d) {
+      couponsList = Array.isArray(d) ? d : [];
+    });
+    liveSocket.on("config:set", function (d) {
+      configData = d;
+      refreshDiscord();
+      refreshAnnouncement();
+      refreshWhatsApp();
+    });
+  }
+
+  /* ===== PRODUCTS ===== */
   function renderProducts() {
     var grid = document.getElementById("products");
     if (!grid) return;
     var q = searchQuery.toLowerCase().trim();
-    var list = db.products.filter(function (p) {
+    var list = productsList.filter(function (p) {
       if (filter !== "all" && p.cat !== filter) return false;
       if (!q) return true;
       return (p.name + " " + p.nameEn + " " + p.desc + " " + (p.descEn || "")).toLowerCase().indexOf(q) !== -1;
@@ -81,7 +128,7 @@
   }
 
   function addToCart(id) {
-    var p = db.products.find(function (x) { return x.id === id; });
+    var p = productsList.find(function (x) { return x.id === id; });
     if (!p) return;
     var f = cart.find(function (x) { return x.id === id; });
     if (f) f.qty += 1;
@@ -94,57 +141,50 @@
 
   /* BUY NOW — direct purchase, skips cart */
   function buyNow(id) {
-    var p = db.products.find(function (x) { return x.id === id; });
+    var p = productsList.find(function (x) { return x.id === id; });
     if (!p) return;
-    // Clear cart and add only this product
     cart = [{ id: p.id, name: p.name, nameEn: p.nameEn, price: p.price, qty: 1 }];
     saveCart();
     renderCart();
     renderProducts();
-    // Close any open cart drawer and open checkout directly
     var overlay = document.getElementById("overlay");
     var drawer = document.getElementById("drawer");
     overlay.classList.remove("show");
     drawer.classList.remove("show");
-    // Open checkout
     appliedCoupon = null;
     var cr = document.getElementById("couponRow");
     if (cr) cr.style.display = "block";
     document.getElementById("couponCode").value = "";
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
-    loadServerPayments(function () {
-      renderPayMethods();
-      var buyQrWrap = document.getElementById("payQrWrap");
-      if (buyQrWrap && !serverPayments.length && !(db.payMethods || []).length) buyQrWrap.style.display = "none";
-      document.getElementById("orderModal").classList.add("show");
-    });
+    openCheckout();
   }
 
+  /* ===== CONFIG-DRIVEN UI ===== */
   function refreshDiscord() {
     var dl = document.getElementById("discordLink");
     var fd = document.getElementById("footerDiscord");
-    if (dl) dl.href = db.discord;
-    if (fd) fd.href = db.discord;
+    var href = configData && configData.discord ? configData.discord : "https://discord.gg/WrK7ttvq5g";
+    if (dl) dl.href = href;
+    if (fd) fd.href = href;
   }
 
-  /* ANNOUNCEMENT BAR */
   function refreshAnnouncement() {
     var bar = document.getElementById("announcementBar");
     var txt = document.getElementById("annText");
     if (!bar || !txt) return;
-    if (db.announcementEnabled === false) { bar.style.display = "none"; return; }
+    if (!configData) { bar.style.display = "none"; return; }
+    if (configData.announcementEnabled === false) { bar.style.display = "none"; return; }
     bar.style.display = "block";
-    txt.textContent = MajorI18n.getLang() === "en" ? (db.announcementEn || db.announcement) : db.announcement;
+    txt.textContent = MajorI18n.getLang() === "en" ? (configData.announcementEn || configData.announcement) : configData.announcement;
   }
 
-  /* WHATSAPP */
   function refreshWhatsApp() {
     var fab = document.getElementById("whatsappFab");
     if (!fab) return;
-    if (db.whatsapp && db.whatsapp !== "+213XXXXXXXXX") {
+    if (configData && configData.whatsapp) {
       fab.style.display = "flex";
-      fab.href = "https://wa.me/" + db.whatsapp.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(db.whatsappMsg || "مرحباً");
+      fab.href = "https://wa.me/" + configData.whatsapp.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(configData.whatsappMsg || "مرحباً");
     } else {
       fab.style.display = "none";
     }
@@ -160,9 +200,7 @@
     refreshAnnouncement();
   };
 
-  refreshDiscord();
-  refreshAnnouncement();
-  refreshWhatsApp();
+  refreshFromServer();
   renderProducts();
   saveCart();
   renderCart();
@@ -187,7 +225,6 @@
     });
   });
 
-  /* SEARCH */
   var searchInput = document.getElementById("searchInput");
   if (searchInput) {
     searchInput.addEventListener("input", function () {
@@ -215,7 +252,7 @@
     renderCart();
   });
 
-  /* CHECKOUT */
+  /* ===== CHECKOUT — single payment block (server-defined) ===== */
   var orderModal = document.getElementById("orderModal");
   var proofData = "";
   function cartTotal() { return cart.reduce(function (s, i) { return s + i.price * i.qty; }, 0); }
@@ -229,50 +266,28 @@
   }
 
   function validateCoupon(code) {
-    db = MajorDB.load();
-    var c = (db.coupons || []).find(function (x) { return x.code.toUpperCase() === code.trim().toUpperCase(); });
+    var c = (couponsList || []).find(function (x) { return x.code.toUpperCase() === code.trim().toUpperCase(); });
     if (!c) return null;
     if (c.max && c.used >= c.max) return null;
     if (c.expires && new Date(c.expires) < new Date()) return null;
     return c;
   }
 
-  var selectedPay = "";
-  var serverPayments = [];
-
-  function loadServerPayments(done) {
-    fetch("/api/payments", { cache: "no-store" })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (list) {
-        serverPayments = Array.isArray(list) ? list : [];
-        if (done) done();
-      })
-      .catch(function () { if (done) done(); });
-  }
-
-  function renderPayMethods() {
+  function renderPayBlock() {
+    var m = paymentsList.length ? paymentsList[0] : null;
     var box = document.getElementById("payMethods");
     if (!box) return;
-    db = MajorDB.load();
-    var methods = serverPayments.length ? serverPayments : (db.payMethods || []);
-    if (!methods.length) {
+    if (!m) {
       box.innerHTML = '<p class="sub" style="color:var(--muted);padding:8px">' + t("noPayments") + "</p>";
-      selectedPay = "";
       var emptyWallet = document.getElementById("walletAddr");
       if (emptyWallet) emptyWallet.textContent = "";
       var emptyQr = document.getElementById("payQrWrap");
       if (emptyQr) emptyQr.style.display = "none";
       return;
     }
-    box.innerHTML = methods.map(function (m, i) {
-      return '<label class="pay-method' + (i === 0 ? " sel" : "") + '"><input type="radio" name="paym" value="' + i + '"' + (i === 0 ? " checked" : "") + " /><span>" + (m.icon || "💳") + " " + (m.label || "") + (m.network ? " <small>" + m.network + "</small>" : "") + "</span></label>";
-    }).join("");
-    if (methods.length) selectPayMethod(0, methods);
-  }
-
-  function selectPayMethod(i, methods) {
-    var m = methods[i];
-    selectedPay = i;
+    box.innerHTML = '<div class="pay-block"><div class="pay-head"><span>' + (m.icon || "💳") + "</span> <b>" + esc(m.label || "") + "</b>" +
+      (m.network ? ' <small class="pay-net">' + esc(m.network) + "</small>" : "") + '</div>' +
+      '<div class="pay-wallet"><code id="payWalletCode">' + esc(m.wallet || "") + '</code><button type="button" id="payCopyWallet" class="btn small">' + t("copy") + "</button></div></div>";
     var wa = document.getElementById("walletAddr");
     if (wa) wa.textContent = m.wallet || "";
     var qw = document.getElementById("payQrWrap");
@@ -285,34 +300,32 @@
         qw.style.display = "none";
       }
     }
-    var radios = document.querySelectorAll(".pay-method");
-    radios.forEach(function (r, j) { r.classList.toggle("sel", j === i); });
   }
 
-  document.addEventListener("change", function (e) {
-    if (e.target && e.target.name === "paym") {
-      db = MajorDB.load();
-      var methods = serverPayments.length ? serverPayments : (db.payMethods || []);
-      selectPayMethod(+e.target.value, methods);
+  document.addEventListener("click", function (e) {
+    if (e.target && e.target.id === "payCopyWallet") {
+      var code = document.getElementById("payWalletCode");
+      if (code && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code.textContent).then(function () { toast(t("copied")); });
+      }
     }
   });
 
-  document.getElementById("checkout").addEventListener("click", function () {
-    if (!cart.length) return toast(t("emptyCart"));
-    closeCart();
+  function openCheckout() {
     appliedCoupon = null;
     var cr = document.getElementById("couponRow");
     if (cr) cr.style.display = "block";
     document.getElementById("couponCode").value = "";
     document.getElementById("couponMsg").textContent = "";
     document.getElementById("payAmount").textContent = money(cartTotal());
-    loadServerPayments(function () {
-      renderPayMethods();
-      // If no payment methods are configured, keep the old QR hidden.
-      var qw = document.getElementById("payQrWrap");
-      if (qw && !serverPayments.length && !(db.payMethods || []).length) qw.style.display = "none";
-      orderModal.classList.add("show");
-    });
+    renderPayBlock();
+    orderModal.classList.add("show");
+  }
+
+  document.getElementById("checkout").addEventListener("click", function () {
+    if (!cart.length) return toast(t("emptyCart"));
+    closeCart();
+    openCheckout();
   });
   document.getElementById("closeOrder").addEventListener("click", function () { orderModal.classList.remove("show"); });
   document.getElementById("copyAddr").addEventListener("click", function () {
@@ -360,57 +373,64 @@
     img.src = url;
   });
 
+  /* ===== SUBMIT ORDER → SERVER ===== */
   document.getElementById("orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
     if (!proofData) return toast(t("proofNeed"));
-    db = MajorDB.load();
     var total = cartTotalWithDiscount();
     var orderId = "o" + Date.now();
-    var methods = db.payMethods && db.payMethods.length ? db.payMethods : [];
-    var pay = methods && methods[selectedPay] ? methods[selectedPay] : null;
-    db.orders.unshift({
+    var pay = paymentsList.length ? paymentsList[0] : null;
+    var order = {
       id: orderId,
       name: document.getElementById("cname").value.trim(),
       contact: document.getElementById("ccontact").value.trim(),
       country: document.getElementById("ccountry").value.trim(),
-      note: "",
       proof: proofData,
-      network: pay ? pay.network : "—",
-      wallet: pay ? pay.wallet : "—",
+      network: pay ? pay.network : "",
+      wallet: pay ? pay.wallet : "",
       payLabel: pay ? pay.label : null,
       items: cart.slice(),
       total: total,
       originalTotal: cartTotal(),
       coupon: appliedCoupon ? appliedCoupon.code : null,
-      status: "pending",
       at: new Date().toLocaleString()
-    });
-    if (appliedCoupon) {
-      var c = (db.coupons || []).find(function (x) { return x.code === appliedCoupon.code; });
-      if (c) c.used = (c.used || 0) + 1;
-    }
-    MajorDB.save(db);
-    // Broadcast live order notification
-    try { if (liveSocket) liveSocket.emit("order:new", { name: db.orders[0].name, country: db.orders[0].country, items: db.orders[0].items.map(function(i) { return i.name; }).join(", ") }); } catch(e) {}
+    };
+    // Persist on the server so the admin dashboard receives it everywhere.
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(order)
+    }).then(function () {
+      // Record locally too, so this browser shows it in "My orders".
+      var myOrders = JSON.parse(localStorage.getItem("major360_myorders") || "[]");
+      myOrders.unshift(order);
+      localStorage.setItem("major360_myorders", JSON.stringify(myOrders));
+      renderOrders();
+    }).catch(function () {});
+    // Live storefront activity
+    try {
+      if (liveSocket) liveSocket.emit("order:new", {
+        name: order.name, country: order.country,
+        items: order.items.map(function (i) { return i.name; }).join(", ")
+      });
+    } catch (err) {}
     cart = [];
     proofData = "";
     appliedCoupon = null;
     saveCart();
     renderCart();
-    document.getElementById("proofPreview").classList.remove("show");
+    var pp = document.getElementById("proofPreview");
+    if (pp) pp.classList.remove("show");
     orderModal.classList.remove("show");
     toast(t("sent") + " (" + t("yourOrderId") + " " + orderId + ")");
     e.target.reset();
-    renderOrders();
   });
 
   document.getElementById("menuBtn").addEventListener("click", function () {
     document.getElementById("navLinks").classList.toggle("open");
   });
 
-  /* CHAT — Socket.IO Real-time */
-  try { liveSocket = io(); } catch(e) { liveSocket = null; }
-
+  /* ===== CHAT — realtime ===== */
   var fab = document.getElementById("chatFab");
   var win = document.getElementById("chatWin");
   fab.addEventListener("click", function () {
@@ -424,7 +444,7 @@
   document.getElementById("chatClose").addEventListener("click", function () { win.classList.remove("open"); });
 
   function getChat() {
-    db = MajorDB.load();
+    var db = MajorDB.load();
     if (!db.chats) db.chats = [];
     return db.chats.find(function (c) { return c.id === chatId; });
   }
@@ -461,7 +481,7 @@
   function startChat() {
     var name = document.getElementById("chatName").value.trim();
     if (!name) return;
-    db = MajorDB.load();
+    var db = MajorDB.load();
     if (!db.chats) db.chats = [];
     chatId = "c" + Date.now();
     chatName = name;
@@ -473,7 +493,6 @@
       messages: [{ from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() }]
     });
     MajorDB.save(db);
-    // Notify server — new chat + welcome message
     if (liveSocket) {
       liveSocket.emit("chat:new", { chatId: chatId, name: name });
       liveSocket.emit("chat:message", { chatId: chatId, message: { from: "admin", text: t("chatHello"), at: new Date().toLocaleString(), ts: Date.now() } });
@@ -491,7 +510,7 @@
       }
       return;
     }
-    db = MajorDB.load();
+    var db = MajorDB.load();
     var c = db.chats.find(function (x) { return x.id === chatId; });
     if (!c) return;
     var msg = { from: "user", text: text, at: new Date().toLocaleString(), ts: Date.now() };
@@ -499,21 +518,18 @@
     c.updated = Date.now();
     MajorDB.save(db);
     input.value = "";
-    // Emit via socket
     if (liveSocket) liveSocket.emit("chat:message", { chatId: chatId, name: chatName, message: msg });
     drawChat();
   }
   document.getElementById("chatSend").addEventListener("click", sendUser);
   document.getElementById("chatInput").addEventListener("keydown", function (e) { if (e.key === "Enter") sendUser(); });
 
-  // Listen for admin replies from server
   if (liveSocket) {
     liveSocket.on("chat:message", function (data) {
       if (data.chatId === chatId) {
-        db = MajorDB.load();
+        var db = MajorDB.load();
         var c = db.chats.find(function (x) { return x.id === chatId; });
         if (c) {
-          // Only add if we don't already have it
           var exists = c.messages.some(function (m) { return m.ts === data.message.ts; });
           if (!exists) {
             c.messages.push(data.message);
@@ -534,22 +550,21 @@
     drawChat();
   }
 
-  /* MY ORDERS */
+  /* MY ORDERS (this browser's own history) */
   var ordersBox = document.getElementById("myOrders");
   function renderOrders() {
     if (!ordersBox) return;
-    db = MajorDB.load();
-    var list = db.orders.slice(0, 10);
+    var list = JSON.parse(localStorage.getItem("major360_myorders") || "[]").slice(0, 10);
     if (!list.length) {
       ordersBox.innerHTML = '<h3>' + t("myOrders") + '</h3><p class="sub">' + t("noOrdersHistory") + "</p>";
       return;
     }
-    ordersBox.innerHTML = '<h3>' + t("myOrders") + '</h3>' +
+    ordersBox.innerHTML = '<h3>' + t("myOrders") + "</h3>" +
       list.map(function (o) {
         var s = o.status || "pending";
         var sk = "status" + s.charAt(0).toUpperCase() + s.slice(1);
         var it = o.items.map(function (i) { return i.name + " ×" + i.qty; }).join(" | ");
-        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div><div class="order-body"><p class="sub">' + it + '</p><p><span>' + t("total") + '</span> <b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + ' ' + o.id + '</small></div></div>';
+        return '<div class="order-card"><div class="order-head"><span>' + t("orderStatus") + ': <b class="status-' + s + '">' + t(sk) + '</b></span><small>' + (o.at || "") + '</small></div><div class="order-body"><p class="sub">' + it + '</p><p><span>' + t("total") + '</span> <b>' + money(o.total) + '</b></p><small>' + t("yourOrderId") + " " + o.id + "</small></div></div>";
       }).join("");
   }
 
@@ -562,7 +577,7 @@
     if (!box) return;
     var el = document.createElement("div");
     el.className = "social-notif";
-    el.innerHTML = '<span class="sn-icon">🛒</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("bought") + ' ' + item + '<small>' + (country ? "من " + country : "") + ' · ' + t("justNow") + '</small></span>';
+    el.innerHTML = '<span class="sn-icon">🛒</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("bought") + " " + item + "<small>" + (country ? "من " + country : "") + " · " + t("justNow") + "</small></span>";
     box.appendChild(el);
     el._t = setTimeout(function () {
       el.classList.add("out");
@@ -579,7 +594,7 @@
     if (!box) return;
     var el = document.createElement("div");
     el.className = "social-notif visit";
-    el.innerHTML = '<span class="sn-icon">👋</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("visiting") + '<small>' + (country ? "من " + country : "") + ' · ' + t("justNow") + '</small></span>';
+    el.innerHTML = '<span class="sn-icon">👋</span><span class="sn-text"><b>' + (name || "زبون") + "</b> " + t("visiting") + "<small>" + (country ? "من " + country : "") + " · " + t("justNow") + "</small></span>";
     box.appendChild(el);
     el._t = setTimeout(function () {
       el.classList.add("out");
@@ -596,7 +611,6 @@
     if (el) el.textContent = n || 0;
   }
 
-  // Show initial count immediately
   var initial = ["1", "2", "3", "4", "5", "6", "7"][Math.floor(Math.random() * 7)];
   updateVisitorCount(initial);
 
