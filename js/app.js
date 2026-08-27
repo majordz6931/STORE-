@@ -518,12 +518,27 @@
     el.className = "social-notif";
     el.innerHTML = '<span class="sn-icon">🛒</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("bought") + ' ' + item + '<small>' + (country ? "من " + country : "") + ' · ' + t("justNow") + '</small></span>';
     box.appendChild(el);
-    if (proofTimer) clearTimeout(proofTimer);
-    proofTimer = setTimeout(function () {
+    el._t = setTimeout(function () {
       el.classList.add("out");
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
     }, 5000);
-    // Limit to 3 visible
+    while (box.children.length > 3) {
+      var first = box.firstChild;
+      if (first) box.removeChild(first);
+    }
+  }
+
+  function showVisit(name, country) {
+    var box = document.getElementById("socialProof");
+    if (!box) return;
+    var el = document.createElement("div");
+    el.className = "social-notif visit";
+    el.innerHTML = '<span class="sn-icon">👋</span><span class="sn-text"><b>' + (name || "زبون") + '</b> ' + t("visiting") + '<small>' + (country ? "من " + country : "") + ' · ' + t("justNow") + '</small></span>';
+    box.appendChild(el);
+    el._t = setTimeout(function () {
+      el.classList.add("out");
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 300);
+    }, 3000);
     while (box.children.length > 3) {
       var first = box.firstChild;
       if (first) box.removeChild(first);
@@ -542,6 +557,9 @@
   if (liveSocket) {
     liveSocket.on("live:activity", function (data) {
       showSocialProof(data.name, data.country, data.item);
+    });
+    liveSocket.on("live:visit", function (data) {
+      showVisit(data.name, data.country);
     });
     liveSocket.on("live:stats", function (data) {
       if (data.visitors) updateVisitorCount(data.visitors);

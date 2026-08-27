@@ -907,7 +907,7 @@ body.ltr #socialProof { left: auto; right: 22px; }
   align-items: center;
   gap: 10px;
   background: rgba(12,12,18,.92);
-  border: 1px solid rgba(255,46,85,.15);
+  border: 1px solid rgba(255,255,255,.06);
   border-left: 3px solid var(--red, #ff2e55);
   border-radius: 12px;
   padding: 10px 14px;
@@ -919,6 +919,7 @@ body.ltr #socialProof { left: auto; right: 22px; }
   pointer-events: auto;
 }
 body.ltr .social-notif { border-left: none; border-right: 3px solid var(--red, #ff2e55); }
+.social-notif.visit { border-left-color: #22c55e; }
 .social-notif .sn-icon { font-size: 22px; }
 .social-notif .sn-text { line-height: 1.4; }
 .social-notif .sn-text b { color: var(--gold, #fbbf24); }

@@ -77,8 +77,16 @@ setInterval(() => {
 
 io.on("connection", (socket) => {
   visitorCount++;
+
+  // Notify all other clients about a new visitor
+  var visitNames = ["Ali", "Mohamed", "Sara", "Ahmed", "Khaled", "Omar", "Hassan", "Nora", "Youssef", "Malak", "Ibrahim", "Layla", "Amine", "Rayan", "Aya"];
+  var visitName = visitNames[Math.floor(Math.random() * visitNames.length)];
+  var visitCountries = ["العراق", "مصر", "المغرب", "السعودية", "الجزائر", "تونس", "ليبيا", "الإمارات", "سوريا", "اليمن", "فلسطين"];
+  var visitCountry = visitCountries[Math.floor(Math.random() * visitCountries.length)];
+  socket.broadcast.emit("live:visit", { name: visitName, country: visitCountry });
+
   // Send immediate stats to the new client
-  socket.emit("live:stats", { visitors: visitorCount + Math.floor(Math.random() * 2), todayOrders: todayOrders.length });
+  socket.emit("live:stats", { visitors: visitorCount, todayOrders: todayOrders.length });
 
   // Chat: join room
   socket.on("chat:join", (chatId) => {
