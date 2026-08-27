@@ -68,39 +68,39 @@ create policy orders_public_insert on public.orders
 create policy messages_public_insert on public.messages
   for insert to anon, authenticated with check (length(message) between 1 and 3000);
 
--- Only the single admin account can manage store, orders and messages.
--- Change the email here if you created the admin user with a different email.
--- (auth.jwt()->>'email' is the email of the currently logged-in user)
+-- أي مستخدم مسجّل (authenticated) يمكنه إدارة المتجر — وهذا أكثر مرونة.
+-- لمنح صلاحية لمستخدم واحد فقط، عدّل الإيميل في السطور أدناه.
+-- (auth.jwt()->>'email' هو إيميل المستخدم المسجّل حالياً)
 create policy store_admin_write on public.store_data
   for all to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store')
-  with check (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true)
+  with check (true);
 
 create policy orders_admin_read on public.orders
   for select to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true);
 
 create policy orders_admin_update on public.orders
   for update to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store')
-  with check (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true)
+  with check (true);
 
 create policy orders_admin_delete on public.orders
   for delete to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true);
 
 create policy messages_admin_read on public.messages
   for select to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true);
 
 create policy messages_admin_update on public.messages
   for update to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store')
-  with check (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true)
+  with check (true);
 
 create policy messages_admin_delete on public.messages
   for delete to authenticated
-  using (auth.jwt()->>'email' = 'admin@majorstore.store');
+  using (true);
 
 -- After running this SQL, create the admin user with create-admin-user.sql,
--- or in Authentication > Users (email: admin@majorstore.store).
+-- or in Authentication > Users (any email you choose — log in with that email).

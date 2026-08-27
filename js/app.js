@@ -446,8 +446,21 @@
     if (!e.key || e.key === ElectroDB.KEY) refresh();
   });
 
-  /* مزامنة مع قاعدة Supabase المشتركة: عند الفتح، عند العودة للتبويب، وكل 30 ثانية */
+  /* مزامنة مع قاعدة Supabase المشتركة: عند الفتح، عند العودة للتبويب، وكل 10 ثوانٍ */
+  /* BroadcastChannel: إذا حفظ المدير منتجاً في تبويب آخر، هذا التبويب يتحدث فوراً */
+  var cloudChannel = null;
+  try {
+    if (window.BroadcastChannel) cloudChannel = new BroadcastChannel("major-store-sync");
+    if (cloudChannel) cloudChannel.onmessage = function (ev) {
+      if (ev.data && ev.data.type === "store-updated") { refreshCloudStore(); toast("✓ new products from cloud"); }
+      if (ev.data && ev.data.type === "orders-updated") { /* refresh orders list if open */ }
+    };
+  } catch (e) { cloudChannel = null; }
+
   refreshCloudStore();
   window.addEventListener("focus", refreshCloudStore);
-  window.setInterval(function () { if (!document.hidden) refreshCloudStore(); }, 30000);
+  window.addEventListener("storage", function (e) {
+    if (e.key === "major_store_v4") refreshCloudStore();
+  });
+  window.setInterval(function () { if (!document.hidden) refreshCloudStore(); }, 10000);
 })();

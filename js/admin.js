@@ -4,6 +4,29 @@
   var db = ElectroDB.load();
   var editingId = null;
   var cloudMessages = [];
+  var cloudStatus = { state: "idle", lastOk: 0, lastErr: "", lastCount: 0 };
+  function updateCloudBadge() {
+    var el = document.querySelector(".last-sync");
+    if (!el) return;
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) { el.innerHTML = "local only <i style='background:var(--muted);box-shadow:none'></i>"; return; }
+    if (cloudStatus.state === "saving") el.innerHTML = "syncing… <i style='background:var(--orange);box-shadow:0 0 8px var(--orange)'></i>";
+    else if (cloudStatus.state === "error") el.innerHTML = "sync failed <i style='background:var(--red);box-shadow:0 0 8px var(--red)'></i> — hover for details";
+    else if (cloudStatus.lastOk) el.innerHTML = "cloud sync: online · " + cloudStatus.lastCount + " products <i></i>";
+    else el.innerHTML = "cloud sync: ready <i style='background:var(--cyan);box-shadow:0 0 8px var(--cyan)'></i>";
+    if (cloudStatus.state === "error" && cloudStatus.lastErr) el.title = cloudStatus.lastErr;
+  }
+  function describeCloudError(err) {
+    var raw = ((err && (err.message || err.hint)) || "").toString();
+    if (/401|403|jwt|policy|permission/i.test(raw) || /new row violates row-level security/i.test(raw))
+      return "RLS rejected the write — make sure you created the admin user with EXACTLY the email 'admin@majorstore.store' (the SQL policies only allow that email). Or change the email in supabase-setup.sql to match yours, then re-run it.";
+    if (/jwt expired|token.*expir/i.test(raw))
+      return "Your login session expired — click logout and log in again.";
+    if (/401/i.test(raw))
+      return "Not authenticated — click logout and log in again.";
+    if (/fetch|network|failed/i.test(raw))
+      return "Network problem — check your internet connection.";
+    return raw || "unknown error";
+  }
   var $ = function (id) { return document.getElementById(id); };
   function all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m]; }); }
@@ -14,9 +37,24 @@
   }
   /* دفع بيانات المتجر (منتجات/أقسام/إعدادات/كوبونات) إلى Supabase — يتطلب تسجيل دخول الإدارة */
   function pushCloudStore() {
-    if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) { updateCloudBadge(); return; }
     var payload = { products: db.products, categories: db.categories, settings: db.settings, coupons: db.coupons };
-    MajorCloud.saveStore(payload).catch(function (e) { toast("cloud sync failed: " + ((e && e.message) || "error"), true); });
+    cloudStatus.state = "saving"; cloudStatus.lastErr = "";
+    updateCloudBadge();
+    MajorCloud.saveStore(payload).then(function () {
+      cloudStatus.state = "idle";
+      cloudStatus.lastOk = Date.now();
+      cloudStatus.lastCount = payload.products.length;
+      updateCloudBadge();
+      toast("✓ published to cloud (" + payload.products.length + " products, " + payload.categories.length + " categories)");
+      try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
+    }).catch(function (e) {
+      cloudStatus.state = "error";
+      cloudStatus.lastErr = describeCloudError(e);
+      updateCloudBadge();
+      toast("✗ cloud sync FAILED: " + cloudStatus.lastErr, true);
+      console.error("[MAJOR STORE cloud sync error]", e);
+    });
   }
   function syncCloudOrders() {
     if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
@@ -279,10 +317,14 @@
       var dash = $("dashboard");
       if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
       $("loginScreen").hidden = true;
-      var sync = document.querySelector(".last-sync");
-      if (sync) sync.innerHTML = window.MajorCloud && MajorCloud.isAdmin() ? "cloud sync: online <i></i>" : "local mode <i></i>";
+      updateCloudBadge();
       renderAll();
+      /* أول دخول: مزامنة فورية لاختبار الاتصال */
+      pushCloudStore();
     }
+    /* BroadcastChannel: عند النشر، أي تبويب آخر مفتوح (متجر زائر) يتحدث فوراً */
+    var bc = null;
+    try { if (window.BroadcastChannel) bc = new BroadcastChannel("major-store-sync"); } catch (e) { bc = null; }
     var passToggle = $("passToggle");
     if (passToggle) passToggle.onclick = function () {
       var inp = $("loginPass");
@@ -326,6 +368,8 @@
     }
     $("logoutBtn").onclick = doLogout;
     var topLogout = $("topLogoutBtn"); if (topLogout) topLogout.onclick = doLogout;
+    var pubBtn = $("publishNowBtn");
+    if (pubBtn) pubBtn.onclick = function () { pushCloudStore(); };
     all(".nav-item").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all(".tnav").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });

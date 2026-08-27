@@ -93,9 +93,11 @@
 
   async function saveStore(data) {
     if (!isAdmin()) throw new Error("Admin authentication required");
+    /* upsert via POST + Prefer: resolution=merge-duplicate — creates the row if it doesn't exist */
     return request("/store_data?id=eq.main", {
-      method: "PATCH",
-      body: JSON.stringify({ data: data, updated_at: new Date().toISOString() })
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicate" },
+      body: JSON.stringify({ id: "main", data: data, updated_at: new Date().toISOString() })
     }, true);
   }
 
