@@ -138,11 +138,6 @@
     $("homeText").value = (s.heroText && s.heroText.ar) || "";
     $("homeCta").value = (s.heroCta && s.heroCta.ar) || "";
     $("homeSecondary").value = (s.heroSecondary && s.heroSecondary.ar) || "";
-    $("homeBadgeFr").value = (s.heroBadge && s.heroBadge.fr) || "";
-    $("homeTitleFr").value = (s.heroTitle && s.heroTitle.fr) || "";
-    $("homeTextFr").value = (s.heroText && s.heroText.fr) || "";
-    $("homeCtaFr").value = (s.heroCta && s.heroCta.fr) || "";
-    $("homeSecondaryFr").value = (s.heroSecondary && s.heroSecondary.fr) || "";
     $("homeBadgeEn").value = (s.heroBadge && s.heroBadge.en) || "";
     $("homeTitleEn").value = (s.heroTitle && s.heroTitle.en) || "";
     $("homeTextEn").value = (s.heroText && s.heroText.en) || "";
@@ -153,21 +148,17 @@
     var s = db.settings;
     $("settingBrand").value = s.brand;
     $("settingSubAR").value = (s.brandSubtitle && s.brandSubtitle.ar) || "";
-    $("settingSubFR").value = (s.brandSubtitle && s.brandSubtitle.fr) || "";
     $("settingSubEN").value = (s.brandSubtitle && s.brandSubtitle.en) || "";
     $("settingFooterAR").value = (s.footerText && s.footerText.ar) || "";
-    $("settingFooterFR").value = (s.footerText && s.footerText.fr) || "";
     $("settingFooterEN").value = (s.footerText && s.footerText.en) || "";
     $("settingPhone").value = s.phone;
     $("settingWhatsapp").value = s.whatsapp;
     $("settingEmail").value = s.email;
     $("settingAddrAR").value = (s.address && s.address.ar) || "";
-    $("settingAddrFR").value = (s.address && s.address.fr) || "";
     $("settingAddrEN").value = (s.address && s.address.en) || "";
     $("settingDiscord").value = s.discordLink || "";
     $("settingAnnouncementEnabled").checked = s.announcementEnabled;
     $("settingAnnouncementAR").value = (s.announcement && s.announcement.ar) || "";
-    $("settingAnnouncementFR").value = (s.announcement && s.announcement.fr) || "";
     $("settingAnnouncementEN").value = (s.announcement && s.announcement.en) || "";
   }
   function renderPayments() {
@@ -190,18 +181,18 @@
       return "<label class='switch-line'><input type='checkbox' data-sec-toggle='" + k + "' " + (on ? "checked" : "") + " /><span></span>" + labels[k] + "</label>";
     }).join("");
     $("bulletsFields").innerHTML = (s.heroBullets || []).map(function (b, i) {
-      return "<div class='tri'><label>" + (i + 1) + " AR<input data-bullet='ar' data-i='" + i + "' dir='rtl' value='" + esc((b && b.ar) || "") + "' /></label><label>FR<input data-bullet='fr' data-i='" + i + "' value='" + esc((b && b.fr) || "") + "' /></label><label>EN<input data-bullet='en' data-i='" + i + "' value='" + esc((b && b.en) || "") + "' /></label></div>";
+      return "<div class='bi'><label>" + (i + 1) + " AR<input data-bullet='ar' data-i='" + i + "' dir='rtl' value='" + esc((b && b.ar) || "") + "' /></label><label>EN<input data-bullet='en' data-i='" + i + "' value='" + esc((b && b.en) || "") + "' /></label></div>";
     }).join("");
     $("featuresFields").innerHTML = (s.features || []).map(function (f, i) {
       return "<div class='feature-edit'><div class='card-title'><h4>feature " + (i + 1) + "</h4></div><div class='two-fields'><label>icon<input data-feat='icon' data-i='" + i + "' maxlength='3' value='" + esc(f.icon) + "' /></label></div>" +
-        "<div class='tri'><label>title AR<input data-feat='title-ar' data-i='" + i + "' dir='rtl' value='" + esc((f.title && f.title.ar) || "") + "' /></label><label>title FR<input data-feat='title-fr' data-i='" + i + "' value='" + esc((f.title && f.title.fr) || "") + "' /></label><label>title EN<input data-feat='title-en' data-i='" + i + "' value='" + esc((f.title && f.title.en) || "") + "' /></label></div>" +
-        "<div class='tri tri-text'><label>text AR<textarea data-feat='text-ar' data-i='" + i + "' dir='rtl' rows='2'>" + esc((f.text && f.text.ar) || "") + "</textarea></label><label>text FR<textarea data-feat='text-fr' data-i='" + i + "' rows='2'>" + esc((f.text && f.text.fr) || "") + "</textarea></label><label>text EN<textarea data-feat='text-en' data-i='" + i + "' rows='2'>" + esc((f.text && f.text.en) || "") + "</textarea></label></div></div>";
+        "<div class='bi'><label>title AR<input data-feat='title-ar' data-i='" + i + "' dir='rtl' value='" + esc((f.title && f.title.ar) || "") + "' /></label><label>title EN<input data-feat='title-en' data-i='" + i + "' value='" + esc((f.title && f.title.en) || "") + "' /></label></div>" +
+        "<div class='bi bi-text'><label>text AR<textarea data-feat='text-ar' data-i='" + i + "' dir='rtl' rows='2'>" + esc((f.text && f.text.ar) || "") + "</textarea></label><label>text EN<textarea data-feat='text-en' data-i='" + i + "' rows='2'>" + esc((f.text && f.text.en) || "") + "</textarea></label></div></div>";
     }).join("");
-    $("aboutFields").innerHTML = "<div class='tri'><label>title AR<input data-about='title-ar' dir='rtl' value='" + esc((s.about && s.about.title && s.about.title.ar) || "") + "' /></label><label>title FR<input data-about='title-fr' value='" + esc((s.about && s.about.title && s.about.title.fr) || "") + "' /></label><label>title EN<input data-about='title-en' value='" + esc((s.about && s.about.title && s.about.title.en) || "") + "' /></label></div>" +
-      "<div class='tri tri-text'><label>text AR<textarea data-about='text-ar' dir='rtl' rows='3'>" + esc((s.about && s.about.text && s.about.text.ar) || "") + "</textarea></label><label>text FR<textarea data-about='text-fr' rows='3'>" + esc((s.about && s.about.text && s.about.text.fr) || "") + "</textarea></label><label>text EN<textarea data-about='text-en' rows='3'>" + esc((s.about && s.about.text && s.about.text.en) || "") + "</textarea></label></div>";
+    $("aboutFields").innerHTML = "<div class='bi'><label>title AR<input data-about='title-ar' dir='rtl' value='" + esc((s.about && s.about.title && s.about.title.ar) || "") + "' /></label><label>title EN<input data-about='title-en' value='" + esc((s.about && s.about.title && s.about.title.en) || "") + "' /></label></div>" +
+      "<div class='bi bi-text'><label>text AR<textarea data-about='text-ar' dir='rtl' rows='3'>" + esc((s.about && s.about.text && s.about.text.ar) || "") + "</textarea></label><label>text EN<textarea data-about='text-en' rows='3'>" + esc((s.about && s.about.text && s.about.text.en) || "") + "</textarea></label></div>";
     $("statsFields").innerHTML = (s.heroStats || []).map(function (x, i) {
       var v = localizeSafe(x);
-      return "<div class='stats-row'><label>" + (i + 1) + " value<input data-stat='value' data-i='" + i + "' value='" + esc(v.value) + "' /></label><label>label AR<input data-stat='ar' data-i='" + i + "' dir='rtl' value='" + esc((x.ar && x.ar.label) || "") + "' /></label><label>label FR<input data-stat='fr' data-i='" + i + "' value='" + esc((x.fr && x.fr.label) || "") + "' /></label><label>label EN<input data-stat='en' data-i='" + i + "' value='" + esc((x.en && x.en.label) || "") + "' /></label></div>";
+      return "<div class='stats-row'><label>" + (i + 1) + " value<input data-stat='value' data-i='" + i + "' value='" + esc(v.value) + "' /></label><label>label AR<input data-stat='ar' data-i='" + i + "' dir='rtl' value='" + esc((x.ar && x.ar.label) || "") + "' /></label><label>label EN<input data-stat='en' data-i='" + i + "' value='" + esc((x.en && x.en.label) || "") + "' /></label></div>";
     }).join("");
   }
   function localizeSafe(x) { return ElectroDB.localize(x) || { value: "", label: "" }; }
@@ -257,10 +248,8 @@
     $("editorTitle").textContent = p ? "edit product" : "new product";
     $("productId").value = p ? p.id : "";
     $("productNameAR").value = p && p.name ? (p.name.ar || "") : "";
-    $("productNameFR").value = p && p.name ? (p.name.fr || "") : "";
     $("productNameEN").value = p && p.name ? (p.name.en || "") : "";
     $("productSpecsAR").value = p && p.specs ? (p.specs.ar || "") : "";
-    $("productSpecsFR").value = p && p.specs ? (p.specs.fr || "") : "";
     $("productSpecsEN").value = p && p.specs ? (p.specs.en || "") : "";
     $("productCategory").value = p ? p.category : (db.categories[0] ? db.categories[0].id : "");
     $("productPrice").value = p ? p.price : "";
@@ -269,10 +258,8 @@
     $("productIcon").value = p ? p.icon : "✦";
     $("productColor").value = p ? p.color : "#0d2235";
     $("productBadgeAR").value = p && p.badge ? (p.badge.ar || "") : "";
-    $("productBadgeFR").value = p && p.badge ? (p.badge.fr || "") : "";
     $("productBadgeEN").value = p && p.badge ? (p.badge.en || "") : "";
     $("productDescriptionAR").value = p && p.description ? (p.description.ar || "") : "";
-    $("productDescriptionFR").value = p && p.description ? (p.description.fr || "") : "";
     $("productDescriptionEN").value = p && p.description ? (p.description.en || "") : "";
     $("productImage").value = p ? p.image || "" : "";
     $("productEditor").classList.add("open");
@@ -289,7 +276,9 @@
   function bind() {
     function enterDashboard() {
       logged = true;
-      $("loginScreen").hidden = true; $("dashboard").hidden = false;
+      var dash = $("dashboard");
+      if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
+      $("loginScreen").hidden = true;
       var sync = document.querySelector(".last-sync");
       if (sync) sync.innerHTML = window.MajorCloud && MajorCloud.isAdmin() ? "cloud sync: online <i></i>" : "local mode <i></i>";
       renderAll();
@@ -353,20 +342,20 @@
       var stock = Number($("productStock").value) || 0;
       if (!price || price < 0) return toast("complete price (USD)", true);
       if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast("complete name", true);
-      var arName = $("productNameAR").value.trim(), frName = $("productNameFR").value.trim(), enName = $("productNameEN").value.trim() || arName;
-      var arDesc = $("productDescriptionAR").value.trim(), frDesc = $("productDescriptionFR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
+      var arName = $("productNameAR").value.trim(), enName = $("productNameEN").value.trim() || arName;
+      var arDesc = $("productDescriptionAR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
       var data = {
         id: editingId || ElectroDB.uid("p"),
         category: $("productCategory").value,
-        name: { ar: arName, fr: frName || enName, en: enName },
-        specs: { ar: $("productSpecsAR").value.trim(), fr: $("productSpecsFR").value.trim(), en: $("productSpecsEN").value.trim() },
+        name: { ar: arName, en: enName },
+        specs: { ar: $("productSpecsAR").value.trim(), en: $("productSpecsEN").value.trim() },
         price: price,
         oldPrice: oldp,
         stock: stock,
         icon: $("productIcon").value || "✦",
         color: $("productColor").value,
-        badge: { ar: $("productBadgeAR").value.trim(), fr: $("productBadgeFR").value.trim(), en: $("productBadgeEN").value.trim() },
-        description: { ar: arDesc, fr: frDesc || enDesc, en: enDesc },
+        badge: { ar: $("productBadgeAR").value.trim(), en: $("productBadgeEN").value.trim() },
+        description: { ar: arDesc, en: enDesc },
         image: $("productImage").value.trim(),
         rating: existing ? existing.rating || 4.8 : 4.8,
         reviews: existing ? existing.reviews || 0 : 0
@@ -443,11 +432,11 @@
 
     $("categoryForm").onsubmit = function (e) {
       e.preventDefault();
-      var ar = $("categoryNameAR").value.trim(), fr = $("categoryNameFR").value.trim(), en = $("categoryNameEN").value.trim();
-      if (!ar && !fr && !en) return toast("complete category name (AR)", true);
+      var ar = $("categoryNameAR").value.trim(), en = $("categoryNameEN").value.trim();
+      if (!ar && !en) return toast("complete category name (AR)", true);
       db.categories.push({
         id: ElectroDB.uid("cat"),
-        name: { ar: ar || en, fr: fr || en, en: en || ar },
+        name: { ar: ar || en, en: en || ar },
         icon: $("categoryIcon").value || "✦",
         color: $("categoryColor").value
       });
@@ -464,27 +453,27 @@
 
     $("homepageForm").onsubmit = function (e) {
       e.preventDefault();
-      db.settings.heroBadge = { ar: $("homeBadge").value, fr: $("homeBadgeFr").value, en: $("homeBadgeEn").value };
-      db.settings.heroTitle = { ar: $("homeTitle").value, fr: $("homeTitleFr").value, en: $("homeTitleEn").value };
-      db.settings.heroText = { ar: $("homeText").value, fr: $("homeTextFr").value, en: $("homeTextEn").value };
-      db.settings.heroCta = { ar: $("homeCta").value, fr: $("homeCtaFr").value, en: $("homeCtaEn").value };
-      db.settings.heroSecondary = { ar: $("homeSecondary").value, fr: $("homeSecondaryFr").value, en: $("homeSecondaryEn").value };
-      save(); renderAll(); $("homeSaved").textContent = "saved"; toast("✓ homepage copy saved (AR + FR + EN)");
+      db.settings.heroBadge = { ar: $("homeBadge").value, en: $("homeBadgeEn").value };
+      db.settings.heroTitle = { ar: $("homeTitle").value, en: $("homeTitleEn").value };
+      db.settings.heroText = { ar: $("homeText").value, en: $("homeTextEn").value };
+      db.settings.heroCta = { ar: $("homeCta").value, en: $("homeCtaEn").value };
+      db.settings.heroSecondary = { ar: $("homeSecondary").value, en: $("homeSecondaryEn").value };
+      save(); renderAll(); $("homeSaved").textContent = "saved"; toast("✓ homepage copy saved (AR + EN)");
     };
 
     $("settingsForm").onsubmit = function (e) {
       e.preventDefault();
       var s = db.settings;
       s.brand = $("settingBrand").value;
-      s.brandSubtitle = { ar: $("settingSubAR").value, fr: $("settingSubFR").value, en: $("settingSubEN").value };
-      s.footerText = { ar: $("settingFooterAR").value, fr: $("settingFooterFR").value, en: $("settingFooterEN").value };
+      s.brandSubtitle = { ar: $("settingSubAR").value, en: $("settingSubEN").value };
+      s.footerText = { ar: $("settingFooterAR").value, en: $("settingFooterEN").value };
       s.phone = $("settingPhone").value;
       s.whatsapp = $("settingWhatsapp").value;
       s.email = $("settingEmail").value;
-      s.address = { ar: $("settingAddrAR").value, fr: $("settingAddrFR").value, en: $("settingAddrEN").value };
+      s.address = { ar: $("settingAddrAR").value, en: $("settingAddrEN").value };
       s.discordLink = $("settingDiscord").value;
       s.announcementEnabled = $("settingAnnouncementEnabled").checked;
-      s.announcement = { ar: $("settingAnnouncementAR").value, fr: $("settingAnnouncementFR").value, en: $("settingAnnouncementEN").value };
+      s.announcement = { ar: $("settingAnnouncementAR").value, en: $("settingAnnouncementEN").value };
       save(); renderAll(); $("settingsSaved").textContent = "saved"; toast("✓ settings saved");
     };
 
@@ -504,23 +493,22 @@
       s.sections = s.sections || {};
       all("[data-sec-toggle]").forEach(function (cb) { s.sections[cb.getAttribute("data-sec-toggle")] = cb.checked; });
       s.heroBullets = (s.heroBullets || []).map(function (b, i) {
-        return { ar: qval("bullet", "ar", i), fr: qval("bullet", "fr", i), en: qval("bullet", "en", i) };
+        return { ar: qval("bullet", "ar", i), en: qval("bullet", "en", i) };
       });
       s.features = (s.features || []).map(function (f, i) {
         return {
           icon: qval("feat", "icon", i) || f.icon,
-          title: { ar: qval("feat", "title-ar", i), fr: qval("feat", "title-fr", i), en: qval("feat", "title-en", i) },
-          text: { ar: qval("feat", "text-ar", i), fr: qval("feat", "text-fr", i), en: qval("feat", "text-en", i) }
+          title: { ar: qval("feat", "title-ar", i), en: qval("feat", "title-en", i) },
+          text: { ar: qval("feat", "text-ar", i), en: qval("feat", "text-en", i) }
         };
       });
       s.about = s.about || {};
-      s.about.title = { ar: qval("about", "title-ar"), fr: qval("about", "title-fr"), en: qval("about", "title-en") };
-      s.about.text = { ar: qval("about", "text-ar"), fr: qval("about", "text-fr"), en: qval("about", "text-en") };
+      s.about.title = { ar: qval("about", "title-ar"), en: qval("about", "title-en") };
+      s.about.text = { ar: qval("about", "text-ar"), en: qval("about", "text-en") };
       s.heroStats = (s.heroStats || []).map(function (x, i) {
         var val = qval("stat", "value", i) || ((x && x.ar && x.ar.value) || "");
         return {
           ar: { value: val, label: qval("stat", "ar", i) },
-          fr: { value: val, label: qval("stat", "fr", i) },
           en: { value: val, label: qval("stat", "en", i) }
         };
       });
@@ -572,10 +560,14 @@
     $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); };
   }
   bind();
-  if (logged) {
-    $("loginScreen").hidden = true; $("dashboard").hidden = false; renderAll();
+  if (logged && window.MajorCloud && MajorCloud.isAdmin()) {
+    var dash = $("dashboard");
+    if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
+    $("loginScreen").hidden = true; renderAll();
   } else {
+    sessionStorage.removeItem("major_admin_v4");
     $("loginScreen").hidden = false;
+    var dash2 = $("dashboard"); if (dash2) { dash2.hidden = true; dash2.removeAttribute("data-auth"); }
   }
   window.addEventListener("major-db-updated", renderAll);
   window.addEventListener("major-lang-changed", function () {

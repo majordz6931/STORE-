@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major6" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major7" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -93,7 +93,6 @@
         <div class="admin-head-actions">
           <select class="lang-switch" id="langSwitch" aria-label="Language">
             <option value="ar">AR</option>
-            <option value="fr">FR</option>
             <option value="en">EN</option>
           </select>
           <span class="last-sync">all data is saved locally <i></i></span>
@@ -173,10 +172,9 @@
             <div class="panel-card">
               <div class="card-title"><h3>add new category</h3></div>
               <form id="categoryForm" class="admin-form">
-                <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
-                <div class="tri">
+                <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+                <div class="bi">
                   <label>name<input id="categoryNameAR" dir="rtl" required placeholder="اختبار تطبيقات الويب" /></label>
-                  <label>name<input id="categoryNameFR" placeholder="Pentest web" /></label>
                   <label>name<input id="categoryNameEN" required placeholder="Web pentesting" /></label>
                 </div>
                 <div class="two-fields">
@@ -255,31 +253,26 @@
           </div>
           <form id="homepageForm" class="admin-form">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>Hero & homepage copy — AR / FR / EN</h3></div>
-              <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
-              <div class="tri">
+              <div class="card-title"><h3>Hero & homepage copy — AR / EN</h3></div>
+              <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+              <div class="bi">
                 <label>badge<input id="homeBadge" dir="rtl" /></label>
-                <label>badge<input id="homeBadgeFr" /></label>
                 <label>badge<input id="homeBadgeEn" /></label>
               </div>
-              <div class="tri tri-text">
+              <div class="bi bi-text">
                 <label>title (|| = <br>)<textarea id="homeTitle" rows="3" dir="rtl"></textarea></label>
-                <label>title<textarea id="homeTitleFr" rows="3"></textarea></label>
                 <label>title<textarea id="homeTitleEn" rows="3"></textarea></label>
               </div>
-              <div class="tri tri-text">
+              <div class="bi bi-text">
                 <label>description<textarea id="homeText" rows="3" dir="rtl"></textarea></label>
-                <label>description<textarea id="homeTextFr" rows="3"></textarea></label>
                 <label>description<textarea id="homeTextEn" rows="3"></textarea></label>
               </div>
-              <div class="tri">
+              <div class="bi">
                 <label>CTA<input id="homeCta" dir="rtl" /></label>
-                <label>CTA<input id="homeCtaFr" /></label>
                 <label>CTA<input id="homeCtaEn" /></label>
               </div>
-              <div class="tri">
+              <div class="bi">
                 <label>secondary<input id="homeSecondary" dir="rtl" /></label>
-                <label>secondary<input id="homeSecondaryFr" /></label>
                 <label>secondary<input id="homeSecondaryEn" /></label>
               </div>
               <button class="btn primary full" type="submit">save changes</button>
@@ -292,7 +285,7 @@
             <div>
               <span class="eyebrow cyan">// storefront</span>
               <h2>Sections</h2>
-              <p>Show/hide every homepage section and edit its content in AR / FR / EN.</p>
+              <p>Show/hide every homepage section and edit its content in AR / EN.</p>
             </div>
             <span class="save-state" id="sectionsSaved"></span>
           </div>
@@ -367,20 +360,17 @@
                 <label>brand<input id="settingBrand" required /></label>
                 <label>currency<input id="settingCurrency" value="USD — $" disabled /></label>
               </div>
-              <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
-              <div class="tri">
+              <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+              <div class="bi">
                 <label>subtitle<input id="settingSubAR" dir="rtl" /></label>
-                <label>subtitle<input id="settingSubFR" /></label>
                 <label>subtitle<input id="settingSubEN" /></label>
               </div>
-              <div class="tri">
+              <div class="bi">
                 <label>footer<input id="settingFooterAR" dir="rtl" /></label>
-                <label>footer<input id="settingFooterFR" /></label>
                 <label>footer<input id="settingFooterEN" /></label>
               </div>
-              <div class="tri">
+              <div class="bi">
                 <label>address<input id="settingAddrAR" dir="rtl" /></label>
-                <label>address<input id="settingAddrFR" /></label>
                 <label>address<input id="settingAddrEN" /></label>
               </div>
             </div>
@@ -393,9 +383,8 @@
               </div>
               <label>discord link<input id="settingDiscord" type="url" /></label>
               <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>enable announcement bar</label>
-              <div class="tri tri-text">
+              <div class="bi bi-text">
                 <label>announcement (AR)<textarea id="settingAnnouncementAR" rows="2" dir="rtl"></textarea></label>
-                <label>announcement (FR)<textarea id="settingAnnouncementFR" rows="2"></textarea></label>
                 <label>announcement (EN)<textarea id="settingAnnouncementEN" rows="2"></textarea></label>
               </div>
               <button class="btn primary full" type="submit">save settings</button>
@@ -419,15 +408,13 @@
       </div>
       <form id="productForm" class="admin-form">
         <input id="productId" type="hidden" />
-        <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
-        <div class="tri">
+        <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+        <div class="bi">
           <label>name<input id="productNameAR" dir="rtl" required /></label>
-          <label>name<input id="productNameFR" /></label>
           <label>name<input id="productNameEN" required /></label>
         </div>
-        <div class="tri">
+        <div class="bi">
           <label>tagline<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
-          <label>tagline<input id="productSpecsFR" placeholder="600+ outils" /></label>
           <label>tagline<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
         </div>
         <div class="three-fields">
@@ -440,14 +427,12 @@
           <label>icon<input id="productIcon" value="✦" maxlength="3" /></label>
           <label>color<input id="productColor" type="color" value="#0d2235" /></label>
         </div>
-        <div class="tri">
+        <div class="bi">
           <label>badge<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
-          <label>badge<input id="productBadgeFR" placeholder="Meilleure vente" /></label>
           <label>badge<input id="productBadgeEN" placeholder="Best seller" /></label>
         </div>
-        <div class="tri tri-text">
+        <div class="bi bi-text">
           <label>description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
-          <label>description (FR)<textarea id="productDescriptionFR" rows="3"></textarea></label>
           <label>description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
         </div>
         <label>image url (optional)<input id="productImage" type="url" placeholder="https://..." /></label>
@@ -458,8 +443,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major6"></script>
-  <script src="js/cloud.js?v=2026-major6"></script>
-  <script src="js/admin.js?v=2026-major6"></script>
+  <script src="js/store.js?v=2026-major7"></script>
+  <script src="js/cloud.js?v=2026-major7"></script>
+  <script src="js/admin.js?v=2026-major7"></script>
 </body>
 </html>
