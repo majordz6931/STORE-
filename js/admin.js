@@ -24,6 +24,8 @@
     api("/api/sync?admin=1").then(function (d) {
       if (!d) return;
       if (Array.isArray(d.products)) S.products = d.products;
+      var localProducts = MajorDB.getProducts();
+      if (Array.isArray(localProducts)) S.products = localProducts;
       if (Array.isArray(d.payments)) S.payments = d.payments;
       if (Array.isArray(d.coupons)) S.coupons = d.coupons;
       if (d.config) S.config = d.config;
@@ -367,24 +369,18 @@
     };
     if (!payload.name || !payload.price) { flashMsg($("productSaved"), "⚠️ " + t("pName") + " + " + t("price"), "var(--warn)"); return; }
     S.products.unshift(payload);
+    if (!MajorDB.saveProducts(S.products)) {
+      S.products.shift();
+      renderProducts();
+      flashMsg($("productSaved"), "⚠️ تعذر الحفظ في هذا المتصفح", "var(--bad)");
+      return;
+    }
     renderProducts();
     productImage = "";
     var prev = $("pimagePreview");
     if (prev) prev.classList.remove("show");
     e.target.reset();
-    api("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
-      .then(function (d) {
-        if (d && d.error) {
-          S.products = S.products.filter(function (x) { return x.id !== payload.id; });
-          renderProducts();
-          flashMsg($("productSaved"), storageMessage(d), "var(--bad)");
-        } else flashMsg($("productSaved"), "✅ " + t("saved"));
-      })
-      .catch(function (e) {
-        S.products = S.products.filter(function (x) { return x.id !== payload.id; });
-        renderProducts();
-        flashMsg($("productSaved"), "⚠️ تعذر الوصول إلى /api/products", "var(--bad)");
-      });
+    flashMsg($("productSaved"), "✅ تم حفظ المنتج في هذا المتصفح");
   });
   $("productTable").addEventListener("click", function (e) {
     var id = e.target.getAttribute("data-del");
@@ -392,20 +388,13 @@
     if (!confirm("حذف هذا المنتج؟")) return;
     var old = S.products.slice();
     S.products = S.products.filter(function (x) { return x.id !== id; });
-    renderProducts();
-    api("/api/products?id=" + encodeURIComponent(id), { method: "DELETE" })
-      .then(function (d) {
-        if (d && d.error) {
-          S.products = old;
-          renderProducts();
-          flashMsg($("productSaved"), storageMessage(d), "var(--bad)");
-        } else flashMsg($("productSaved"), "✅ تم حذف المنتج");
-      })
-      .catch(function () {
-        S.products = old;
-        renderProducts();
-        flashMsg($("productSaved"), "⚠️ تعذر الوصول إلى /api/products", "var(--bad)");
-      });
+    if (!MajorDB.saveProducts(S.products)) {
+      S.products = old;
+      flashMsg($("productSaved"), "⚠️ تعذر الحفظ في هذا المتصفح", "var(--bad)");
+    } else {
+      renderProducts();
+      flashMsg($("productSaved"), "✅ تم حذف المنتج من هذا المتصفح");
+    }
   });
 
   /* ===== ORDERS ===== */

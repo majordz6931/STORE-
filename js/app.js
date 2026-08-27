@@ -53,6 +53,8 @@
       .then(function (d) {
         if (!d) return;
         if (Array.isArray(d.products)) productsList = d.products;
+        var localProducts = MajorDB.getProducts();
+        if (Array.isArray(localProducts)) productsList = localProducts;
         if (Array.isArray(d.payments)) {
           paymentsList = d.payments;
           renderPayMethods();
