@@ -43,6 +43,7 @@
     var nb = $("newsletterBtn"); if (nb) nb.firstChild.textContent = ElectroDB.t("newsletterBtn") + " ";
     var cApply = $("couponApply"); if (cApply) cApply.textContent = ElectroDB.t("couponApply");
     if ($("orderCoupon")) $("orderCoupon").setAttribute("placeholder", ElectroDB.t("couponPlaceholder"));
+    var ls = $("langSwitch"); if (ls && ls.value !== ElectroDB.getLang()) ls.value = ElectroDB.getLang();
     var dir = ElectroDB.getLang() === "ar" ? "rtl" : "ltr";
     document.documentElement.dir = dir;
     document.documentElement.lang = ElectroDB.getLang();
@@ -94,6 +95,32 @@
       var v = localizeField(x); return "<div><strong>" + esc(v.value) + "</strong><span>" + esc(v.label) + "</span></div>";
     }).join("");
     $("discordCta").childNodes[0].nodeValue = T("heroSecondary") + " ";
+    var bulletIcons = ["⚡", "🛡", "💬", "💎"];
+    var bl = $("heroBullets");
+    if (bl) bl.innerHTML = (s.heroBullets || []).map(function (b, i) {
+      return "<span>" + (bulletIcons[i] || "•") + " <b>" + esc(localizeField(b)) + "</b></span>";
+    }).join("");
+  }
+
+  function updateSections() {
+    var s = db.settings;
+    var fe = $("featureGrid");
+    if (fe) {
+      var fh = $("featuresHeading");
+      if (fh) fh.innerHTML = esc(T("featTitle1")) + "<br /><em class='green'>" + esc(T("featTitle2")) + "</em>";
+      fe.innerHTML = (s.features || []).map(function (f) {
+        return "<article><span class='feat-icon'>" + esc(f.icon) + "</span><h3>" + esc(localizeField(f.title)) + "</h3><p>" + esc(localizeField(f.text)) + "</p></article>";
+      }).join("");
+    }
+    var at2 = $("aboutTitle2"), at = $("aboutText");
+    if (at2) at2.textContent = localizeField((s.about && s.about.title) || {});
+    if (at) at.textContent = localizeField((s.about && s.about.text) || {});
+    var secMap = { hero: "secHero", categories: "categories", shop: "shop", features: "features", about: "about", payments: "payments", contact: "contact" };
+    var sec = s.sections || {};
+    Object.keys(secMap).forEach(function (k) {
+      var el = $(secMap[k]);
+      if (el) el.style.display = (sec[k] === false) ? "none" : "";
+    });
   }
 
   function renderCategories() {
@@ -105,7 +132,7 @@
       var lbl = localizeField(c.name);
       return "<button class='category-card " + (activeCategory === c.id ? "active" : "") + "' data-category='" + esc(c.id) + "' style='--cat-color:" + esc(c.color) + "'><span class='category-icon'>" + esc(c.icon) + "</span><b>" + esc(lbl) + "</b><small>" + count + " " + esc(allCount) + "</small></button>";
     }).join("");
-    var pillAll = ElectroDB.getLang() === "ar" ? "الكل" : "all";
+    var pillAll = T("pillAll");
     $("filterPills").innerHTML = "<button class='pill " + (activeCategory === "all" ? "selected" : "") + "' data-category='all'>" + esc(pillAll) + "</button>" + db.categories.map(function (c) {
       return "<button class='pill " + (activeCategory === c.id ? "selected" : "") + "' data-category='" + esc(c.id) + "'>" + esc(localizeField(c.name)) + "</button>";
     }).join("");
@@ -201,7 +228,48 @@
   function fillCheckout() {
     var total = cartTotal();
     $("checkoutTotal").textContent = money(total);
-    $("orderPayment").innerHTML = (db.settings.paymentMethods || []).map(function (x) { return "<option value='" + esc(x) + "'>" + esc(x) + "</option>"; }).join("");
+    var prev = window._orderPayment || "";
+    var opts = (db.settings.paymentMethods || []).map(function (x) {
+      return "<option value='" + esc(x) + "'>" + esc(x) + "</option>";
+    }).join("");
+    $("orderPayment").innerHTML = opts;
+    var hasPrev = false;
+    if (prev) {
+      var ops = $("orderPayment").options;
+      for (var i = 0; i < ops.length; i++) { if (ops[i].value === prev) { hasPrev = true; break; } }
+    }
+    if (hasPrev) $("orderPayment").value = prev;
+    else if (db.settings.paymentMethods && db.settings.paymentMethods.length) $("orderPayment").value = db.settings.paymentMethods[0];
+    updateCryptoPay();
+  }
+
+  function updateCryptoPay() {
+    var box = $("cryptoPayBox"), sel = $("cryptoNetwork");
+    if (!box || !sel) return;
+    var method = $("orderPayment") ? $("orderPayment").value : "";
+    window._orderPayment = method;
+    var cfg = (db.settings.cryptoConfig || {})[method];
+    var nets = (cfg && cfg.networks) || [];
+    if (!nets.length) { box.hidden = true; window._cryptoNet = null; return; }
+    var cur = (sel.getAttribute("data-cur") || nets[0].id);
+    sel.innerHTML = nets.map(function (n) {
+      return "<option value='" + esc(n.id) + "' " + (n.id === cur ? "selected" : "") + ">" + esc(n.label) + "</option>";
+    }).join("");
+    box.hidden = false;
+    applyCryptoNet(cur);
+  }
+
+  function applyCryptoNet(id) {
+    var method = $("orderPayment").value;
+    var nets = ((db.settings.cryptoConfig || {})[method] || {}).networks || [];
+    var net = nets.find(function (n) { return n.id === id; }) || nets[0];
+    if (!net) return;
+    var sel = $("cryptoNetwork"); if (sel) sel.setAttribute("data-cur", net.id);
+    var addr = $("cryptoAddress"); if (addr) addr.textContent = net.address || "";
+    var qw = $("cryptoQrWrap"), qi = $("cryptoQr");
+    if (net.qr && qw && qi) { qi.src = net.qr; qw.hidden = false; }
+    else if (qw) { qw.hidden = true; if (qi) qi.src = ""; }
+    window._cryptoNet = net;
   }
 
   function applyCoupon(code) {
@@ -232,6 +300,7 @@
       id: "MJR-" + Date.now().toString().slice(-6),
       name: nm, phone: ph, email: em, address: ad,
       payment: $("orderPayment").value,
+      cryptoNetwork: window._cryptoNet ? window._cryptoNet.label : null,
       note: $("orderNote").value.trim(),
       items: cart.slice(),
       subtotal: cartTotal(),
@@ -248,8 +317,8 @@
     if (window.MajorCloud && typeof MajorCloud.createOrder === "function") {
       var cloudOrder = {
         id: order.id, name: order.name, phone: order.phone, email: order.email,
-        address: order.address, payment: order.payment, note: order.note,
-        items: order.items, subtotal: order.subtotal, coupon: order.coupon,
+        address: order.address, payment: order.payment, crypto_network: order.cryptoNetwork || null,
+        note: order.note, items: order.items, subtotal: order.subtotal, coupon: order.coupon,
         total: order.total, status: "pending"
       };
       MajorCloud.createOrder(cloudOrder).catch(function (e) { toast(T("toastCloudFail"), true); });
@@ -293,7 +362,7 @@
 
   function refresh() {
     db = ElectroDB.load();
-    applyI18nToDOM(); updateBrand(); updateHero(); renderCategories();
+    applyI18nToDOM(); updateBrand(); updateHero(); updateSections(); renderCategories();
     renderProducts(); renderPayments(); renderCart(); fillCheckout();
   }
 
@@ -318,7 +387,17 @@
   $("searchInput").oninput = function () { search = this.value.trim(); renderProducts(); };
   $("sortProducts").onchange = function () { sort = this.value; renderProducts(); };
   $("menuToggle").onclick = function () { $("mainNav").classList.toggle("open"); };
-  $("langSwitch").onclick = function () { ElectroDB.setLang(ElectroDB.getLang() === "ar" ? "en" : "ar"); };
+  $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); };
+  if ($("orderPayment")) $("orderPayment").onchange = function () { updateCryptoPay(); };
+  if ($("cryptoNetwork")) $("cryptoNetwork").onchange = function () { applyCryptoNet(this.value); };
+  if ($("cryptoCopy")) $("cryptoCopy").onclick = function () {
+    var addr = $("cryptoAddress"); if (!addr || !addr.textContent) return;
+    var done = function () {
+      var b = $("cryptoCopy"); if (b) { var old = b.innerHTML; b.innerHTML = T("payCopied"); setTimeout(function () { b.innerHTML = old; }, 1600); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(addr.textContent).then(done).catch(done);
+    else { var t = document.createElement("textarea"); t.value = addr.textContent; document.body.appendChild(t); t.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(t); done(); }
+  };
   $("couponApply").onclick = function () {
     var code = $("orderCoupon").value;
     var c = applyCoupon(code);

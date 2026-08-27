@@ -121,7 +121,19 @@
       addrLabel: "العنوان",
       hours24: "24/7",
       esc: "esc",
-      operatorCmd: "$"
+      operatorCmd: "$",
+      pillAll: "الكل",
+      paySelectNetwork: "اختر الشبكة",
+      payNetwork: "الشبكة",
+      payAddressLabel: "العنوان",
+      payCopy: "نسخ",
+      payCopied: "تم النسخ ✓",
+      payScanQr: "امسح رمز QR للدفع",
+      payNoDetails: "لم يتم إعداد تفاصيل الدفع لهذه الطريقة بعد",
+      paySendNote: "أرسل المبلغ بالضبط ثم ضع رمز العملية في الملاحظات أدناه.",
+      payTitle1: "طرق الدفع",
+      payTitle2: "المتاحة",
+      payText: "جميع المعاملات تتم بخصوصية كاملة، عبر شبكات دفع آمنة ومعتمدة عالمياً."
     },
     en: {
       siteTitle: "MAJOR STORE",
@@ -235,7 +247,145 @@
       addrLabel: "Address",
       hours24: "24/7",
       esc: "esc",
-      operatorCmd: "$"
+      operatorCmd: "$",
+      pillAll: "All",
+      paySelectNetwork: "Select Network",
+      payNetwork: "Network",
+      payAddressLabel: "Address",
+      payCopy: "Copy",
+      payCopied: "Copied ✓",
+      payScanQr: "Scan the QR code to pay",
+      payNoDetails: "No payment details configured yet",
+      paySendNote: "Send the exact amount, then paste the transaction code in the notes below.",
+      payTitle1: "Payment",
+      payTitle2: "Methods",
+      payText: "All transactions are fully private, through secure and globally accepted payment networks."
+    },
+    fr: {
+      siteTitle: "MAJOR STORE",
+      siteSub: "Outils de hacking & programmes électroniques",
+      navShop: "Boutique",
+      navCats: "Catégories",
+      navAbout: "À propos",
+      navContact: "Contact",
+      navAdmin: "Admin",
+      searchPh: "Rechercher Kali, Metasploit, Burp...",
+      heroBadge: "Ethical Hacking · Penetration Testing",
+      heroLine1: "Outils",
+      heroLine1Accent: "de hacking éthique",
+      heroLine2: "& programmes de cybersécurité",
+      heroText: "Distributions Linux professionnelles, outils de pentest, environnements de formation virtuels et livres de méthodologie pour pros et étudiants. Tout au même endroit.",
+      heroCta: "Parcourir les produits",
+      heroSecondary: "Rejoindre Discord",
+      statClients: "Clients pro",
+      statGuarantee: "Garantie produits",
+      statSupport: "Support technique",
+      bullet1: "Livraison instantanée",
+      bullet2: "Qualité garantie",
+      bullet3: "Support Discord",
+      bullet4: "Paiements crypto",
+      sectionCategories: "// Catégories",
+      sectionAll: "Tous les produits",
+      sectionAllCount: "produits",
+      sectionShop: "// let products = filteredList;",
+      sectionShopTitle1: "Outils",
+      sectionShopTitle2: "professionnels",
+      resultCount: "produits",
+      sortFeatured: "En vedette",
+      sortLow: "Prix : croissant",
+      sortHigh: "Prix : décroissant",
+      sortRating: "Mieux notés",
+      emptyTitle: "Aucun résultat",
+      emptyText: "Essayez un autre mot-clé ou parcourez toutes les catégories.",
+      emptyAction: "Voir tous les produits",
+      featIntro: "// pourquoi nous",
+      featTitle1: "Pourquoi les pros choisissent",
+      featTitle2: "MAJOR STORE ?",
+      feat1Title: "Produits licenciés",
+      feat1Text: "Chaque outil est licencié ou provient d'un projet open-source fiable, avec garantie d'activation.",
+      feat2Title: "Livraison instantanée",
+      feat2Text: "Recevez le code d'activation ou le fichier en quelques minutes après confirmation du paiement.",
+      feat3Title: "Vrai support technique",
+      feat3Text: "Des experts en cybersécurité prêts à vous aider via Discord — avant et après achat.",
+      feat4Title: "Paiements sécurisés",
+      feat4Text: "Crypto, PayPal, Visa/Master — chaque transaction reste totalement privée.",
+      aboutTitle1: "MAJOR STORE",
+      aboutTitle2: "Boîte à outils de hacking éthique",
+      aboutText: "Boutique spécialisée en outils de pentest, distributions Linux professionnelles, environnements de formation virtuels et livres de méthodologie. Tout ce dont les pros, praticiens et étudiants ont besoin.",
+      aboutCta: "Contactez-nous",
+      newsletterTitle1: "Abonnez-vous à",
+      newsletterTitle2: "notre newsletter",
+      newsletterText: "Soyez les premiers informés des nouveaux outils et offres.",
+      newsletterPh: "votre@email.com",
+      newsletterBtn: "S'abonner",
+      newsletterMsg: "Inscription réussie — merci ✦",
+      footerText: "Outils de cybersécurité pour professionnels.",
+      copyright: "Tous droits réservés.",
+      cartHead: "Panier",
+      cartEmpty: "Votre panier est vide",
+      cartEmptyText: "Ajoutez des produits et ils apparaîtront ici.",
+      cartBrowse: "Voir les produits",
+      cartTotal: "Total",
+      cartCheckout: "Commander",
+      cartIn: "✓ dans le panier",
+      cartAdd: "＋ Ajouter",
+      cartAddFull: "Ajouter au panier",
+      cartStock: "En stock",
+      cartQty: "Qté",
+      cartView: "voir",
+      cartClose: "×",
+      cartRemove: "Retirer",
+      toastAdded: "Ajouté au panier",
+      toastRequired: "Veuillez compléter tous les champs requis",
+      toastCouponInvalid: "Code promo invalide",
+      toastOrderOk: "Commande {id} reçue, nous vous contacterons bientôt",
+      toastOrderEmpty: "Panier vide",
+      checkoutTitle: "Commande",
+      checkoutName: "Nom complet",
+      checkoutNamePh: "Votre nom complet",
+      checkoutPhone: "Téléphone",
+      checkoutPhonePh: "07 xx xx xx xx",
+      checkoutEmail: "Email",
+      checkoutEmailPh: "vous@example.com",
+      checkoutAddress: "Wilaya / Ville",
+      checkoutAddressPh: "Alger",
+      checkoutPayment: "Mode de paiement",
+      checkoutNote: "Notes",
+      checkoutNotePh: "Détails...",
+      checkoutTot: "Total",
+      checkoutSubmit: "Confirmer & livrer",
+      checkoutNoteMsg: "Nous vous contacterons sous quelques minutes pour confirmer la livraison.",
+      couponPlaceholder: "Code promo (optionnel)",
+      couponApply: "Appliquer",
+      couponApplied: "Code promo appliqué",
+      contactTitle: "Contactez-nous",
+      contactName: "Nom",
+      contactEmail: "Email",
+      contactMessage: "Votre message",
+      contactSubmit: "Envoyer",
+      contactSuccess: "Message envoyé avec succès. Nous vous répondrons bientôt.",
+      contactRequired: "Veuillez saisir votre nom et votre message",
+      contactSending: "Envoi de votre message...",
+      contactFail: "Échec de l'envoi. Vérifiez la connexion et réessayez.",
+      toastCloudFail: "Impossible de synchroniser la commande, mais elle est enregistrée localement.",
+      supportButton: "Contactez-nous",
+      quickView: "Aperçu rapide",
+      addrLabel: "Adresse",
+      hours24: "24/7",
+      esc: "esc",
+      operatorCmd: "$",
+      pillAll: "Tous",
+      paySelectNetwork: "Sélectionner le réseau",
+      payNetwork: "Réseau",
+      payAddressLabel: "Adresse",
+      payCopy: "Copier",
+      payCopied: "Copié ✓",
+      payScanQr: "Scannez le QR code pour payer",
+      payNoDetails: "Aucun détail de paiement configuré",
+      paySendNote: "Envoyez le montant exact puis collez le code de transaction dans les notes ci-dessous.",
+      payTitle1: "Modes de",
+      payTitle2: "paiement",
+      payText: "Toutes les transactions restent totalement privées, via des réseaux de paiement sécurisés et reconnus."
     }
   };
 
@@ -244,38 +394,62 @@
       brand: "MAJOR STORE",
       brandSubtitle: {
         ar: "أدوات اختراق وبرامج إلكترونية",
+        fr: "Outils de hacking & programmes électroniques",
         en: "Hacking tools & electronic programs"
       },
       announcement: {
         ar: "⚡ دورة الاختراق الأخلاقي الكاملة بخصم 30% — لفترة محدودة",
+        fr: "⚡ Formation complète de hacking éthique -30% — durée limitée",
         en: "⚡ Full Ethical Hacking course 30% off — limited time"
       },
       announcementEnabled: true,
       heroBadge: {
         ar: "Ethical Hacking · Penetration Testing",
+        fr: "Ethical Hacking · Penetration Testing",
         en: "Ethical Hacking · Penetration Testing"
       },
       heroTitle: {
         ar: "أدوات||الاختراق الأخلاقي||وبرامج الأمن السيبراني",
+        fr: "Outils de hacking||éthique||& programmes de cybersécurité",
         en: "Ethical Hacking||Tools||& Cybersecurity Programs"
       },
       heroText: {
         ar: I18N.ar.heroText,
+        fr: I18N.fr.heroText,
         en: I18N.en.heroText
       },
-      heroCta: { ar: I18N.ar.heroCta, en: I18N.en.heroCta },
-      heroSecondary: { ar: I18N.ar.heroSecondary, en: I18N.en.heroSecondary },
+      heroCta: { ar: I18N.ar.heroCta, fr: I18N.fr.heroCta, en: I18N.en.heroCta },
+      heroSecondary: { ar: I18N.ar.heroSecondary, fr: I18N.fr.heroSecondary, en: I18N.en.heroSecondary },
       heroStats: [
-        { ar: { value: "500+", label: "عميل محترف" }, en: { value: "500+", label: "Pro clients" } },
-        { ar: { value: "99.9%", label: "ضمان المنتجات" }, en: { value: "99.9%", label: "Product guarantee" } },
-        { ar: { value: "24/7", label: "دعم تقني" }, en: { value: "24/7", label: "Tech support" } }
+        { ar: { value: "500+", label: "عميل محترف" }, fr: { value: "500+", label: "Clients pro" }, en: { value: "500+", label: "Pro clients" } },
+        { ar: { value: "99.9%", label: "ضمان المنتجات" }, fr: { value: "99.9%", label: "Garantie produits" }, en: { value: "99.9%", label: "Product guarantee" } },
+        { ar: { value: "24/7", label: "دعم تقني" }, fr: { value: "24/7", label: "Support technique" }, en: { value: "24/7", label: "Tech support" } }
       ],
+      heroBullets: [
+        { ar: "تجهيز فوري", fr: "Livraison instantanée", en: "Instant delivery" },
+        { ar: "ضمان الجودة", fr: "Qualité garantie", en: "Guaranteed quality" },
+        { ar: "دعم على Discord", fr: "Support Discord", en: "Discord support" },
+        { ar: "مدفوعات مشفرة", fr: "Paiements crypto", en: "Crypto payments" }
+      ],
+      features: [
+        { icon: "◎", title: { ar: "منتجات مرخصة", fr: "Produits licenciés", en: "Licensed products" }, text: { ar: "كل الأدوات تأتي مرخصة أو من مصادر مفتوحة موثوقة، مع ضمان تفعيل.", fr: "Chaque outil est licencié ou provient d'un projet open-source fiable, avec garantie d'activation.", en: "Every tool is licensed or comes from a trusted open-source project, with activation guarantee." } },
+        { icon: "⚡", title: { ar: "تسليم لحظي", fr: "Livraison instantanée", en: "Instant delivery" }, text: { ar: "تستلم كود التفعيل أو ملف التوزيعة خلال دقائق بعد تأكيد الدفع.", fr: "Recevez le code d'activation ou le fichier en quelques minutes après confirmation.", en: "You get the activation code or distro file within minutes after payment confirmation." } },
+        { icon: "⬢", title: { ar: "دعم فني حقيقي", fr: "Vrai support technique", en: "Real tech support" }, text: { ar: "فريق متمكن في الأمن السيبراني يقدم دعماً فعلياً عبر Discord.", fr: "Des experts en cybersécurité prêts à vous aider via Discord.", en: "Cybersecurity experts ready to help you via Discord — pre and post purchase." } },
+        { icon: "$", title: { ar: "مدفوعات آمنة", fr: "Paiements sécurisés", en: "Secure payments" }, text: { ar: "Crypto, PayPal, Visa/Master — كل المعاملات تتم بسرية تامة.", fr: "Crypto, PayPal, Visa/Master — chaque transaction reste totalement privée.", en: "Crypto, PayPal, Visa/Master — every transaction is fully private." } }
+      ],
+      about: {
+        title: { ar: "أدوات الاختراق الأخلاقي", fr: "Outils de hacking éthique", en: "Ethical hacking toolbox" },
+        text: { ar: "متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية. كل ما يحتاجه المتخصص والممارس والطالب.", fr: "Boutique spécialisée en outils de pentest, distributions Linux professionnelles, environnements de formation virtuels et livres de méthodologie. Tout ce dont les pros et étudiants ont besoin.", en: "Specialized store for pentesting tools, professional Linux distributions, virtual training environments and methodology books. Everything professionals, practitioners, and students need." }
+      },
+      sections: {
+        hero: true, categories: true, shop: true, features: true, about: true, payments: true, contact: true
+      },
       phone: "+213 770 12 34 56",
       whatsapp: "213770123456",
       email: "support@majorstore.dz",
-      address: { ar: "الجزائر", en: "Algeria" },
+      address: { ar: "الجزائر", fr: "Algérie", en: "Algeria" },
       instagram: "@majorstore.dz",
-      footerText: { ar: "أدوات قوية، اختيار ذكي.", en: "Cybersecurity tools for professionals." },
+      footerText: { ar: "أدوات قوية، اختيار ذكي.", fr: "Des outils puissants, un choix malin.", en: "Cybersecurity tools for professionals." },
       currency: "$",
       currencyCode: "USD",
       paymentMethods: [
@@ -283,6 +457,8 @@
         "Ethereum (ETH)",
         "USDT (TRC20)",
         "USDT (ERC20)",
+        "USDT (BEP20)",
+        "BNB (BEP20)",
         "Litecoin (LTC)",
         "Monero (XMR)",
         "PayPal",
@@ -292,6 +468,19 @@
         "BaridiMob / CCP",
         "الدفع عند الاستلام"
       ],
+      /* إعداد الدفع بالعملات الرقمية: لكل عملة شبكات (اسم + عنوان + QR) */
+      cryptoConfig: {
+        "USDT (BEP20)": {
+          networks: [
+            { id: "bsc", label: "BSC — BNB Smart Chain (BEP20)", address: "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3", qr: "" }
+          ]
+        },
+        "BNB (BEP20)": {
+          networks: [
+            { id: "bsc", label: "BSC — BNB Smart Chain (BEP20)", address: "0x3cff003f38e228c3348ac34c6358daa2e1cc6eb3", qr: "" }
+          ]
+        }
+      },
       discordLink: "https://discord.gg/WrK7ttvq5g"
     },
     adminAuth: { user: "admin", pass: "yemavava91@@@@@#####" },
@@ -480,9 +669,9 @@
 
   function uid(p) { return (p || "id") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-  /* ترجمة أي قيمة بحسب اللغة الحالية */
+  /* ترجمة أي قيمة بحسب اللغة الحالية (عربي / فرنسي / إنجليزي) */
   function localize(v) {
-    if (v && typeof v === "object" && (v.ar !== undefined || v.en !== undefined)) return v[currentLang] || v.ar || v.en;
+    if (v && typeof v === "object" && (v.ar !== undefined || v.en !== undefined || v.fr !== undefined)) return v[currentLang] || v.en || v.fr || v.ar;
     return v;
   }
 
@@ -491,7 +680,7 @@
   }
 
   function setLang(lang) {
-    currentLang = (lang === "en") ? "en" : "ar";
+    currentLang = (lang === "en" || lang === "fr") ? lang : "ar";
     localStorage.setItem("major_lang_v4", currentLang);
     document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = currentLang;

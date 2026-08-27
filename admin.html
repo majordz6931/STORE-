@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major2" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major3" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -51,9 +51,11 @@
         <button class="nav-item active" data-panel="overview"><span>⌂</span>overview</button>
         <button class="nav-item" data-panel="products"><span>▦</span>Products <b id="productBadge">0</b></button>
         <button class="nav-item" data-panel="categories"><span>◈</span>Categories</button>
-        <button class="nav-item" data-panel="payments"><span>$</span>Payment Methods</button>
+        <button class="nav-item" data-panel="coupons"><span>🎟</span>Coupons</button>
+        <button class="nav-item" data-panel="payments"><span>$</span>Payments & Crypto</button>
         <p>// storefront</p>
         <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & Copy</button>
+        <button class="nav-item" data-panel="sections"><span>◫</span>Sections</button>
         <button class="nav-item" data-panel="orders"><span>↗</span>Orders <b id="orderBadge">0</b></button>
         <button class="nav-item" data-panel="messages"><span>✉</span>Messages <b id="messageBadge">0</b></button>
         <button class="nav-item" data-panel="settings"><span>⚙</span>Settings</button>
@@ -72,7 +74,11 @@
           <h1 id="pageTitle">overview</h1>
         </div>
         <div class="admin-head-actions">
-          <button class="lang-switch" id="langSwitch" aria-label="Language"><span>EN</span></button>
+          <select class="lang-switch" id="langSwitch" aria-label="Language">
+            <option value="ar">AR</option>
+            <option value="fr">FR</option>
+            <option value="en">EN</option>
+          </select>
           <span class="last-sync">all data is saved locally <i></i></span>
           <a class="view-store" href="index.html" target="_blank">live preview ↗</a>
         </div>
@@ -149,7 +155,12 @@
             <div class="panel-card">
               <div class="card-title"><h3>add new category</h3></div>
               <form id="categoryForm" class="admin-form">
-                <label>name (AR / EN)<input id="categoryName" required placeholder="Mobile Security" /></label>
+                <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
+                <div class="tri">
+                  <label>name<input id="categoryNameAR" dir="rtl" required placeholder="اختبار تطبيقات الويب" /></label>
+                  <label>name<input id="categoryNameFR" placeholder="Pentest web" /></label>
+                  <label>name<input id="categoryNameEN" required placeholder="Web pentesting" /></label>
+                </div>
                 <div class="two-fields">
                   <label>icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
                   <label>color<input id="categoryColor" type="color" value="#0d2235" /></label>
@@ -160,22 +171,58 @@
           </div>
         </section>
 
+        <section class="admin-panel" id="panel-coupons">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// discounts</span>
+              <h2>Coupons</h2>
+              <p>Create discount codes customers can apply at checkout (percent or fixed USD).</p>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="card-title"><h3>add coupon</h3></div>
+            <form id="couponForm" class="admin-form">
+              <div class="three-fields">
+                <label>code<input id="couponCode" placeholder="MAJOR15" required /></label>
+                <label>type<select id="couponType"><option value="percent">percent %</option><option value="fixed">fixed $</option></select></label>
+                <label>value<input id="couponValue" type="number" min="0" step="0.01" required /></label>
+              </div>
+              <label class="switch-line"><input id="couponActive" type="checkbox" checked /><span></span>active</label>
+              <button class="btn primary" type="submit">add coupon</button>
+            </form>
+          </div>
+          <div class="panel-card">
+            <div class="card-title"><h3>current coupons</h3><span class="count" id="couponCount">0</span></div>
+            <div class="coupon-list" id="couponList"></div>
+          </div>
+        </section>
+
         <section class="admin-panel" id="panel-payments">
           <div class="panel-top">
             <div>
               <span class="eyebrow cyan">// checkout</span>
-              <h2>Payment Methods</h2>
-              <p>Add, remove or reorder the payment methods shown to customers (CRYPTO & FIAT supported).</p>
+              <h2>Payments & Crypto</h2>
+              <p>Manage the payment methods, and configure crypto networks + QR codes shown to customers.</p>
             </div>
             <span class="save-state" id="paymentsSaved"></span>
           </div>
           <div class="panel-card">
             <form id="paymentForm" class="admin-form">
-              <label>Payment methods (one per line)<small style="color:var(--muted);margin-top:4px">Include Crypto, FIAT, E-Wallets. Examples: "Bitcoin (BTC)", "USDT (TRC20)", "PayPal"</small>
-                <textarea id="paymentMethods" rows="8" placeholder="Bitcoin (BTC)&#10;USDT (TRC20)&#10;PayPal"></textarea>
+              <label>Payment methods (one per line)<small style="color:var(--muted);margin-top:4px">Include Crypto, FIAT, E-Wallets. Examples: "Bitcoin (BTC)", "USDT (BEP20)", "PayPal"</small>
+                <textarea id="paymentMethods" rows="8" placeholder="Bitcoin (BTC)&#10;USDT (BEP20)&#10;PayPal"></textarea>
               </label>
               <button class="btn primary full" type="submit">save payment methods</button>
             </form>
+          </div>
+          <div class="panel-card crypto-config-card">
+            <div class="card-title">
+              <div><span class="eyebrow cyan">// crypto details</span><h3>Crypto networks & QR codes</h3></div>
+              <span class="save-state" id="cryptoSaved"></span>
+            </div>
+            <p class="muted-note">For each crypto method, add one or more networks (e.g. BSC — BNB Smart Chain (BEP20)), a wallet address and an optional QR image. The customer picks the network at checkout.</p>
+            <div id="cryptoConfigWrap"></div>
+            <button class="btn primary" id="cryptoSaveBtn">save crypto settings</button>
+            <button class="btn outline" id="cryptoAddMethod">＋ add config for a method</button>
           </div>
         </section>
 
@@ -188,22 +235,71 @@
             </div>
             <span class="save-state" id="homeSaved"></span>
           </div>
-          <form id="homepageForm" class="settings-layout">
+          <form id="homepageForm" class="admin-form">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>AR — Arabic</h3></div>
-              <label>badge<input id="homeBadge" dir="rtl" /></label>
-              <label>title (use || to force <br>)<textarea id="homeTitle" rows="3" dir="rtl"></textarea></label>
-              <label>description<textarea id="homeText" rows="3" dir="rtl"></textarea></label>
-              <div class="two-fields"><label>CTA<input id="homeCta" dir="rtl" /></label><label>secondary<input id="homeSecondary" dir="rtl" /></label></div>
-            </div>
-            <div class="panel-card form-section">
-              <div class="card-title"><h3>EN — English</h3></div>
-              <label>badge<input id="homeBadgeEn" /></label>
-              <label>title<textarea id="homeTitleEn" rows="3"></textarea></label>
-              <label>description<textarea id="homeTextEn" rows="3"></textarea></label>
-              <div class="two-fields"><label>CTA<input id="homeCtaEn" /></label><label>secondary<input id="homeSecondaryEn" /></label></div>
+              <div class="card-title"><h3>Hero & homepage copy — AR / FR / EN</h3></div>
+              <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
+              <div class="tri">
+                <label>badge<input id="homeBadge" dir="rtl" /></label>
+                <label>badge<input id="homeBadgeFr" /></label>
+                <label>badge<input id="homeBadgeEn" /></label>
+              </div>
+              <div class="tri tri-text">
+                <label>title (|| = <br>)<textarea id="homeTitle" rows="3" dir="rtl"></textarea></label>
+                <label>title<textarea id="homeTitleFr" rows="3"></textarea></label>
+                <label>title<textarea id="homeTitleEn" rows="3"></textarea></label>
+              </div>
+              <div class="tri tri-text">
+                <label>description<textarea id="homeText" rows="3" dir="rtl"></textarea></label>
+                <label>description<textarea id="homeTextFr" rows="3"></textarea></label>
+                <label>description<textarea id="homeTextEn" rows="3"></textarea></label>
+              </div>
+              <div class="tri">
+                <label>CTA<input id="homeCta" dir="rtl" /></label>
+                <label>CTA<input id="homeCtaFr" /></label>
+                <label>CTA<input id="homeCtaEn" /></label>
+              </div>
+              <div class="tri">
+                <label>secondary<input id="homeSecondary" dir="rtl" /></label>
+                <label>secondary<input id="homeSecondaryFr" /></label>
+                <label>secondary<input id="homeSecondaryEn" /></label>
+              </div>
               <button class="btn primary full" type="submit">save changes</button>
             </div>
+          </form>
+        </section>
+
+        <section class="admin-panel" id="panel-sections">
+          <div class="panel-top">
+            <div>
+              <span class="eyebrow cyan">// storefront</span>
+              <h2>Sections</h2>
+              <p>Show/hide every homepage section and edit its content in AR / FR / EN.</p>
+            </div>
+            <span class="save-state" id="sectionsSaved"></span>
+          </div>
+          <form id="sectionsForm" class="admin-form">
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>show / hide sections</h3></div>
+              <div class="section-toggles" id="sectionToggles"></div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>hero bullets (4)</h3></div>
+              <div id="bulletsFields" class="tri-stack"></div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>features (4 cards)</h3></div>
+              <div id="featuresFields"></div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>about section</h3></div>
+              <div id="aboutFields"></div>
+            </div>
+            <div class="panel-card form-section">
+              <div class="card-title"><h3>hero stats (3)</h3></div>
+              <div id="statsFields"></div>
+            </div>
+            <button class="btn primary" type="submit">save sections</button>
           </form>
         </section>
 
@@ -246,20 +342,28 @@
             </div>
             <span class="save-state" id="settingsSaved"></span>
           </div>
-          <form id="settingsForm" class="settings-layout">
+          <form id="settingsForm" class="admin-form">
             <div class="panel-card form-section">
               <div class="card-title"><h3>identity</h3></div>
               <div class="two-fields">
                 <label>brand<input id="settingBrand" required /></label>
-                <label>codecurrency<input id="settingCurrency" value="USD" disabled /></label>
+                <label>currency<input id="settingCurrency" value="USD — $" disabled /></label>
               </div>
-              <div class="two-fields">
-                <label>subtitle (AR)<input id="settingSubAR" dir="rtl" /></label>
-                <label>subtitle (EN)<input id="settingSubEN" /></label>
+              <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
+              <div class="tri">
+                <label>subtitle<input id="settingSubAR" dir="rtl" /></label>
+                <label>subtitle<input id="settingSubFR" /></label>
+                <label>subtitle<input id="settingSubEN" /></label>
               </div>
-              <div class="two-fields">
-                <label>footer (AR)<input id="settingFooterAR" dir="rtl" /></label>
-                <label>footer (EN)<input id="settingFooterEN" /></label>
+              <div class="tri">
+                <label>footer<input id="settingFooterAR" dir="rtl" /></label>
+                <label>footer<input id="settingFooterFR" /></label>
+                <label>footer<input id="settingFooterEN" /></label>
+              </div>
+              <div class="tri">
+                <label>address<input id="settingAddrAR" dir="rtl" /></label>
+                <label>address<input id="settingAddrFR" /></label>
+                <label>address<input id="settingAddrEN" /></label>
               </div>
             </div>
             <div class="panel-card form-section">
@@ -269,14 +373,11 @@
                 <label>whatsapp<input id="settingWhatsapp" /></label>
                 <label>email<input id="settingEmail" type="email" /></label>
               </div>
-              <div class="two-fields">
-                <label>address (AR)<input id="settingAddrAR" dir="rtl" /></label>
-                <label>address (EN)<input id="settingAddrEN" /></label>
-              </div>
               <label>discord link<input id="settingDiscord" type="url" /></label>
               <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>enable announcement bar</label>
-              <div class="two-fields">
+              <div class="tri tri-text">
                 <label>announcement (AR)<textarea id="settingAnnouncementAR" rows="2" dir="rtl"></textarea></label>
+                <label>announcement (FR)<textarea id="settingAnnouncementFR" rows="2"></textarea></label>
                 <label>announcement (EN)<textarea id="settingAnnouncementEN" rows="2"></textarea></label>
               </div>
               <button class="btn primary full" type="submit">save settings</button>
@@ -300,12 +401,17 @@
       </div>
       <form id="productForm" class="admin-form">
         <input id="productId" type="hidden" />
-        <div class="two-fields">
-          <label>name (AR)<input id="productNameAR" dir="rtl" required /></label>
-          <label>name (EN)<input id="productNameEN" required /></label>
+        <div class="tri-head"><span>🇸🇦 AR</span><span>🇫🇷 FR</span><span>🇬🇧 EN</span></div>
+        <div class="tri">
+          <label>name<input id="productNameAR" dir="rtl" required /></label>
+          <label>name<input id="productNameFR" /></label>
+          <label>name<input id="productNameEN" required /></label>
         </div>
-        <label>tagline (AR)<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
-        <label>tagline (EN)<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
+        <div class="tri">
+          <label>tagline<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
+          <label>tagline<input id="productSpecsFR" placeholder="600+ outils" /></label>
+          <label>tagline<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
+        </div>
         <div class="three-fields">
           <label>category<select id="productCategory"></select></label>
           <label>price USD<input id="productPrice" type="number" min="0" step="0.01" required /></label>
@@ -316,12 +422,16 @@
           <label>icon<input id="productIcon" value="✦" maxlength="3" /></label>
           <label>color<input id="productColor" type="color" value="#0d2235" /></label>
         </div>
-        <div class="two-fields">
-          <label>badge (AR)<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
-          <label>badge (EN)<input id="productBadgeEN" placeholder="Best seller" /></label>
+        <div class="tri">
+          <label>badge<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
+          <label>badge<input id="productBadgeFR" placeholder="Meilleure vente" /></label>
+          <label>badge<input id="productBadgeEN" placeholder="Best seller" /></label>
         </div>
-        <label>description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
-        <label>description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
+        <div class="tri tri-text">
+          <label>description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
+          <label>description (FR)<textarea id="productDescriptionFR" rows="3"></textarea></label>
+          <label>description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
+        </div>
         <label>image url (optional)<input id="productImage" type="url" placeholder="https://..." /></label>
         <button class="btn primary full" type="submit">save product</button>
         <button class="btn ghost full" type="button" data-close-editor>cancel</button>
@@ -330,8 +440,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major2"></script>
-  <script src="js/cloud.js?v=2026-major2"></script>
-  <script src="js/admin.js?v=2026-major2"></script>
+  <script src="js/store.js?v=2026-major3"></script>
+  <script src="js/cloud.js?v=2026-major3"></script>
+  <script src="js/admin.js?v=2026-major3"></script>
 </body>
 </html>

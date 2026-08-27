@@ -417,3 +417,31 @@ section{padding:60px 0;position:relative}
 .support-fab{background:linear-gradient(135deg,#22ffb5,#00d4ff);color:#031;box-shadow:0 12px 30px rgba(0,212,255,.35)}
 [dir="rtl"] .support-fab{right:auto;left:24px}
 @media (max-width:640px){.support-fab{width:48px;height:48px;font-size:22px;bottom:18px}}
+
+/* ===========================================================
+   Language select (AR / FR / EN) in header
+   =========================================================== */
+.lang-switch{appearance:none;-webkit-appearance:none;padding:0 26px 0 12px;position:relative;font-size:11.5px}
+.lang-switch::-ms-expand{display:none}
+[dir="rtl"] .lang-switch{padding:0 12px 0 26px}
+.lang-switch-wrapper{position:relative}
+.site-header .lang-switch{width:auto;min-width:112px;background-color:var(--surface);border:1px solid var(--line);border-radius:9px;color:var(--ink-mid);font-family:"Fira Code",monospace;height:38px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--green) 50%),linear-gradient(135deg,var(--green) 50%,transparent 50%);background-position:calc(100% - 14px) 50%,calc(100% - 9px) 50%;background-size:5px 5px;background-repeat:no-repeat;display:block;align-items:unset;justify-content:unset}
+[dir="rtl"] .site-header .lang-switch{background-position:14px 50%,9px 50%}
+.site-header .lang-switch:hover,.site-header .lang-switch:focus{border-color:var(--green);color:var(--ink)}
+
+/* ===========================================================
+   Crypto payment box (network / address / QR)
+   =========================================================== */
+.crypto-pay-box{margin-top:4px;border:1px dashed var(--line-strong);border-radius:14px;padding:16px;background:rgba(10,17,32,.35);display:flex;flex-direction:column;gap:12px}
+.crypto-pay-box[hidden]{display:none}
+.pay-select-network{display:flex;flex-direction:column;gap:6px}
+.pay-select-network span{font-size:11px;color:var(--cyan);font-weight:700;font-family:"Fira Code",monospace;text-transform:uppercase;letter-spacing:.1em}
+.pay-select-network select{padding:11px 14px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-family:"Fira Code",monospace;font-size:13px}
+.pay-address-row{display:flex;gap:10px;align-items:center}
+.pay-addr-label{font-size:11px;color:var(--ink-mid);font-family:"Fira Code",monospace;font-weight:600;min-width:52px}
+.pay-address-row code{flex:1;font-family:"Fira Code",monospace;font-size:12px;background:#060b16;border:1px solid var(--line);border-radius:9px;padding:11px 12px;color:var(--green);word-break:break-all;direction:ltr;display:block;text-align:left}
+.pay-address-row .btn{padding:9px 14px;font-size:11px;border-radius:9px}
+.pay-qr{display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:14px;margin-top:2px}
+.pay-qr img{width:150px;height:150px;object-fit:contain;image-rendering:pixelated}
+.pay-qr small{font-family:"Fira Code",monospace;font-size:11px;color:#0a1120;font-weight:700}
+.pay-note{font-size:11px;color:var(--muted);font-family:"Fira Code",monospace;line-height:1.6;margin:0}
