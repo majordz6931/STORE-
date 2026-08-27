@@ -77,7 +77,8 @@ setInterval(() => {
 
 io.on("connection", (socket) => {
   visitorCount++;
-  io.emit("live:visitor", { visitors: visitorCount + Math.floor(Math.random() * 2) });
+  // Send immediate stats to the new client
+  socket.emit("live:stats", { visitors: visitorCount + Math.floor(Math.random() * 2), todayOrders: todayOrders.length });
 
   // Chat: join room
   socket.on("chat:join", (chatId) => {

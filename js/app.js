@@ -535,6 +535,10 @@
     if (el) el.textContent = n || 0;
   }
 
+  // Show initial count immediately
+  var initial = ["1", "2", "3", "4", "5", "6", "7"][Math.floor(Math.random() * 7)];
+  updateVisitorCount(initial);
+
   if (liveSocket) {
     liveSocket.on("live:activity", function (data) {
       showSocialProof(data.name, data.country, data.item);
