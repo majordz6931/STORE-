@@ -352,26 +352,28 @@
 
   function openEditor(id) {
     editingId = id || null; var p = id ? db.products.find(function (x) { return x.id === id; }) : null;
-    $("editorTitle").textContent = p ? T("admChTitleEdit") : T("admChTitle");
-    $("productId").value = p ? p.id : "";
-    $("productNameAR").value = p && p.name ? (p.name.ar || "") : "";
-    $("productNameEN").value = p && p.name ? (p.name.en || "") : "";
-    $("productSpecsAR").value = p && p.specs ? (p.specs.ar || "") : "";
-    $("productSpecsEN").value = p && p.specs ? (p.specs.en || "") : "";
-    $("productCategory").value = p ? p.category : (db.categories[0] ? db.categories[0].id : "");
-    $("productPrice").value = p ? p.price : "";
-    $("productOldPrice").value = p ? p.oldPrice || "" : "";
-    $("productStock").value = p ? p.stock || 10 : 10;
-    $("productIcon").value = p ? p.icon : "✦";
-    $("productColor").value = p ? p.color : "#0d2235";
-    $("productBadgeAR").value = p && p.badge ? (p.badge.ar || "") : "";
-    $("productBadgeEN").value = p && p.badge ? (p.badge.en || "") : "";
-    $("productDescriptionAR").value = p && p.description ? (p.description.ar || "") : "";
-    $("productDescriptionEN").value = p && p.description ? (p.description.en || "") : "";
-    $("productImage").value = p ? p.image || "" : "";
-    $("productEditor").classList.add("open");
+    try {
+      $("editorTitle").textContent = p ? T("admChTitleEdit") : T("admChTitle");
+      $("productId").value = p ? p.id : "";
+      $("productNameAR").value = p && p.name ? (p.name.ar || "") : "";
+      $("productNameEN").value = p && p.name ? (p.name.en || "") : "";
+      $("productSpecsAR").value = p && p.specs ? (p.specs.ar || "") : "";
+      $("productSpecsEN").value = p && p.specs ? (p.specs.en || "") : "";
+      $("productCategory").value = p ? p.category : (db.categories[0] ? db.categories[0].id : "");
+      $("productPrice").value = p ? p.price : "";
+      $("productOldPrice").value = p ? p.oldPrice || "" : "";
+      $("productStock").value = p ? p.stock || 10 : 10;
+      $("productIcon").value = p ? p.icon : "✦";
+      $("productColor").value = p ? p.color : "#0d2235";
+      $("productBadgeAR").value = p && p.badge ? (p.badge.ar || "") : "";
+      $("productBadgeEN").value = p && p.badge ? (p.badge.en || "") : "";
+      $("productDescriptionAR").value = p && p.description ? (p.description.ar || "") : "";
+      $("productDescriptionEN").value = p && p.description ? (p.description.en || "") : "";
+      $("productImage").value = p ? p.image || "" : "";
+      $("productEditor").classList.add("open");
+    } catch (err) { toast("openEditor error: " + err.message, true); }
   }
-  function closeEditor() { $("productEditor").classList.remove("open"); }
+  function closeEditor() { try { $("productEditor").classList.remove("open"); } catch(e) {} }
   function setPanel(name) {
     all(".nav-item").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === name); });
     all(".tnav").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === name); });
@@ -452,8 +454,8 @@
       save = function () { origSave(); if (publishRem) publishRem.hidden = false; };
     }
     $("mobileSide").onclick = function () { $("dashboard").classList.toggle("side-open"); };
-    $("newProductBtn").onclick = function () { openEditor(); };
-    all("[data-close-editor]").forEach(function (x) { x.onclick = closeEditor; });
+    $("newProductBtn").addEventListener("click", function (e) { e.preventDefault(); openEditor(); });
+    all("[data-editor-close]").forEach(function (x) { x.onclick = closeEditor; });
     $("adminProductSearch").oninput = renderProducts; $("adminProductSort").onchange = renderProducts;
 
     $("productForm").onsubmit = function (e) {
@@ -681,6 +683,7 @@
     };
     $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); try { if (window._majorCloudChannel) window._majorCloudChannel.postMessage({ lang: this.value }); } catch(e){} };
   }
+  console.log("[MAJOR ADMIN] bind() called, handlers registered");
   bind();
   if (logged && window.MajorCloud && MajorCloud.isAdmin()) {
     var dash = $("dashboard");
