@@ -387,7 +387,7 @@
   $("searchInput").oninput = function () { search = this.value.trim(); renderProducts(); };
   $("sortProducts").onchange = function () { sort = this.value; renderProducts(); };
   $("menuToggle").onclick = function () { $("mainNav").classList.toggle("open"); };
-  $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); };
+  $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); try { if (window.bcLang) bcLang.postMessage({ lang: this.value }); } catch(e){} };
   if ($("orderPayment")) $("orderPayment").onchange = function () { updateCryptoPay(); };
   if ($("cryptoNetwork")) $("cryptoNetwork").onchange = function () { applyCryptoNet(this.value); };
   if ($("cryptoCopy")) $("cryptoCopy").onclick = function () {
@@ -453,6 +453,7 @@
     if (window.BroadcastChannel) cloudChannel = new BroadcastChannel("major-store-sync");
     if (cloudChannel) cloudChannel.onmessage = function (ev) {
       if (ev.data && ev.data.type === "store-updated") { refreshCloudStore(); toast("✓ new products from cloud"); }
+      if (ev.data && ev.data.lang) { ElectroDB.setLang(ev.data.lang); }
       if (ev.data && ev.data.type === "orders-updated") { /* refresh orders list if open */ }
     };
   } catch (e) { cloudChannel = null; }

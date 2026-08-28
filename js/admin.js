@@ -392,6 +392,8 @@
     /* BroadcastChannel: عند النشر، أي تبويب آخر مفتوح (متجر زائر) يتحدث فوراً */
     var bc = null;
     try { if (window.BroadcastChannel) bc = new BroadcastChannel("major-store-sync"); } catch (e) { bc = null; }
+    /* تعريض القناة لل window لبث تغييرات اللغة عبر التبويبات */
+    if (bc) window._majorCloudChannel = bc;
     var passToggle = $("passToggle");
     if (passToggle) passToggle.onclick = function () {
       var inp = $("loginPass");
@@ -668,7 +670,7 @@
         chain.then(syncCloudOrders);
       }
     };
-    $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); };
+    $("langSwitch").onchange = function () { ElectroDB.setLang(this.value); try { if (window._majorCloudChannel) window._majorCloudChannel.postMessage({ lang: this.value }); } catch(e){} };
   }
   bind();
   if (logged && window.MajorCloud && MajorCloud.isAdmin()) {

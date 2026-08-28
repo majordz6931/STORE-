@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Control Panel</title>
-  <link rel="stylesheet" href="css/admin.css?v=2026-major9" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major10" />
 </head>
 <body>
   <div class="login-screen" id="loginScreen">
@@ -140,18 +140,19 @@
         <section class="admin-panel" id="panel-products">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// catalog</span>
-              <h2>Products</h2>
-              <p>Add, edit, delete or toggle products. Prices in USD.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowCatalog">// catalog</span>
+              <h2 data-i18n="admPanelProductsTitle">Products</h2>
+              <p data-i18n="admPanelProductsDesc">Add, edit, delete or toggle products. Prices in USD.</p>
             </div>
             <button class="btn primary" id="newProductBtn" data-i18n="admNewProduct">＋ new product</button>
+            <button class="btn small outline" id="publishProductsBtn" data-i18n="admPublishProducts" style="margin-right:8px">↑ publish to cloud</button>
           </div>
           <div class="toolbar">
             <div class="admin-search">grep<input id="adminProductSearch" data-i18n-ph="admSearchProducts" placeholder="search products..." /></div>
             <select id="adminProductSort">
-              <option value="new">newest first</option>
-              <option value="low">price ↑</option>
-              <option value="high">price ↓</option>
+              <option value="new" data-i18n="admSortNew">newest first</option>
+              <option value="low" data-i18n="admSortLow">price ↑</option>
+              <option value="high" data-i18n="admSortHigh">price ↓</option>
             </select>
           </div>
           <div class="product-admin-grid" id="adminProductsGrid"></div>
@@ -160,9 +161,9 @@
         <section class="admin-panel" id="panel-categories">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// organization</span>
-              <h2>Categories</h2>
-              <p>Control what categories appear in the storefront.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowOrg">// organization</span>
+              <h2 data-i18n="admPanelCategoriesTitle">Categories</h2>
+              <p data-i18n="admPanelCategoriesDesc">Control what categories appear in the storefront.</p>
             </div>
           </div>
           <div class="category-admin-layout">
@@ -191,9 +192,9 @@
         <section class="admin-panel" id="panel-coupons">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// discounts</span>
-              <h2>Coupons</h2>
-              <p>Create discount codes customers can apply at checkout (percent or fixed USD).</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowDiscounts">// discounts</span>
+              <h2 data-i18n="admPanelCouponsTitle">Coupons</h2>
+              <p data-i18n="admPanelCouponsDesc">Create discount codes customers can apply at checkout (percent or fixed USD).</p>
             </div>
           </div>
           <div class="panel-card">
@@ -217,9 +218,9 @@
         <section class="admin-panel" id="panel-payments">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// checkout</span>
-              <h2>Payments & Crypto</h2>
-              <p>Manage the payment methods, and configure crypto networks + QR codes shown to customers.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowCheckout">// checkout</span>
+              <h2 data-i18n="admPanelPaymentsTitle">Payments & Crypto</h2>
+              <p data-i18n="admPanelPaymentsDesc">Manage the payment methods, and configure crypto networks + QR codes shown to customers.</p>
             </div>
             <span class="save-state" id="paymentsSaved"></span>
           </div>
@@ -318,9 +319,9 @@
         <section class="admin-panel" id="panel-orders">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// sales</span>
-              <h2>Orders</h2>
-              <p>Review customer orders and update their status.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowOrders">// sales</span>
+              <h2 data-i18n="admPanelOrdersTitle">Orders</h2>
+              <p data-i18n="admPanelOrdersDesc">Review customer orders and update their status.</p>
             </div>
             <button class="btn outline" id="clearOrdersBtn" data-i18n="admClearOrders">clear all</button>
           </div>
@@ -336,9 +337,9 @@
         <section class="admin-panel" id="panel-messages">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// inbox</span>
-              <h2>Messages</h2>
-              <p>Visitor messages from the storefront contact button. Reply, mark done, or delete.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowMessages">// inbox</span>
+              <h2 data-i18n="admPanelMessagesTitle">Messages</h2>
+              <p data-i18n="admPanelMessagesDesc">Visitor messages frm the storefront contact button. Reply, mark done, or delete.</p>
             </div>
           </div>
           <div class="messages-list" id="messagesList"></div>
@@ -348,9 +349,9 @@
         <section class="admin-panel" id="panel-settings">
           <div class="panel-top">
             <div>
-              <span class="eyebrow cyan">// brand</span>
-              <h2>Settings</h2>
-              <p>Identity, contact details & currency. Prices are USD only.</p>
+              <span class="eyebrow cyan" data-i18n="admPanelEyebrowSettings">// brand</span>
+              <h2 data-i18n="admPanelSettingsTitle">Settings</h2>
+              <p data-i18n="admPanelSettingsDesc">Identity, contact details & currency. Prices are USD only.</p>
             </div>
             <span class="save-state" id="settingsSaved"></span>
           </div>
@@ -444,8 +445,8 @@
   </div>
   <div class="toast" id="adminToast"></div>
 
-  <script src="js/store.js?v=2026-major9"></script>
-  <script src="js/cloud.js?v=2026-major9"></script>
-  <script src="js/admin.js?v=2026-major9"></script>
+  <script src="js/store.js?v=2026-major10"></script>
+  <script src="js/cloud.js?v=2026-major10"></script>
+  <script src="js/admin.js?v=2026-major10"></script>
 </body>
 </html>
