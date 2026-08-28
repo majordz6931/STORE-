@@ -102,25 +102,44 @@
   }
   /* دفع بيانات المتجر (منتجات/أقسام/إعدادات/كوبونات) إلى Supabase — يتطلب تسجيل دخول الإدارة */
   function pushCloudStore() {
-    if (!window.MajorCloud || !MajorCloud.isAdmin()) { updateCloudBadge(); return; }
-    var payload = { products: db.products, categories: db.categories, settings: db.settings, coupons: db.coupons };
-    cloudStatus.state = "saving"; cloudStatus.lastErr = "";
-    updateCloudBadge();
-    MajorCloud.saveStore(payload).then(function () {
-      cloudStatus.state = "idle";
-      cloudStatus.lastOk = Date.now();
-      cloudStatus.lastCount = payload.products.length;
+    try {
+      if (!window.MajorCloud || !MajorCloud.isAdmin()) { updateCloudBadge(); toast("⚠ Not logged in — log in first", true); return; }
+      var payload = { products: db.products, categories: db.categories, settings: db.settings, coupons: db.coupons };
+      cloudStatus.state = "saving"; cloudStatus.lastErr = "";
       updateCloudBadge();
-      var pr = $("publishReminder"); if (pr) pr.hidden = true;
-      toast("✓ " + T("admToastSyncOk").replace("{n}", payload.products.length).replace("{c}", payload.categories.length));
-      try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
-    }).catch(function (e) {
-      cloudStatus.state = "error";
-      cloudStatus.lastErr = describeCloudError(e);
-      updateCloudBadge();
-      toast("✗ " + T("admToastSyncErr") + ": " + cloudStatus.lastErr, true);
-      console.error("[MAJOR STORE cloud sync error]", e);
-    });
+      /* تعطيل زر النشر مؤقتًا لمنع النقر المتكرر */
+      var pubBtns = all("[id*=publish], [id*=Publish], .btn-publish");
+      pubBtns.forEach(function (b) { b.disabled = true; });
+      toast("☁️ publishing... (" + payload.products.length + " products)");
+      /* مهلة 15 ثانية لمنع التجميد */
+      var timeout = setTimeout(function () {
+        cloudStatus.state = "error";
+        cloudStatus.lastErr = "Request timed out — check Supabase connection";
+        updateCloudBadge();
+        toast("✗ Timed out — check your connection to Supabase", true);
+        pubBtns.forEach(function (b) { b.disabled = false; });
+      }, 15000);
+      MajorCloud.saveStore(payload).then(function () {
+        clearTimeout(timeout);
+        cloudStatus.state = "idle";
+        cloudStatus.lastOk = Date.now();
+        cloudStatus.lastCount = payload.products.length;
+        updateCloudBadge();
+        var pr = $("publishReminder"); if (pr) pr.hidden = true;
+        toast("✓ " + T("admToastSyncOk").replace("{n}", payload.products.length).replace("{c}", payload.categories.length));
+        try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
+      }).catch(function (e) {
+        clearTimeout(timeout);
+        cloudStatus.state = "error";
+        cloudStatus.lastErr = describeCloudError(e);
+        updateCloudBadge();
+        toast("✗ " + T("admToastSyncErr") + ": " + cloudStatus.lastErr, true);
+        console.error("[MAJOR STORE cloud sync error]", e);
+      }).finally(function () {
+        clearTimeout(timeout);
+        pubBtns.forEach(function (b) { b.disabled = false; });
+      });
+    } catch (err) { toast("✗ publish error: " + err.message, true); }
   }
   function syncCloudOrders() {
     if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
@@ -181,8 +200,11 @@
       .then(syncMessages).catch(function () { toast(T("admUpdateFailed"), true); });
   }
   function toast(msg, bad) {
-    var e = $("adminToast"); e.textContent = msg; e.className = "toast show" + (bad ? " bad" : "");
-    clearTimeout(e._t); e._t = setTimeout(function () { e.classList.remove("show"); }, 2400);
+    try {
+      var e = $("adminToast"); if (!e) { console.log("[TOAST]", msg); return; }
+      e.textContent = msg; e.className = "toast show" + (bad ? " bad" : "");
+      clearTimeout(e._t); e._t = setTimeout(function () { try { e.classList.remove("show"); } catch(ex){} }, 2400);
+    } catch(ex) { console.log("[TOAST]", msg); }
   }
   function renderBrand() {
     var mark = ElectroDB.getLogo();
@@ -390,14 +412,16 @@
   }
   function bind() {
     function enterDashboard() {
-      logged = true;
-      var dash = $("dashboard");
-      if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
-      $("loginScreen").hidden = true;
-      updateCloudBadge();
-      renderAll();
-      /* أول دخول: مزامنة فورية لاختبار الاتصال */
-      pushCloudStore();
+      try {
+        logged = true;
+        var dash = $("dashboard");
+        if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
+        $("loginScreen").hidden = true;
+        updateCloudBadge();
+        renderAll();
+        /* أول دخول: مزامنة فورية لاختبار الاتصال */
+        pushCloudStore();
+      } catch(err) { toast("enterDashboard error: " + err.message, true); }
     }
     /* BroadcastChannel: عند النشر، أي تبويب آخر مفتوح (متجر زائر) يتحدث فوراً */
     var bc = null;
