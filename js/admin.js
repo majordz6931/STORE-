@@ -353,25 +353,27 @@
   function openEditor(id) {
     editingId = id || null; var p = id ? db.products.find(function (x) { return x.id === id; }) : null;
     try {
-      $("editorTitle").textContent = p ? T("admChTitleEdit") : T("admChTitle");
-      $("productId").value = p ? p.id : "";
-      $("productNameAR").value = p && p.name ? (p.name.ar || "") : "";
-      $("productNameEN").value = p && p.name ? (p.name.en || "") : "";
-      $("productSpecsAR").value = p && p.specs ? (p.specs.ar || "") : "";
-      $("productSpecsEN").value = p && p.specs ? (p.specs.en || "") : "";
-      $("productCategory").value = p ? p.category : (db.categories[0] ? db.categories[0].id : "");
-      $("productPrice").value = p ? p.price : "";
-      $("productOldPrice").value = p ? p.oldPrice || "" : "";
-      $("productStock").value = p ? p.stock || 10 : 10;
-      $("productIcon").value = p ? p.icon : "✦";
-      $("productColor").value = p ? p.color : "#0d2235";
-      $("productBadgeAR").value = p && p.badge ? (p.badge.ar || "") : "";
-      $("productBadgeEN").value = p && p.badge ? (p.badge.en || "") : "";
-      $("productDescriptionAR").value = p && p.description ? (p.description.ar || "") : "";
-      $("productDescriptionEN").value = p && p.description ? (p.description.en || "") : "";
-      $("productImage").value = p ? p.image || "" : "";
-      $("productEditor").classList.add("open");
-    } catch (err) { toast("openEditor error: " + err.message, true); }
+      var el, v;
+      el = $("editorTitle"); if (!el) { toast("Missing: editorTitle", true); return; }
+      el.textContent = p ? T("admChTitleEdit") : T("admChTitle");
+      el = $("productId"); if (el) el.value = p ? p.id : "";
+      el = $("productNameAR"); if (el) el.value = p && p.name ? (p.name.ar || "") : "";
+      el = $("productNameEN"); if (el) el.value = p && p.name ? (p.name.en || "") : "";
+      el = $("productSpecsAR"); if (el) el.value = p && p.specs ? (p.specs.ar || "") : "";
+      el = $("productSpecsEN"); if (el) el.value = p && p.specs ? (p.specs.en || "") : "";
+      el = $("productCategory"); if (el) el.value = p ? p.category : (db.categories[0] ? db.categories[0].id : "");
+      el = $("productPrice"); if (el) el.value = p ? p.price : "";
+      el = $("productOldPrice"); if (el) el.value = p ? p.oldPrice || "" : "";
+      el = $("productStock"); if (el) el.value = p ? p.stock || 10 : 10;
+      el = $("productIcon"); if (el) el.value = p ? p.icon : "✦";
+      el = $("productColor"); if (el) el.value = p ? p.color : "#0d2235";
+      el = $("productBadgeAR"); if (el) el.value = p && p.badge ? (p.badge.ar || "") : "";
+      el = $("productBadgeEN"); if (el) el.value = p && p.badge ? (p.badge.en || "") : "";
+      el = $("productDescriptionAR"); if (el) el.value = p && p.description ? (p.description.ar || "") : "";
+      el = $("productDescriptionEN"); if (el) el.value = p && p.description ? (p.description.en || "") : "";
+      el = $("productImage"); if (el) el.value = p ? p.image || "" : "";
+      el = $("productEditor"); if (el) el.classList.add("open");
+    } catch (err) { toast("openEditor: " + err.message, true); console.error(err); }
   }
   function closeEditor() { try { $("productEditor").classList.remove("open"); } catch(e) {} }
   function setPanel(name) {
