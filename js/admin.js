@@ -17,8 +17,10 @@
   }
   function describeCloudError(err) {
     var raw = ((err && (err.message || err.hint)) || "").toString();
+    if (/PGRST205|Could not find the table|relation.*does not exist|does not exist in schema/i.test(raw))
+      return "Supabase tables don't exist yet! You must run supabase-setup.sql in Supabase → SQL Editor first.";
     if (/401|403|jwt|policy|permission/i.test(raw) || /new row violates row-level security/i.test(raw))
-      return "RLS rejected the write — make sure you created the admin user with EXACTLY the email 'admin@majorstore.store' (the SQL policies only allow that email). Or change the email in supabase-setup.sql to match yours, then re-run it.";
+      return "RLS rejected the write — re-run supabase-setup.sql (it relaxes the policies).";
     if (/jwt expired|token.*expir/i.test(raw))
       return "Your login session expired — click logout and log in again.";
     if (/401/i.test(raw))
@@ -26,6 +28,31 @@
     if (/fetch|network|failed/i.test(raw))
       return "Network problem — check your internet connection.";
     return raw || "unknown error";
+  }
+  /* فحص سريع: هل الجداول موجودة في Supabase؟ */
+  async function checkTablesExist() {
+    if (!window.MajorCloud) return { ok: false, reason: "no cloud client" };
+    var exists = {};
+    for (var k of ["store_data","orders","messages"]) {
+      try {
+        var r = await request("/"+k+"?select=id&limit=1", { method:"GET" }, false);
+        exists[k] = true;
+      } catch (e) {
+        exists[k] = /PGRST205|Could not find the table|does not exist/.test(((e||{}).message||"")) ? false : "err:" + ((e||{}).message||"");
+      }
+    }
+    return { ok: exists.store_data === true && exists.orders === true && exists.messages === true, exists: exists };
+  }
+  function request(path, options, authenticated) {
+    options = options || {};
+    options.headers = Object.assign({ apikey: window.MajorCloud.CONFIG.anonKey, Accept:"application/json", "Content-Type":"application/json", Prefer:"return=representation" }, options.headers || {});
+    var token = authenticated && window.MajorCloud.isAdmin() ? (JSON.parse(localStorage.getItem("major_supabase_session")||"null")||{}).access_token : window.MajorCloud.CONFIG.anonKey;
+    options.headers.Authorization = "Bearer " + token;
+    return fetch(window.MajorCloud.CONFIG.url + "/rest/v1" + path, options).then(async function (r) {
+      var t = await r.text(); var d = null; try { d = t?JSON.parse(t):null } catch (e) { d = t; }
+      if (!r.ok) { var er = new Error((d && (d.message || d.msg)) || ("HTTP "+r.status)); er.status=r.status; er.payload=d; throw er; }
+      return d;
+    });
   }
   var $ = function (id) { return document.getElementById(id); };
   function all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
