@@ -93,12 +93,15 @@
 
   async function saveStore(data) {
     if (!isAdmin()) throw new Error("Admin authentication required");
-    /* upsert via POST + Prefer: resolution=merge-duplicate — creates the row if it doesn't exist */
-    return request("/store_data?id=eq.main", {
-      method: "POST",
-      headers: { Prefer: "resolution=merge-duplicate" },
-      body: JSON.stringify({ id: "main", data: data, updated_at: new Date().toISOString() })
-    }, true);
+    /* منطق مضمون يتجنب duplicate key error: تحقق أولاً ثم حدّث أو أنشئ */
+    var body = JSON.stringify({ id: "main", data: data, updated_at: new Date().toISOString() });
+    var existing = await request("/store_data?id=eq.main&select=id&limit=1", { method: "GET" }, true);
+    if (Array.isArray(existing) && existing.length > 0) {
+      /* الصف موجود: نحدّثه بدون لمس الـ PK */
+      return request("/store_data?id=eq.main", { method: "PATCH", body: body }, true);
+    }
+    /* الصف غير موجود: ننشئه أولاً */
+    return request("/store_data", { method: "POST", body: body }, true);
   }
 
   async function createOrder(order) {

@@ -17,6 +17,8 @@
   }
   function describeCloudError(err) {
     var raw = ((err && (err.message || err.hint)) || "").toString();
+    if (/duplicate key value|unique constraint.*pkey|store_data pkey/i.test(raw))
+      return "Cloud row already exists with this ID. Reloading... (this should not repeat).";
     if (/PGRST205|Could not find the table|relation.*does not exist|does not exist in schema/i.test(raw))
       return "Supabase tables don't exist yet! You must run supabase-setup.sql in Supabase → SQL Editor first.";
     if (/401|403|jwt|policy|permission/i.test(raw) || /new row violates row-level security/i.test(raw))
