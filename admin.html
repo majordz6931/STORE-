@@ -22,21 +22,21 @@
     </div>
     <div class="login-box">
       <span class="eyebrow">// authenticate</span>
-      <h2>login()</h2>
-      <p>أدخل بياناتك للوصول إلى لوحة الإدارة.</p>
+      <h2 data-i18n="admAuthTitle">login()</h2>
+      <p data-i18n="admAuthSub">أدخل بياناتك للوصول إلى لوحة الإدارة.</p>
       <form id="loginForm">
-        <label>User<input id="loginUser" required autocomplete="username" placeholder="admin or full email" /></label>
-        <label>Pass
+        <label data-i18n="admSzBrand">User<input id="loginUser" required autocomplete="username" placeholder="admin or full email" /></label>
+        <label data-i18n="admSzPhone">Pass
           <span class="pass-wrap">
             <input id="loginPass" type="password" required autocomplete="current-password" placeholder="••••••••••••••" />
             <button type="button" class="pass-toggle" id="passToggle" aria-label="Show password">👁</button>
           </span>
         </label>
-        <button class="btn primary full" type="submit">login <span>$</span></button>
+        <button class="btn primary full" type="submit" data-i18n="admPasteHere">login <span>$</span></button>
         <small id="loginError"></small>
       </form>
-      <p class="login-hint">🔒 Protected — real credentials are required.<br />No user created yet? Run <b>create-admin-user.sql</b> in Supabase → SQL Editor,<br />then log in with: <b>User:</b> admin &nbsp;·&nbsp; <b>Pass:</b> the password you set there.<br />If it says "User already registered", only the password is wrong.</p>
-      <a class="back-store" href="index.html">← back to MAJOR STORE</a>
+      <p class="login-hint" data-i18n="admAuthHint">🔒 Protected — real credentials are required.<br />No user created yet? Run <b>create-admin-user.sql</b> in Supabase → SQL Editor,<br />then log in with: <b>User:</b> admin &nbsp;·&nbsp; <b>Pass:</b> the password you set there.<br />If it says "User already registered", only the password is wrong.</p>
+      <a class="back-store" href="index.html" data-i18n="admBackStore">← back to MAJOR STORE</a>
     </div>
   </div>
 
@@ -44,51 +44,51 @@
     <aside class="sidebar" id="sidebar">
       <div class="side-brand">
         <span id="sideMark"></span>
-        <div><b>MAJOR STORE</b><small>Control Center</small></div>
+        <div><b>MAJOR STORE</b><small data-i18n="admLogoSub">Control Center</small></div>
       </div>
       <div class="side-profile">
         <div class="avatar">A</div>
-        <div><b id="profileName">admin</b><small>root access</small></div>
+        <div><b id="profileName">admin</b><small data-i18n="admRootAccess">root access</small></div>
         <i>●</i>
       </div>
       <nav class="side-nav">
-        <p>// main</p>
-        <button class="nav-item active" data-panel="overview"><span>⌂</span>overview</button>
-        <button class="nav-item" data-panel="products"><span>▦</span>Products <b id="productBadge">0</b></button>
-        <button class="nav-item" data-panel="categories"><span>◈</span>Categories</button>
-        <button class="nav-item" data-panel="coupons"><span>🎟</span>Coupons</button>
-        <button class="nav-item" data-panel="payments"><span>$</span>Payments & Crypto</button>
-        <p>// storefront</p>
-        <button class="nav-item" data-panel="homepage"><span>✦</span>Hero & Copy</button>
-        <button class="nav-item" data-panel="sections"><span>◫</span>Sections</button>
-        <button class="nav-item" data-panel="orders"><span>↗</span>Orders <b id="orderBadge">0</b></button>
-        <button class="nav-item" data-panel="messages"><span>✉</span>Messages <b id="messageBadge">0</b></button>
-        <button class="nav-item" data-panel="settings"><span>⚙</span>Settings</button>
+        <p data-i18n="admSideMain">// main</p>
+        <button class="nav-item active" data-panel="overview"><span>⌂</span><i18n data-i18n="admNavOverview">overview</i18n></button>
+        <button class="nav-item" data-panel="products"><span>▦</span><i18n data-i18n="admNavProducts">Products</i18n> <b id="productBadge">0</b></button>
+        <button class="nav-item" data-panel="categories"><span>◈</span><i18n data-i18n="admNavCategories">Categories</i18n></button>
+        <button class="nav-item" data-panel="coupons"><span>🎟</span><i18n data-i18n="admNavCoupons">Coupons</i18n></button>
+        <button class="nav-item" data-panel="payments"><span>$</span><i18n data-i18n="admNavPayments">Payments & Crypto</i18n></button>
+        <p data-i18n="admSideStorefront">// storefront</p>
+        <button class="nav-item" data-panel="homepage"><span>✦</span><i18n data-i18n="admNavHomepage">Hero & Copy</i18n></button>
+        <button class="nav-item" data-panel="sections"><span>◫</span><i18n data-i18n="admNavSections">Sections</i18n></button>
+        <button class="nav-item" data-panel="orders"><span>↗</span><i18n data-i18n="admNavOrders">Orders</i18n> <b id="orderBadge">0</b></button>
+        <button class="nav-item" data-panel="messages"><span>✉</span><i18n data-i18n="admNavMessages">Messages</i18n> <b id="messageBadge">0</b></button>
+        <button class="nav-item" data-panel="settings"><span>⚙</span><i18n data-i18n="admNavSettings">Settings</i18n></button>
       </nav>
       <div class="side-bottom">
-        <a href="index.html" target="_blank">↗ open store</a>
-        <button id="logoutBtn">⇥ logout</button>
+        <a href="index.html" target="_blank" data-i18n="admOpenStore">↗ open store</a>
+        <button id="logoutBtn" data-i18n="admLogout">⇥ logout</button>
       </div>
     </aside>
 
     <main class="admin-main">
       <nav class="admin-topnav" id="adminTopnav" aria-label="Dashboard sections">
-        <button class="tnav active" data-panel="overview">⌂ Overview</button>
-        <button class="tnav" data-panel="products">▦ Products</button>
-        <button class="tnav" data-panel="categories">◈ Categories</button>
-        <button class="tnav" data-panel="coupons">🎟 Coupons</button>
-        <button class="tnav" data-panel="payments">$ Payments</button>
-        <button class="tnav" data-panel="homepage">✦ Hero</button>
-        <button class="tnav" data-panel="sections">◫ Sections</button>
-        <button class="tnav" data-panel="orders">↗ Orders</button>
-        <button class="tnav" data-panel="messages">✉ Messages</button>
-        <button class="tnav" data-panel="settings">⚙ Settings</button>
+        <button class="tnav active" data-panel="overview" data-i18n-tnav="overview">⌂ <span data-i18n="admNavOverview">Overview</span></button>
+        <button class="tnav" data-panel="products" data-i18n-tnav="products">▦ <span data-i18n="admNavProducts">Products</span></button>
+        <button class="tnav" data-panel="categories" data-i18n-tnav="categories">◈ <span data-i18n="admNavCategories">Categories</span></button>
+        <button class="tnav" data-panel="coupons" data-i18n-tnav="coupons">🎟 <span data-i18n="admNavCoupons">Coupons</span></button>
+        <button class="tnav" data-panel="payments" data-i18n-tnav="payments">$ <span data-i18n="admNavPayments">Payments</span></button>
+        <button class="tnav" data-panel="homepage" data-i18n-tnav="homepage">✦ <span data-i18n="admNavHomepage">Hero</span></button>
+        <button class="tnav" data-panel="sections" data-i18n-tnav="sections">◫ <span data-i18n="admNavSections">Sections</span></button>
+        <button class="tnav" data-panel="orders" data-i18n-tnav="orders">↗ <span data-i18n="admNavOrders">Orders</span></button>
+        <button class="tnav" data-panel="messages" data-i18n-tnav="messages">✉ <span data-i18n="admNavMessages">Messages</span></button>
+        <button class="tnav" data-panel="settings" data-i18n-tnav="settings">⚙ <span data-i18n="admNavSettings">Settings</span></button>
       </nav>
       <header class="admin-header">
         <div>
           <button class="mobile-side" id="mobileSide">☰</button>
           <span class="eyebrow">> cd /admin/panel</span>
-          <h1 id="pageTitle">overview</h1>
+          <h1 id="pageTitle" data-i18n="admPageTitle">overview</h1>
         </div>
         <div class="admin-head-actions">
           <select class="lang-switch" id="langSwitch" aria-label="Language">
@@ -96,9 +96,9 @@
             <option value="en">EN</option>
           </select>
           <span class="last-sync">cloud sync: ready <i></i></span>
-          <button class="btn small primary" id="publishNowBtn" title="Publish products, categories, coupons and settings to Supabase so all visitors see them">↑ publish now</button>
-          <a class="view-store" href="index.html" target="_blank">live preview ↗</a>
-          <button class="btn small outline" id="topLogoutBtn">⇥ logout</button>
+          <button class="btn small primary" id="publishNowBtn" data-i18n-title="admPublishTitle" title="Publish products, categories, coupons and settings to Supabase so all visitors see them">↑ publish now</button>
+          <a class="view-store" href="index.html" target="_blank" data-i18n="admLivePreview">live preview ↗</a>
+          <button class="btn small outline" id="topLogoutBtn" data-i18n="admLogout">⇥ logout</button>
         </div>
       </header>
 
@@ -106,33 +106,33 @@
         <section class="admin-panel active" id="panel-overview">
           <div class="welcome-card">
             <div>
-              <span class="eyebrow cyan">// hello admin</span>
-              <h2>Welcome back, <em>root</em></h2>
-              <p>إليك ملخص سريع لعمليات MAJOR STORE اليوم.</p>
+              <span class="eyebrow cyan" data-i18n="admHello">// hello admin</span>
+              <h2 data-i18n="admWelcomeTitle">Welcome back, <em>root</em></h2>
+              <p data-i18n="admWelcomeSub">إليك ملخص سريع لعمليات MAJOR STORE اليوم.</p>
             </div>
             <div class="welcome-art">_<span>$</span></div>
           </div>
           <div class="metric-grid">
-            <article><span class="metric-icon cyan">▦</span><small>Products</small><strong id="metricProducts">0</strong><b>active</b></article>
-            <article><span class="metric-icon green">↗</span><small>Orders</small><strong id="metricOrders">0</strong><b>total</b></article>
-            <article><span class="metric-icon orange">◷</span><small>Pending</small><strong id="metricPending">0</strong><b>needs action</b></article>
-            <article><span class="metric-icon purple">$</span><small>Revenue</small><strong id="metricRevenue">$0.00</strong><b>in USD</b></article>
+            <article><span class="metric-icon cyan">▦</span><small data-i18n="admMetricProducts">Products</small><strong id="metricProducts">0</strong><b data-i18n="admMetricActive">active</b></article>
+            <article><span class="metric-icon green">↗</span><small data-i18n="admMetricOrders">Orders</small><strong id="metricOrders">0</strong><b data-i18n="admMetricTotal">total</b></article>
+            <article><span class="metric-icon orange">◷</span><small data-i18n="admMetricPending">Pending</small><strong id="metricPending">0</strong><b data-i18n="admMetricAction">needs action</b></article>
+            <article><span class="metric-icon purple">$</span><small data-i18n="admMetricRevenue">Revenue</small><strong id="metricRevenue">$0.00</strong><b data-i18n="admMetricUSD">in USD</b></article>
           </div>
           <div class="overview-grid">
             <div class="panel-card">
               <div class="card-title">
-                <div><span class="eyebrow cyan">// recent activity</span><h3>Recent orders</h3></div>
-                <button class="link-btn" data-go="orders">view all →</button>
+                <div><span class="eyebrow cyan" data-i18n="admRecent">// recent activity</span><h3 data-i18n="admRecentOrders">Recent orders</h3></div>
+                <button class="link-btn" data-go="orders" data-i18n="admViewAll">view all →</button>
               </div>
               <div class="mini-orders" id="miniOrders"></div>
             </div>
             <div class="panel-card quick-actions">
               <div class="card-title">
-                <div><span class="eyebrow cyan">// quick actions</span><h3>what now?</h3></div>
+                <div><span class="eyebrow cyan" data-i18n="admQuickActions">// quick actions</span><h3 data-i18n="admQuickHeader">what now?</h3></div>
               </div>
-              <button data-go="products"><span>＋</span><div><b>add product</b><small>add new product to the storefront</small></div><i>⟩⟩</i></button>
-              <button data-go="payments"><span>$</span><div><b>payment methods</b><small>tweak crypto & fiat methods</small></div><i>⟩⟩</i></button>
-              <button data-go="settings"><span>⚙</span><div><b>settings</b><small>identity & contact details</small></div><i>⟩⟩</i></button>
+              <button data-go="products"><span>＋</span><div><b data-i18n="admQAAddProduct">add product</b><small data-i18n="admQAAddProductSub">add new product to the storefront</small></div><i>⟩⟩</i></button>
+              <button data-go="payments"><span>$</span><div><b data-i18n="admQAPayments">payment methods</b><small data-i18n="admQAPaymentsSub">tweak crypto & fiat methods</small></div><i>⟩⟩</i></button>
+              <button data-go="settings"><span>⚙</span><div><b data-i18n="admQASettings">settings</b><small data-i18n="admQASettingsSub">identity & contact details</small></div><i>⟩⟩</i></button>
             </div>
           </div>
         </section>
@@ -144,10 +144,10 @@
               <h2>Products</h2>
               <p>Add, edit, delete or toggle products. Prices in USD.</p>
             </div>
-            <button class="btn primary" id="newProductBtn">＋ new product</button>
+            <button class="btn primary" id="newProductBtn" data-i18n="admNewProduct">＋ new product</button>
           </div>
           <div class="toolbar">
-            <div class="admin-search">grep<input id="adminProductSearch" placeholder="search products..." /></div>
+            <div class="admin-search">grep<input id="adminProductSearch" data-i18n-ph="admSearchProducts" placeholder="search products..." /></div>
             <select id="adminProductSort">
               <option value="new">newest first</option>
               <option value="low">price ↑</option>
@@ -167,22 +167,22 @@
           </div>
           <div class="category-admin-layout">
             <div class="panel-card">
-              <div class="card-title"><h3>current categories</h3><span class="count" id="categoryCount">0</span></div>
+              <div class="card-title"><h3 data-i18n="admCurrentCats">current categories</h3><span class="count" id="categoryCount">0</span></div>
               <div id="adminCategoriesList"></div>
             </div>
             <div class="panel-card">
-              <div class="card-title"><h3>add new category</h3></div>
+              <div class="card-title"><h3 data-i18n="admAddNewCat">add new category</h3></div>
               <form id="categoryForm" class="admin-form">
-                <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+                <div class="bi-head" data-i18n="admCatUiHead"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
                 <div class="bi">
-                  <label>name<input id="categoryNameAR" dir="rtl" required placeholder="اختبار تطبيقات الويب" /></label>
-                  <label>name<input id="categoryNameEN" required placeholder="Web pentesting" /></label>
+                  <label data-i18n="admPdtName">name<input id="categoryNameAR" dir="rtl" required placeholder="اختبار تطبيقات الويب" /></label>
+                  <label data-i18n="admPdtName">name<input id="categoryNameEN" required placeholder="Web pentesting" /></label>
                 </div>
                 <div class="two-fields">
-                  <label>icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
-                  <label>color<input id="categoryColor" type="color" value="#0d2235" /></label>
+                  <label data-i18n="admIconLabel">icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
+                  <label data-i18n="admColorLabel">color<input id="categoryColor" type="color" value="#0d2235" /></label>
                 </div>
-                <button class="btn primary full">add category</button>
+                <button class="btn primary full" data-i18n="admAddCategoryBtn">add category</button>
               </form>
             </div>
           </div>
@@ -197,19 +197,19 @@
             </div>
           </div>
           <div class="panel-card">
-            <div class="card-title"><h3>add coupon</h3></div>
+            <div class="card-title"><h3 data-i18n="admAddCoupon">add coupon</h3></div>
             <form id="couponForm" class="admin-form">
               <div class="three-fields">
-                <label>code<input id="couponCode" placeholder="MAJOR15" required /></label>
-                <label>type<select id="couponType"><option value="percent">percent %</option><option value="fixed">fixed $</option></select></label>
-                <label>value<input id="couponValue" type="number" min="0" step="0.01" required /></label>
+                <label data-i18n="admCouponCode">code<input id="couponCode" placeholder="MAJOR15" required /></label>
+                <label data-i18n="admCouponType">type<select id="couponType"><option value="percent" data-i18n="admCouponPct">percent %</option><option value="fixed" data-i18n="admCouponFixed">fixed $</option></select></label>
+                <label data-i18n="admCouponValue">value<input id="couponValue" type="number" min="0" step="0.01" required /></label>
               </div>
-              <label class="switch-line"><input id="couponActive" type="checkbox" checked /><span></span>active</label>
-              <button class="btn primary" type="submit">add coupon</button>
+              <label class="switch-line"><input id="couponActive" type="checkbox" checked /><span></span><i18n data-i18n="admCouponActive">active</i18n></label>
+              <button class="btn primary" type="submit" data-i18n="admAddCouponBtn">add coupon</button>
             </form>
           </div>
           <div class="panel-card">
-            <div class="card-title"><h3>current coupons</h3><span class="count" id="couponCount">0</span></div>
+            <div class="card-title"><h3 data-i18n="admCurrentCoupons">current coupons</h3><span class="count" id="couponCount">0</span></div>
             <div class="coupon-list" id="couponList"></div>
           </div>
         </section>
@@ -225,21 +225,21 @@
           </div>
           <div class="panel-card">
             <form id="paymentForm" class="admin-form">
-              <label>Payment methods (one per line)<small style="color:var(--muted);margin-top:4px">Include Crypto, FIAT, E-Wallets. Examples: "Bitcoin (BTC)", "USDT (BEP20)", "PayPal"</small>
+              <label data-i18n="admPayMethodsLabel">Payment methods (one per line)<small style="color:var(--muted);margin-top:4px" data-i18n="admPayMethodsHint">Include Crypto, FIAT, E-Wallets. Examples: "Bitcoin (BTC)", "USDT (BEP20)", "PayPal"</small>
                 <textarea id="paymentMethods" rows="8" placeholder="Bitcoin (BTC)&#10;USDT (BEP20)&#10;PayPal"></textarea>
               </label>
-              <button class="btn primary full" type="submit">save payment methods</button>
+              <button class="btn primary full" type="submit" data-i18n="admSavePays">save payment methods</button>
             </form>
           </div>
           <div class="panel-card crypto-config-card">
             <div class="card-title">
-              <div><span class="eyebrow cyan">// crypto details</span><h3>Crypto networks & QR codes</h3></div>
+              <div><span class="eyebrow cyan" data-i18n="admCryptoD">// crypto details</span><h3 data-i18n="admCryptoH">Crypto networks & QR codes</h3></div>
               <span class="save-state" id="cryptoSaved"></span>
             </div>
-            <p class="muted-note">For each crypto method, add one or more networks (e.g. BSC — BNB Smart Chain (BEP20)), a wallet address and an optional QR image. The customer picks the network at checkout.</p>
+            <p class="muted-note" data-i18n="admCryptoP">For each crypto method, add one or more networks (e.g. BSC — BNB Smart Chain (BEP20)), a wallet address and an optional QR image. The customer picks the network at checkout.</p>
             <div id="cryptoConfigWrap"></div>
-            <button class="btn primary" id="cryptoSaveBtn">save crypto settings</button>
-            <button class="btn outline" id="cryptoAddMethod">＋ add config for a method</button>
+            <button class="btn primary" id="cryptoSaveBtn" data-i18n="admSaveCrypto">save crypto settings</button>
+            <button class="btn outline" id="cryptoAddMethod" data-i18n="admAddCryptoCfg">＋ add config for a method</button>
           </div>
         </section>
 
@@ -254,8 +254,8 @@
           </div>
           <form id="homepageForm" class="admin-form">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>Hero & homepage copy — AR / EN</h3></div>
-              <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+              <div class="card-title"><h3 data-i18n="admTitleArEn">Hero & homepage copy — AR / EN</h3></div>
+              <div class="bi-head" data-i18n="admCatUiHead"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
               <div class="bi">
                 <label>badge<input id="homeBadge" dir="rtl" /></label>
                 <label>badge<input id="homeBadgeEn" /></label>
@@ -276,7 +276,7 @@
                 <label>secondary<input id="homeSecondary" dir="rtl" /></label>
                 <label>secondary<input id="homeSecondaryEn" /></label>
               </div>
-              <button class="btn primary full" type="submit">save changes</button>
+              <button class="btn primary full" type="submit" data-i18n="admSaveHome">save changes</button>
             </div>
           </form>
         </section>
@@ -292,26 +292,26 @@
           </div>
           <form id="sectionsForm" class="admin-form">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>show / hide sections</h3></div>
+              <div class="card-title"><h3 data-i18n="admShowHide">show / hide sections</h3></div>
               <div class="section-toggles" id="sectionToggles"></div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>hero bullets (4)</h3></div>
+              <div class="card-title"><h3 data-i18n="admHeroBullets">hero bullets (4)</h3></div>
               <div id="bulletsFields" class="tri-stack"></div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>features (4 cards)</h3></div>
+              <div class="card-title"><h3 data-i18n="admFeatSection">features (4 cards)</h3></div>
               <div id="featuresFields"></div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>about section</h3></div>
+              <div class="card-title"><h3 data-i18n="admAboutSection">about section</h3></div>
               <div id="aboutFields"></div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>hero stats (3)</h3></div>
+              <div class="card-title"><h3 data-i18n="admHeroStats">hero stats (3)</h3></div>
               <div id="statsFields"></div>
             </div>
-            <button class="btn primary" type="submit">save sections</button>
+            <button class="btn primary" type="submit" data-i18n="admSaveSections">save sections</button>
           </form>
         </section>
 
@@ -322,14 +322,14 @@
               <h2>Orders</h2>
               <p>Review customer orders and update their status.</p>
             </div>
-            <button class="btn outline" id="clearOrdersBtn">clear all</button>
+            <button class="btn outline" id="clearOrdersBtn" data-i18n="admClearOrders">clear all</button>
           </div>
           <div class="orders-table-wrap">
             <table class="orders-table">
-              <thead><tr><th>order</th><th>client</th><th>address</th><th>total</th><th>payment</th><th>status</th><th></th></tr></thead>
+              <thead><tr><th data-i18n="admThOrder">order</th><th data-i18n="admThClient">client</th><th data-i18n="admThAddress">address</th><th data-i18n="admThTotal">total</th><th data-i18n="admThPayment">payment</th><th data-i18n="admThStatus">status</th><th></th></tr></thead>
               <tbody id="ordersTable"></tbody>
             </table>
-            <div class="table-empty" id="ordersEmpty">no orders yet.</div>
+            <div class="table-empty" id="ordersEmpty" data-i18n="admNoOrdersTab">no orders yet.</div>
           </div>
         </section>
 
@@ -342,7 +342,7 @@
             </div>
           </div>
           <div class="messages-list" id="messagesList"></div>
-          <div class="table-empty" id="messagesEmpty">no messages yet.</div>
+          <div class="table-empty" id="messagesEmpty" data-i18n="admNoMessages">no messages yet.</div>
         </section>
 
         <section class="admin-panel" id="panel-settings">
@@ -356,39 +356,39 @@
           </div>
           <form id="settingsForm" class="admin-form">
             <div class="panel-card form-section">
-              <div class="card-title"><h3>identity</h3></div>
+              <div class="card-title"><h3 data-i18n="admIdentity">identity</h3></div>
               <div class="two-fields">
-                <label>brand<input id="settingBrand" required /></label>
-                <label>currency<input id="settingCurrency" value="USD — $" disabled /></label>
+                <label data-i18n="admSzBrand">brand<input id="settingBrand" required /></label>
+                <label data-i18n="admSzCurrency">currency<input id="settingCurrency" value="USD — $" disabled /></label>
               </div>
-              <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+              <div class="bi-head" data-i18n="admCatUiHead"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
               <div class="bi">
-                <label>subtitle<input id="settingSubAR" dir="rtl" /></label>
-                <label>subtitle<input id="settingSubEN" /></label>
-              </div>
-              <div class="bi">
-                <label>footer<input id="settingFooterAR" dir="rtl" /></label>
-                <label>footer<input id="settingFooterEN" /></label>
+                <label data-i18n="admSzSubAR">subtitle<input id="settingSubAR" dir="rtl" /></label>
+                <label data-i18n="admSzSubEN">subtitle<input id="settingSubEN" /></label>
               </div>
               <div class="bi">
-                <label>address<input id="settingAddrAR" dir="rtl" /></label>
-                <label>address<input id="settingAddrEN" /></label>
+                <label data-i18n="admSzFooterAR">footer<input id="settingFooterAR" dir="rtl" /></label>
+                <label data-i18n="admSzFooterEN">footer<input id="settingFooterEN" /></label>
+              </div>
+              <div class="bi">
+                <label data-i18n="admSzAddrAR">address<input id="settingAddrAR" dir="rtl" /></label>
+                <label data-i18n="admSzAddrEN">address<input id="settingAddrEN" /></label>
               </div>
             </div>
             <div class="panel-card form-section">
-              <div class="card-title"><h3>contact</h3></div>
-              <label>phone<input id="settingPhone" /></label>
+              <div class="card-title"><h3 data-i18n="admContact">contact</h3></div>
+              <label data-i18n="admSzPhone">phone<input id="settingPhone" /></label>
               <div class="two-fields">
-                <label>whatsapp<input id="settingWhatsapp" /></label>
-                <label>email<input id="settingEmail" type="email" /></label>
+                <label data-i18n="admSzWhatsapp">whatsapp<input id="settingWhatsapp" /></label>
+                <label data-i18n="admSzEmail">email<input id="settingEmail" type="email" /></label>
               </div>
-              <label>discord link<input id="settingDiscord" type="url" /></label>
-              <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span>enable announcement bar</label>
+              <label data-i18n="admSzDiscord">discord link<input id="settingDiscord" type="url" /></label>
+              <label class="switch-line"><input id="settingAnnouncementEnabled" type="checkbox" /><span></span><i18n data-i18n="admSzAnnEnabled">enable announcement bar</i18n></label>
               <div class="bi bi-text">
-                <label>announcement (AR)<textarea id="settingAnnouncementAR" rows="2" dir="rtl"></textarea></label>
-                <label>announcement (EN)<textarea id="settingAnnouncementEN" rows="2"></textarea></label>
+                <label data-i18n="admSzAnnAR">announcement (AR)<textarea id="settingAnnouncementAR" rows="2" dir="rtl"></textarea></label>
+                <label data-i18n="admSzAnnEN">announcement (EN)<textarea id="settingAnnouncementEN" rows="2"></textarea></label>
               </div>
-              <button class="btn primary full" type="submit">save settings</button>
+              <button class="btn primary full" type="submit" data-i18n="admSaveSettings">save settings</button>
             </div>
           </form>
         </section>
@@ -403,42 +403,42 @@
       <div class="editor-head">
         <div>
           <span class="eyebrow cyan">// catalog</span>
-          <h2 id="editorTitle">new product</h2>
+          <h2 id="editorTitle" data-i18n="admChTitle">new product</h2>
         </div>
         <button class="close-editor" data-close-editor>×</button>
       </div>
       <form id="productForm" class="admin-form">
         <input id="productId" type="hidden" />
-        <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
+        <div class="bi-head" data-i18n="admCatUiHead"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
         <div class="bi">
-          <label>name<input id="productNameAR" dir="rtl" required /></label>
-          <label>name<input id="productNameEN" required /></label>
+          <label data-i18n="admPdtName">name<input id="productNameAR" dir="rtl" required /></label>
+          <label data-i18n="admPdtName">name<input id="productNameEN" required /></label>
         </div>
         <div class="bi">
-          <label>tagline<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
-          <label>tagline<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
+          <label data-i18n="admPdtTagline">tagline<input id="productSpecsAR" dir="rtl" placeholder="600+ أداة مثبتة" /></label>
+          <label data-i18n="admPdtTagline">tagline<input id="productSpecsEN" placeholder="600+ tools pre-installed" /></label>
         </div>
         <div class="three-fields">
-          <label>category<select id="productCategory"></select></label>
-          <label>price USD<input id="productPrice" type="number" min="0" step="0.01" required /></label>
-          <label>old price<input id="productOldPrice" type="number" min="0" step="0.01" /></label>
+          <label data-i18n="admPdtCategory">category<select id="productCategory"></select></label>
+          <label data-i18n="admPdtPrice">price USD<input id="productPrice" type="number" min="0" step="0.01" required /></label>
+          <label data-i18n="admPdtOldPrice">old price<input id="productOldPrice" type="number" min="0" step="0.01" /></label>
         </div>
         <div class="three-fields">
-          <label>stock<input id="productStock" type="number" min="0" value="10" /></label>
-          <label>icon<input id="productIcon" value="✦" maxlength="3" /></label>
-          <label>color<input id="productColor" type="color" value="#0d2235" /></label>
+          <label data-i18n="admPdtStock">stock<input id="productStock" type="number" min="0" value="10" /></label>
+          <label data-i18n="admPdtIcon">icon<input id="productIcon" value="✦" maxlength="3" /></label>
+          <label data-i18n="admPdtColor">color<input id="productColor" type="color" value="#0d2235" /></label>
         </div>
         <div class="bi">
-          <label>badge<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
-          <label>badge<input id="productBadgeEN" placeholder="Best seller" /></label>
+          <label data-i18n="admEditorBadgeAR">badge<input id="productBadgeAR" dir="rtl" placeholder="الأكثر مبيعاً" /></label>
+          <label data-i18n="admEditorBadgeEN">badge<input id="productBadgeEN" placeholder="Best seller" /></label>
         </div>
         <div class="bi bi-text">
-          <label>description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
-          <label>description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
+          <label data-i18n="admPdtDesc">description (AR)<textarea id="productDescriptionAR" rows="3" dir="rtl" required></textarea></label>
+          <label data-i18n="admPdtDesc">description (EN)<textarea id="productDescriptionEN" rows="3" required></textarea></label>
         </div>
-        <label>image url (optional)<input id="productImage" type="url" placeholder="https://..." /></label>
-        <button class="btn primary full" type="submit">save product</button>
-        <button class="btn ghost full" type="button" data-close-editor>cancel</button>
+        <label data-i18n="admEditorImageUrl">image url (optional)<input id="productImage" type="url" placeholder="https://..." /></label>
+        <button class="btn primary full" type="submit" data-i18n="admSaveProduct">save product</button>
+        <button class="btn ghost full" type="button" data-close-editor data-i18n="admCancel">cancel</button>
       </form>
     </div>
   </div>

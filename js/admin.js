@@ -8,11 +8,11 @@
   function updateCloudBadge() {
     var el = document.querySelector(".last-sync");
     if (!el) return;
-    if (!window.MajorCloud || !MajorCloud.isAdmin()) { el.innerHTML = "local only <i style='background:var(--muted);box-shadow:none'></i>"; return; }
-    if (cloudStatus.state === "saving") el.innerHTML = "syncing… <i style='background:var(--orange);box-shadow:0 0 8px var(--orange)'></i>";
-    else if (cloudStatus.state === "error") el.innerHTML = "sync failed <i style='background:var(--red);box-shadow:0 0 8px var(--red)'></i> — hover for details";
-    else if (cloudStatus.lastOk) el.innerHTML = "cloud sync: online · " + cloudStatus.lastCount + " products <i></i>";
-    else el.innerHTML = "cloud sync: ready <i style='background:var(--cyan);box-shadow:0 0 8px var(--cyan)'></i>";
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) { el.innerHTML = T("admCloudLocal") + " <i style='background:var(--muted);box-shadow:none'></i>"; return; }
+    if (cloudStatus.state === "saving") el.innerHTML = T("admCloudSyncing") + " <i style='background:var(--orange);box-shadow:0 0 8px var(--orange)'></i>";
+    else if (cloudStatus.state === "error") el.innerHTML = T("admToastSyncErr") + " <i style='background:var(--red);box-shadow:0 0 8px var(--red)'></i> — hover for details";
+    else if (cloudStatus.lastOk) el.innerHTML = T("admCloudOnline") + " · " + cloudStatus.lastCount + " " + T("admNavProducts") + " <i></i>";
+    else el.innerHTML = T("admCloudReady") + " <i style='background:var(--cyan);box-shadow:0 0 8px var(--cyan)'></i>";
     if (cloudStatus.state === "error" && cloudStatus.lastErr) el.title = cloudStatus.lastErr;
   }
   function describeCloudError(err) {
@@ -59,6 +59,39 @@
   var $ = function (id) { return document.getElementById(id); };
   function all(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m]; }); }
+  /* ===== i18n: ترجمة كل نصوص لوحة التحكم ===== */
+  function T(key) { return ElectroDB.t(key); }
+  function applyAdminI18n() {
+    all("[data-i18n]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n"); if (!k) return;
+      var v = T(k); if (v != null) {
+        if (el.tagName === "I18n" && el.parentNode) {
+          var c = el.parentNode.firstChild; if (c) c.nodeValue = v + " ";
+        } else el.textContent = v;
+      }
+    });
+    all("[data-i18n-ph]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n-ph"); if (!k) return;
+      var v = T(k); if (v != null) el.setAttribute("placeholder", v);
+    });
+    all("[data-i18n-title]").forEach(function (el) {
+      var k = el.getAttribute("data-i18n-title"); if (!k) return;
+      var v = T(k); if (v != null) el.setAttribute("title", v);
+    });
+    var ls = $("langSwitch"); if (ls && ls.value !== ElectroDB.getLang()) ls.value = ElectroDB.getLang();
+  }
+  function statusLabel(status) {
+    var orderMap = { pending: "admStatusPending", confirmed: "admStatusConfirmed", shipped: "admStatusShipped", done: "admStatusDelivered", cancelled: "admStatusCancelled" };
+    var k = orderMap[status];
+    if (!k) return status;
+    var v = T(k);
+    return (v && v !== k) ? v : status;
+  }
+  function orderStatusOptions(current) {
+    return ["pending","confirmed","shipped","done","cancelled"].map(function (s) {
+      return "<option value='" + esc(s) + "' " + (current === s ? "selected" : "") + ">" + esc(statusLabel(s)) + "</option>";
+    }).join("");
+  }
   function money(n) { return ElectroDB.formatMoney(n); }
   function save() {
     ElectroDB.save(db);
@@ -75,13 +108,13 @@
       cloudStatus.lastOk = Date.now();
       cloudStatus.lastCount = payload.products.length;
       updateCloudBadge();
-      toast("✓ published to cloud (" + payload.products.length + " products, " + payload.categories.length + " categories)");
+      toast("✓ " + T("admToastSyncOk").replace("{n}", payload.products.length).replace("{c}", payload.categories.length));
       try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
     }).catch(function (e) {
       cloudStatus.state = "error";
       cloudStatus.lastErr = describeCloudError(e);
       updateCloudBadge();
-      toast("✗ cloud sync FAILED: " + cloudStatus.lastErr, true);
+      toast("✗ " + T("admToastSyncErr") + ": " + cloudStatus.lastErr, true);
       console.error("[MAJOR STORE cloud sync error]", e);
     });
   }
@@ -117,15 +150,16 @@
       var when = "";
       try { when = new Date(m.created_at).toLocaleString(); } catch (e) { when = m.created_at || ""; }
       var st = m.status || "new";
-      var replyBlock = m.reply ? "<div class='msg-reply-done'><b>↩ reply</b><p>" + esc(m.reply) + "</p></div>" : "";
+      var replyBlock = m.reply ? "<div class='msg-reply-done'><b>" + esc(T("admReply")) + "</b><p>" + esc(m.reply) + "</p></div>" : "";
+      var stLabel = statusLabel(st);
       return "<article class='message-card " + esc(st) + "'>" +
         "<header><span class='msg-avatar'>" + esc(String(m.visitor_name || "?").charAt(0).toUpperCase()) + "</span>" +
         "<div class='msg-who'><b>" + esc(m.visitor_name) + "</b><small>" + esc(m.visitor_email || "—") + " · " + esc(when) + "</small></div>" +
-        "<span class='msg-status " + esc(st) + "'>" + esc(st) + "</span></header>" +
+        "<span class='msg-status " + esc(st) + "'>" + esc(stLabel) + "</span></header>" +
         "<p class='msg-text'>" + esc(m.message) + "</p>" + replyBlock +
-        "<div class='msg-actions'><input data-msg-input='" + esc(m.id) + "' placeholder='write reply...' value='" + (m.reply ? esc(m.reply) : "") + "' />" +
-        "<button class='btn small primary' data-msg-send='" + esc(m.id) + "'>reply ⇥</button>" +
-        "<button class='btn small outline' data-msg-done='" + esc(m.id) + "'>done</button>" +
+        "<div class='msg-actions'><input data-msg-input='" + esc(m.id) + "' placeholder='" + esc(T("admWriteReply")) + "' value='" + (m.reply ? esc(m.reply) : "") + "' />" +
+        "<button class='btn small primary' data-msg-send='" + esc(m.id) + "'>" + esc(T("admReplyBtn")) + " ⇥</button>" +
+        "<button class='btn small outline' data-msg-done='" + esc(m.id) + "'>" + esc(T("admDone")) + "</button>" +
         "<button class='icon-danger' data-msg-delete='" + esc(m.id) + "'>×</button></div>" +
       "</article>";
     }).join("");
@@ -135,12 +169,12 @@
     var input = document.querySelector("[data-msg-input='" + id + "']");
     var v = input ? input.value.trim() : "";
     MajorCloud.updateMessage(id, { reply: v, status: "replied", replied_at: new Date().toISOString() })
-      .then(syncMessages).catch(function () { toast("reply failed", true); });
+      .then(syncMessages).catch(function () { toast(T("admReplyFailed"), true); });
   }
   function markMessageDone(id) {
     if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
     MajorCloud.updateMessage(id, { status: "done" })
-      .then(syncMessages).catch(function () { toast("update failed", true); });
+      .then(syncMessages).catch(function () { toast(T("admUpdateFailed"), true); });
   }
   function toast(msg, bad) {
     var e = $("adminToast"); e.textContent = msg; e.className = "toast show" + (bad ? " bad" : "");
@@ -161,7 +195,7 @@
     $("productBadge").textContent = db.products.length;
     $("orderBadge").textContent = orders.filter(function (x) { return (x.status || "pending") === "pending"; }).length;
     var mini = $("miniOrders");
-    if (!orders.length) { mini.innerHTML = "<div class='empty-admin'>// no orders yet<br /><small>you'll see orders here as they arrive.</small></div>"; return; }
+    if (!orders.length) { mini.innerHTML = "<div class='empty-admin'>// " + esc(T("admNoOrders")) + "</div>"; return; }
     mini.innerHTML = orders.slice(0, 5).map(function (o) {
       var initials = String(o.name || "?").trim().split(/\s+/).slice(0, 2).map(function (x) { return x.charAt(0); }).join("").toUpperCase() || "?";
       return "<div class='mini-order'><span class='order-avatar'>" + esc(initials) + "</span><div><b>" + esc(o.name) + "</b><small>" + esc(o.id) + " · " + esc(o.date) + "</small></div><strong>" + money(o.total) + "</strong></div>";
@@ -195,7 +229,7 @@
     $("adminCategoriesList").innerHTML = db.categories.map(function (c) {
       var count = db.products.filter(function (p) { return p.category === c.id; }).length;
       var label = ElectroDB.localize(c.name);
-      return "<div class='admin-category'><span class='cat-swatch' style='background:" + esc(c.color) + "'>" + esc(c.icon) + "</span><div><b>" + esc(label) + "</b><small>" + count + " منتج</small></div><button data-delete-category='" + esc(c.id) + "'>×</button></div>";
+      return "<div class='admin-category'><span class='cat-swatch' style='background:" + esc(c.color) + "'>" + esc(c.icon) + "</span><div><b>" + esc(label) + "</b><small>" + count + " " + T("admNavProducts") + "</small></div><button data-delete-category='" + esc(c.id) + "'>×</button></div>";
     }).join("");
   }
   function renderHomepage() {
@@ -296,9 +330,11 @@
     rows.innerHTML = db.orders.map(function (o) {
       var items = (o.items || []).map(function (x) { return esc(ElectroDB.localize(x.name)) + " ×" + x.qty; }).join("<br />");
       var status = o.status || "pending";
-      var couponTag = o.coupon ? "<small style='color:var(--cyan)'>coupon: " + esc(o.coupon) + "</small>" : "";
+      var couponTag = o.coupon ? "<small style='color:var(--cyan)'>" + esc(T("admPcHash")) + esc(o.coupon) + "</small>" : "";
+      var noteTag = o.note ? "<small style='color:var(--ink-mid)'>" + esc(T("admPcNote")) + esc(o.note) + "</small>" : "";
+      var fromTag = o.coupon ? "<small style='color:var(--cyan)'>" + esc(T("admPcFrom1")) + money(o.subtotal || 0) + "</small>" : "";
       var payCell = esc(o.payment) + (((o.cryptoNetwork || o.crypto_network)) ? "<small style='color:var(--purple)'>" + esc(o.cryptoNetwork || o.crypto_network) + "</small>" : "");
-      return "<tr><td><b>" + esc(o.id) + "</b><small>" + esc(o.date) + "</small></td><td><b>" + esc(o.name) + "</b><small>" + esc(o.phone) + "</small>" + (o.email ? "<small>" + esc(o.email) + "</small>" : "") + "</td><td>" + esc(o.address) + couponTag + (o.note ? "<small style='color:var(--ink-mid)'>note: " + esc(o.note) + "</small>" : "") + "</td><td><b>" + money(o.total) + "</b>" + (o.coupon ? "<small style='color:var(--cyan)'>from " + money(o.subtotal || 0) + "</small>" : "") + "<small>" + items + "</small></td><td>" + payCell + "</td><td><select class='status-select status-" + esc(status) + "' data-order-status='" + esc(o.id) + "'><option value='pending' " + (status === "pending" ? "selected" : "") + ">pending</option><option value='confirmed' " + (status === "confirmed" ? "selected" : "") + ">confirmed</option><option value='shipped' " + (status === "shipped" ? "selected" : "") + ">shipped</option><option value='done' " + (status === "done" ? "selected" : "") + ">delivered</option><option value='cancelled' " + (status === "cancelled" ? "selected" : "") + ">cancelled</option></select></td><td><button class='icon-danger' data-delete-order='" + esc(o.id) + "'>×</button></td></tr>";
+      return "<tr><td><b>" + esc(o.id) + "</b><small>" + esc(o.date) + "</small></td><td><b>" + esc(o.name) + "</b><small>" + esc(o.phone) + "</small>" + (o.email ? "<small>" + esc(o.email) + "</small>" : "") + "</td><td>" + esc(o.address) + couponTag + noteTag + "</td><td><b>" + money(o.total) + "</b>" + fromTag + "<small>" + items + "</small></td><td>" + payCell + "</td><td><select class='status-select status-" + esc(status) + "' data-order-status='" + esc(o.id) + "'>" + orderStatusOptions(status) + "</select></td><td><button class='icon-danger' data-delete-order='" + esc(o.id) + "'>×</button></td></tr>";
     }).join("");
   }
 
@@ -307,12 +343,13 @@
     renderBrand(); renderOverview(); renderProducts(); renderCategories();
     renderHomepage(); renderSettings(); renderPayments(); renderOrders();
     renderCoupons(); renderSectionsForm(); renderCryptoConfig();
+    applyAdminI18n();
     syncCloudOrders(); syncMessages();
   }
 
   function openEditor(id) {
     editingId = id || null; var p = id ? db.products.find(function (x) { return x.id === id; }) : null;
-    $("editorTitle").textContent = p ? "edit product" : "new product";
+    $("editorTitle").textContent = p ? T("admChTitleEdit") : T("admChTitle");
     $("productId").value = p ? p.id : "";
     $("productNameAR").value = p && p.name ? (p.name.ar || "") : "";
     $("productNameEN").value = p && p.name ? (p.name.en || "") : "";
@@ -337,7 +374,8 @@
     all(".tnav").forEach(function (x) { x.classList.toggle("active", x.getAttribute("data-panel") === name); });
     all(".admin-panel").forEach(function (x) { x.classList.toggle("active", x.id === "panel-" + name); });
     var nav = document.querySelector("[data-panel='" + name + "']");
-    $("pageTitle").textContent = nav ? nav.textContent.replace(/\d+/g, "").trim() : "panel";
+    var navKey = name ? ("admNav" + name.charAt(0).toUpperCase() + name.slice(1)) : null;
+    $("pageTitle").textContent = (navKey && T(navKey)) ? T(navKey) : (nav ? nav.textContent.replace(/\d+/g, "").trim() : "panel");
     if (window.innerWidth < 1000) $("dashboard").classList.remove("side-open");
   }
   function bind() {
@@ -413,8 +451,8 @@
       var price = Number(($("productPrice").value || "0").replace(",", "."));
       var oldp = Number(($("productOldPrice").value || "0").replace(",", ".")) || 0;
       var stock = Number($("productStock").value) || 0;
-      if (!price || price < 0) return toast("complete price (USD)", true);
-      if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast("complete name", true);
+      if (!price || price < 0) return toast(T("admPriceRequired"), true);
+      if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast(T("admNameRequired"), true);
       var arName = $("productNameAR").value.trim(), enName = $("productNameEN").value.trim() || arName;
       var arDesc = $("productDescriptionAR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
       var data = {
@@ -436,7 +474,7 @@
       var idx = db.products.findIndex(function (p) { return p.id === data.id; });
       if (idx >= 0) db.products[idx] = data; else db.products.unshift(data);
       save(); closeEditor(); renderAll();
-      toast(idx >= 0 ? "✓ product updated ($" + price.toFixed(2) + ")" : "✓ product added");
+      toast(idx >= 0 ? (T("admProductUpdated") + price.toFixed(2) + ")") : T("admProductAdded"));
     };
 
     document.addEventListener("click", function (e) {
@@ -446,12 +484,12 @@
       if (md) { markMessageDone(md.getAttribute("data-msg-done")); return; }
       var mdel = e.target.closest("[data-msg-delete]");
       if (mdel && confirm("delete message?")) {
-        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteMessage(mdel.getAttribute("data-msg-delete")).then(syncMessages).catch(function () { toast("delete failed", true); });
+        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteMessage(mdel.getAttribute("data-msg-delete")).then(syncMessages).catch(function () { toast(T("admDeleteFailed"), true); });
         return;
       }
       var dcoup = e.target.closest("[data-delete-coupon]");
-      if (dcoup && confirm("delete coupon?")) {
-        db.coupons.splice(Number(dcoup.getAttribute("data-delete-coupon")), 1); save(); renderAll(); toast("✓ coupon deleted");
+      if (dcoup && confirm(T("admCouponDel").replace("✓ ",""))) {
+        db.coupons.splice(Number(dcoup.getAttribute("data-delete-coupon")), 1); save(); renderAll(); toast(T("admCouponDel"));
         return;
       }
       var qrrem = e.target.closest("[data-crypto-qr-rem]");
@@ -477,13 +515,13 @@
       }
       var ep = e.target.closest("[data-edit-product]"); if (ep) openEditor(ep.getAttribute("data-edit-product"));
       var dp = e.target.closest("[data-delete-product]");
-      if (dp && confirm("delete product?")) { db.products = db.products.filter(function (x) { return x.id !== dp.getAttribute("data-delete-product"); }); save(); renderAll(); toast("✓ product deleted"); }
+      if (dp && confirm(T("admProductDel").replace("✓ ",""))) { db.products = db.products.filter(function (x) { return x.id !== dp.getAttribute("data-delete-product"); }); save(); renderAll(); toast(T("admProductDel")); }
       var dc = e.target.closest("[data-delete-category]");
-      if (dc && confirm("delete category?")) { db.categories = db.categories.filter(function (x) { return x.id !== dc.getAttribute("data-delete-category"); }); save(); renderAll(); toast("✓ category deleted"); }
+      if (dc && confirm(T("admCatDel").replace("✓ ",""))) { db.categories = db.categories.filter(function (x) { return x.id !== dc.getAttribute("data-delete-category"); }); save(); renderAll(); toast(T("admCatDel")); }
       var dord = e.target.closest("[data-delete-order]");
-      if (dord && confirm("delete order?")) {
+      if (dord && confirm(T("admOrderDel").replace("✓ ",""))) {
         var oid = dord.getAttribute("data-delete-order");
-        db.orders = db.orders.filter(function (x) { return x.id !== oid; }); save(); renderAll(); toast("✓ order deleted");
+        db.orders = db.orders.filter(function (x) { return x.id !== oid; }); save(); renderAll(); toast(T("admOrderDel"));
         if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteOrder(oid).catch(function () {});
       }
     });
@@ -498,7 +536,7 @@
       reader.onload = function () {
         var n = cryptoNetById(m, idx);
         n.qr = String(reader.result);
-        save(); renderCryptoConfig(); toast("✓ QR attached to " + m);
+        save(); renderCryptoConfig(); toast(T("admSaveCrypto") + " — " + m);
       };
       reader.readAsDataURL(file);
     });
@@ -506,14 +544,14 @@
     $("categoryForm").onsubmit = function (e) {
       e.preventDefault();
       var ar = $("categoryNameAR").value.trim(), en = $("categoryNameEN").value.trim();
-      if (!ar && !en) return toast("complete category name (AR)", true);
+      if (!ar && !en) return toast(T("admNameRequired"), true);
       db.categories.push({
         id: ElectroDB.uid("cat"),
         name: { ar: ar || en, en: en || ar },
         icon: $("categoryIcon").value || "✦",
         color: $("categoryColor").value
       });
-      save(); e.target.reset(); renderAll(); toast("✓ category added");
+      save(); e.target.reset(); renderAll(); toast(T("admCatAdded"));
     };
 
     $("paymentForm").onsubmit = function (e) {
@@ -521,7 +559,7 @@
       var list = ($("paymentMethods").value || "").split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
       if (!list.length) return toast("add at least one payment method", true);
       db.settings.paymentMethods = list;
-      save(); renderAll(); $("paymentsSaved").textContent = "saved"; toast("✓ " + list.length + " payment methods saved");
+      save(); renderAll(); $("paymentsSaved").textContent = T("admPaySaved"); toast(T("admPayCount").replace("{n}", list.length));
     };
 
     $("homepageForm").onsubmit = function (e) {
@@ -531,7 +569,7 @@
       db.settings.heroText = { ar: $("homeText").value, en: $("homeTextEn").value };
       db.settings.heroCta = { ar: $("homeCta").value, en: $("homeCtaEn").value };
       db.settings.heroSecondary = { ar: $("homeSecondary").value, en: $("homeSecondaryEn").value };
-      save(); renderAll(); $("homeSaved").textContent = "saved"; toast("✓ homepage copy saved (AR + EN)");
+      save(); renderAll(); $("homeSaved").textContent = T("admHomeSaved"); toast(T("admHomeSavedToast"));
     };
 
     $("settingsForm").onsubmit = function (e) {
@@ -547,18 +585,18 @@
       s.discordLink = $("settingDiscord").value;
       s.announcementEnabled = $("settingAnnouncementEnabled").checked;
       s.announcement = { ar: $("settingAnnouncementAR").value, en: $("settingAnnouncementEN").value };
-      save(); renderAll(); $("settingsSaved").textContent = "saved"; toast("✓ settings saved");
+      save(); renderAll(); $("settingsSaved").textContent = T("admSetSaved"); toast(T("admSetSaved"));
     };
 
     $("couponForm").onsubmit = function (e) {
       e.preventDefault();
       var code = $("couponCode").value.trim().toUpperCase();
       var val = Number($("couponValue").value);
-      if (!code || !val || val <= 0) return toast("complete code & value", true);
-      if ((db.coupons || []).some(function (c) { return c.code === code; })) return toast("coupon already exists", true);
+      if (!code || !val || val <= 0) return toast(T("admValidCode"), true);
+      if ((db.coupons || []).some(function (c) { return c.code === code; })) return toast(T("admExistsCode"), true);
       db.coupons = db.coupons || [];
       db.coupons.push({ code: code, type: $("couponType").value, value: val, active: $("couponActive").checked });
-      save(); e.target.reset(); renderAll(); toast("✓ coupon " + code + " added");
+      save(); e.target.reset(); renderAll(); toast(T("admCouponAdded").replace("{code}", code));
     };
     $("sectionsForm").onsubmit = function (e) {
       e.preventDefault();
@@ -585,7 +623,7 @@
           en: { value: val, label: qval("stat", "en", i) }
         };
       });
-      save(); renderAll(); $("sectionsSaved").textContent = "saved"; toast("✓ sections saved");
+      save(); renderAll(); $("sectionsSaved").textContent = T("admSecSaved"); toast(T("admPhotoshop"));
     };
     function qval(attr, val, i) {
       var sel = "[data-" + attr + "='" + val + "']" + (i == null ? "" : "[data-i='" + i + "']");
@@ -601,29 +639,29 @@
         var a = document.querySelector("[data-crypto-net-addr='" + m + "'][data-idx='" + idx + "']");
         if (a) n.address = a.value.trim();
       });
-      save(); $("cryptoSaved").textContent = "saved"; renderCryptoConfig(); toast("✓ crypto settings saved");
+      save(); $("cryptoSaved").textContent = T("admPaySaved"); renderCryptoConfig(); toast(T("admSaveCrypto"));
     };
     $("cryptoAddMethod").onclick = function () {
       db.settings.cryptoConfig = db.settings.cryptoConfig || {};
-      var m = window.prompt("Payment method key (must match a method in the list above), e.g. USDT (BEP20)");
+      var m = window.prompt(T("admAddCryptoPrompt") || "Payment method key (BEP20)");
       if (!m || !m.trim()) return;
       m = m.trim();
       if (!db.settings.cryptoConfig[m]) db.settings.cryptoConfig[m] = { networks: [] };
       db.settings.cryptoConfig[m].networks.push({ id: ElectroDB.uid("nw"), label: "", address: "", qr: "" });
-      renderCryptoConfig(); toast("✓ added config for " + m);
+      renderCryptoConfig(); toast(T("admSaveCrypto"));
     };
     $("ordersTable").addEventListener("change", function (e) {
       var id = e.target.getAttribute("data-order-status"); if (!id) return;
       var o = db.orders.find(function (x) { return x.id === id; });
       if (o) {
-        o.status = e.target.value; save(); renderAll(); toast("✓ status: " + e.target.value);
+        o.status = e.target.value; save(); renderAll(); toast(T("admStatusChanged") + statusLabel(e.target.value));
         if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.updateOrder(id, { status: o.status }).catch(function () {});
       }
     });
     $("clearOrdersBtn").onclick = function () {
-      if (!db.orders.length || !confirm("clear ALL orders?")) return;
+      if (!db.orders.length || !confirm(T("admClearOrders"))) return;
       var ids = db.orders.map(function (o) { return o.id; });
-      db.orders = []; save(); renderAll(); toast("all orders cleared");
+      db.orders = []; save(); renderAll(); toast(T("admClearOrders"));
       if (window.MajorCloud && MajorCloud.isAdmin()) {
         var chain = Promise.resolve();
         ids.forEach(function (id) { chain = chain.then(function () { return MajorCloud.deleteOrder(id).catch(function () {}); }); });
@@ -644,7 +682,9 @@
   }
   window.addEventListener("major-db-updated", renderAll);
   window.addEventListener("major-lang-changed", function () {
-    renderBrand(); renderCategories(); renderHomepage(); renderSettings();
+    applyAdminI18n();
+    renderBrand(); renderOverview(); renderProducts(); renderCategories(); renderHomepage(); renderSettings(); renderPayments();
+    renderOrders(); renderCoupons(); renderSectionsForm(); renderCryptoConfig();
   });
   /* استقبال الطلبات والرسائل الجديدة من Supabase أثناء فتح اللوحة */
   window.setInterval(function () {
