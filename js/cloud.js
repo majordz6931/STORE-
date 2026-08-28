@@ -26,7 +26,12 @@
   function request(path, options, authenticated) {
     options = options || {};
     options.headers = Object.assign(headers(authenticated), options.headers || {});
+    /* إضافة مهلة 20 ثانية لمنع تجميد الصفحة */
+    var controller = new AbortController();
+    options.signal = controller.signal;
+    var timer = setTimeout(function () { controller.abort(); }, 20000);
     return fetch(BASE + path, options).then(async function (r) {
+      clearTimeout(timer);
       var text = await r.text();
       var data = null;
       try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
@@ -35,6 +40,10 @@
         var err = new Error(message); err.status = r.status; err.payload = data; throw err;
       }
       return data;
+    }).catch(function (err) {
+      clearTimeout(timer);
+      if (err.name === 'AbortError') throw new Error('Request timed out — check your connection to Supabase');
+      throw err;
     });
   }
 

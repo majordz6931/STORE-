@@ -95,7 +95,10 @@
   function money(n) { return ElectroDB.formatMoney(n); }
   function save() {
     ElectroDB.save(db);
-    pushCloudStore();
+    /* إظهار تذكير النشر بدلاً من الدفع التلقائي */
+    var pr = $("publishReminder"); if (pr) pr.hidden = false;
+    /* تحديث عداد المنتجات في الشريط الجانبي */
+    var pb = $("productBadge"); if (pb) pb.textContent = db.products.length;
   }
   /* دفع بيانات المتجر (منتجات/أقسام/إعدادات/كوبونات) إلى Supabase — يتطلب تسجيل دخول الإدارة */
   function pushCloudStore() {
@@ -450,11 +453,7 @@
     all(".tnav").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });
     var qp = $("quickPublishOverview"); if (qp) qp.onclick = function () { pushCloudStore(); };
-    var publishRem = $("publishReminder"); if (publishRem) {
-      /* إظهار التذكير بعد أي تعديل يستدعي النشر */
-      var origSave = save;
-      save = function () { origSave(); if (publishRem) publishRem.hidden = false; };
-    }
+    /* save() مُعدّلة بالفعل لتحديث التذكير — لا حاجة لل wrap */
     $("mobileSide").onclick = function () { $("dashboard").classList.toggle("side-open"); };
     $("newProductBtn").addEventListener("click", function (e) { e.preventDefault(); openEditor(); });
     all("[data-editor-close]").forEach(function (x) { x.onclick = closeEditor; });
