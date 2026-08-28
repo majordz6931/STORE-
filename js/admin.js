@@ -492,11 +492,14 @@
         var stock = Number($("productStock").value) || 0;
         if (!price || price < 0) return toast(T("admPriceRequired"), true);
         if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast(T("admNameRequired"), true);
-        var arName = $("productNameAR").value.trim(), enName = $("productNameEN").value.trim() || arName;
-        var arDesc = $("productDescriptionAR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
+        var pNameAR = $("productNameAR"), pNameEN = $("productNameEN");
+        var arName = pNameAR ? pNameAR.value.trim() : "", enName = pNameEN ? pNameEN.value.trim() : arName;
+        var pDescAR = $("productDescriptionAR"), pDescEN = $("productDescriptionEN");
+        var arDesc = pDescAR ? pDescAR.value.trim() : "", enDesc = pDescEN ? pDescEN.value.trim() : arDesc;
+        var pCat = $("productCategory");
         var data = {
           id: editingId || ElectroDB.uid("p"),
-          category: $("productCategory").value,
+          category: pCat ? pCat.value : "",
           name: { ar: arName, en: enName },
           specs: { ar: ($("productSpecsAR")?$("productSpecsAR").value:"").trim(), en: ($("productSpecsEN")?$("productSpecsEN").value:"").trim() },
           price: price,
