@@ -108,6 +108,7 @@
       cloudStatus.lastOk = Date.now();
       cloudStatus.lastCount = payload.products.length;
       updateCloudBadge();
+      var pr = $("publishReminder"); if (pr) pr.hidden = true;
       toast("✓ " + T("admToastSyncOk").replace("{n}", payload.products.length).replace("{c}", payload.categories.length));
       try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
     }).catch(function (e) {
@@ -345,6 +346,8 @@
     renderCoupons(); renderSectionsForm(); renderCryptoConfig();
     applyAdminI18n();
     syncCloudOrders(); syncMessages();
+    /* إخفاء تذكير النشر بعد التحديث */
+    var pr = $("publishReminder"); if (pr) pr.hidden = true;
   }
 
   function openEditor(id) {
@@ -442,6 +445,12 @@
     all(".nav-item").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all(".tnav").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });
+    var qp = $("quickPublishOverview"); if (qp) qp.onclick = function () { pushCloudStore(); };
+    var publishRem = $("publishReminder"); if (publishRem) {
+      /* إظهار التذكير بعد أي تعديل يستدعي النشر */
+      var origSave = save;
+      save = function () { origSave(); if (publishRem) publishRem.hidden = false; };
+    }
     $("mobileSide").onclick = function () { $("dashboard").classList.toggle("side-open"); };
     $("newProductBtn").onclick = function () { openEditor(); };
     all("[data-close-editor]").forEach(function (x) { x.onclick = closeEditor; });

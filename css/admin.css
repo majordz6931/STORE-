@@ -402,9 +402,64 @@ a{text-decoration:none;color:inherit}
    the page, the dashboard markup won't render visually. */
 .dashboard:not([data-auth="ok"]){display:none!important;visibility:hidden!important}
 
-/* Publish-now button + cloud status badge */
-#publishNowBtn{background:linear-gradient(135deg,var(--orange),var(--purple));color:#031;font-weight:800;font-size:11px;padding:7px 14px;box-shadow:0 4px 14px rgba(255,180,84,.25);white-space:nowrap}
-#publishNowBtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(255,180,84,.4)}
+/* ================= PUBLISH BUTTON (new design) ================= */
+.btn-publish{background:linear-gradient(135deg,#ff8a00,#e52e71);color:#fff;font-weight:700;font-size:11px;padding:8px 16px;border-radius:10px;border:0;box-shadow:0 4px 20px rgba(229,46,113,.35);white-space:nowrap;font-family:"Fira Code",monospace;display:inline-flex;align-items:center;gap:7px;transition:.2s;cursor:pointer}
+.btn-publish:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(229,46,113,.5)}
+.btn-publish:active{transform:translateY(0)}
+.btn-publish .pub-icon{font-size:14px}
+.pub-text{letter-spacing:.02em}
+#publishNowBtn{background:linear-gradient(135deg,#ff8a00,#e52e71);color:#fff;font-weight:700;font-size:11px;padding:8px 16px;border-radius:10px;border:0;box-shadow:0 4px 20px rgba(229,46,113,.35);white-space:nowrap;font-family:"Fira Code",monospace;display:inline-flex;align-items:center;gap:7px;transition:.2s;cursor:pointer;position:relative;overflow:hidden}
+#publishNowBtn::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent,rgba(255,255,255,.12) 50%,transparent);transform:translateY(-100%);transition:.5s}
+#publishNowBtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(229,46,113,.5)}
+#publishNowBtn:hover::after{transform:translateY(100%)}
 #publishNowBtn:disabled{opacity:.6;cursor:wait;transform:none}
-.last-sync{font-size:10.5px;font-family:"Fira Code",monospace;cursor:help}
-.last-sync i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-inline-start:5px;vertical-align:middle;transition:.2s}
+#publishNowBtn .pub-icon{font-size:14px}
+
+/* Publish reminder bar */
+.publish-reminder{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(90deg,rgba(255,138,0,.12),rgba(229,46,113,.08));border:1px solid rgba(255,138,0,.3);border-radius:12px;margin-bottom:16px;font-size:12px;color:var(--orange);font-family:"Fira Code",monospace}
+.publish-reminder strong{color:#fff;font-weight:700}
+.publish-reminder[hidden]{display:none!important}
+
+/* Panel top actions row */
+.panel-top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Quick publish in dashboard */
+.quick-publish span{background:linear-gradient(135deg,rgba(255,138,0,.25),rgba(229,46,113,.2))!important;color:var(--orange)!important}
+.quick-publish:hover span{background:linear-gradient(135deg,rgba(255,138,0,.35),rgba(229,46,113,.3))!important}
+
+/* Header title with path */
+.header-title{display:flex;align-items:center;gap:8px}
+.page-path{font-size:12px;color:var(--green);font-family:"Fira Code",monospace;opacity:.7;margin-top:1px}
+.admin-header h1{font-size:23px;margin:0;color:var(--ink);font-family:"Fira Code",monospace;letter-spacing:-.5px}
+.admin-header h1::before{content:""}
+.admin-header>div{display:flex;align-items:center;gap:14px}
+
+/* Cloud indicator */
+.cloud-indicator{display:flex;align-items:center}
+
+/* Logout button */
+.btn-logout{color:var(--ink-mid);font-size:11px;font-weight:700;font-family:"Fira Code",monospace;border:1px solid var(--line);padding:7px 12px;border-radius:9px;background:transparent;white-space:nowrap;transition:.2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+
+/* Highlight text */
+.highlight{color:var(--orange);font-weight:700}
+
+/* Editor actions */
+.editor-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+
+/* Login mini logo */
+.login-mini-logo{display:flex;justify-content:center;margin-bottom:4px}
+.login-mini-logo svg{width:44px;height:44px}
+
+/* Publish products button in panel */
+#publishProductsBtn{background:linear-gradient(135deg,#ff8a00,#e52e71);color:#fff;font-weight:700;font-size:11px;padding:8px 16px;border-radius:10px;border:0;box-shadow:0 4px 20px rgba(229,46,113,.35);white-space:nowrap;font-family:"Fira Code",monospace;display:inline-flex;align-items:center;gap:7px;transition:.2s;cursor:pointer}
+#publishProductsBtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(229,46,113,.5)}
+#publishProductsBtn .pub-icon{font-size:14px}
+
+/* Dashboard sidebar open store button */
+.side-bottom a,.side-bottom button{font-size:12px;padding:8px 4px;border-radius:8px;transition:.2s}
+.side-bottom a:hover,.side-bottom button:hover{background:var(--green-soft);padding:8px 10px}
+
+/* Header store link */
+.view-store{color:var(--green);font-size:11px;font-weight:700;font-family:"Fira Code",monospace;border:1px solid var(--line);padding:7px 12px;border-radius:9px;white-space:nowrap;transition:.2s}
+.view-store:hover{border-color:var(--green);background:var(--green-soft)}
