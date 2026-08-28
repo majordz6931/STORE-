@@ -485,34 +485,37 @@
 
     $("productForm").onsubmit = function (e) {
       e.preventDefault();
-      var existing = editingId ? db.products.find(function (p) { return p.id === editingId; }) : null;
-      var price = Number(($("productPrice").value || "0").replace(",", "."));
-      var oldp = Number(($("productOldPrice").value || "0").replace(",", ".")) || 0;
-      var stock = Number($("productStock").value) || 0;
-      if (!price || price < 0) return toast(T("admPriceRequired"), true);
-      if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast(T("admNameRequired"), true);
-      var arName = $("productNameAR").value.trim(), enName = $("productNameEN").value.trim() || arName;
-      var arDesc = $("productDescriptionAR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
-      var data = {
-        id: editingId || ElectroDB.uid("p"),
-        category: $("productCategory").value,
-        name: { ar: arName, en: enName },
-        specs: { ar: $("productSpecsAR").value.trim(), en: $("productSpecsEN").value.trim() },
-        price: price,
-        oldPrice: oldp,
-        stock: stock,
-        icon: $("productIcon").value || "✦",
-        color: $("productColor").value,
-        badge: { ar: $("productBadgeAR").value.trim(), en: $("productBadgeEN").value.trim() },
-        description: { ar: arDesc, en: enDesc },
-        image: $("productImage").value.trim(),
-        rating: existing ? existing.rating || 4.8 : 4.8,
-        reviews: existing ? existing.reviews || 0 : 0
-      };
-      var idx = db.products.findIndex(function (p) { return p.id === data.id; });
-      if (idx >= 0) db.products[idx] = data; else db.products.unshift(data);
-      save(); closeEditor(); renderAll();
-      toast(idx >= 0 ? (T("admProductUpdated") + price.toFixed(2) + ")") : T("admProductAdded"));
+      try {
+        var existing = editingId ? db.products.find(function (p) { return p.id === editingId; }) : null;
+        var price = Number(($("productPrice").value || "0").replace(",", "."));
+        var oldp = Number(($("productOldPrice").value || "0").replace(",", ".")) || 0;
+        var stock = Number($("productStock").value) || 0;
+        if (!price || price < 0) return toast(T("admPriceRequired"), true);
+        if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast(T("admNameRequired"), true);
+        var arName = $("productNameAR").value.trim(), enName = $("productNameEN").value.trim() || arName;
+        var arDesc = $("productDescriptionAR").value.trim(), enDesc = $("productDescriptionEN").value.trim() || arDesc;
+        var data = {
+          id: editingId || ElectroDB.uid("p"),
+          category: $("productCategory").value,
+          name: { ar: arName, en: enName },
+          specs: { ar: ($("productSpecsAR")?$("productSpecsAR").value:"").trim(), en: ($("productSpecsEN")?$("productSpecsEN").value:"").trim() },
+          price: price,
+          oldPrice: oldp,
+          stock: stock,
+          icon: $("productIcon") ? $("productIcon").value : "✦",
+          color: $("productColor") ? $("productColor").value : "#0d2235",
+          badge: { ar: ($("productBadgeAR")?$("productBadgeAR").value:"").trim(), en: ($("productBadgeEN")?$("productBadgeEN").value:"").trim() },
+          description: { ar: arDesc, en: enDesc },
+          image: ($("productImage")?$("productImage").value:"").trim(),
+          rating: existing ? existing.rating || 4.8 : 4.8,
+          reviews: existing ? existing.reviews || 0 : 0
+        };
+        console.log("[MAJOR SAVE PRODUCT]", JSON.stringify(data));
+        var idx = db.products.findIndex(function (p) { return p.id === data.id; });
+        if (idx >= 0) db.products[idx] = data; else db.products.unshift(data);
+        save(); closeEditor(); renderAll();
+        toast(idx >= 0 ? (T("admProductUpdated") + price.toFixed(2) + ")") : T("admProductAdded"));
+      } catch(err) { toast("Save error: " + err.message, true); console.error("[MAJOR ADMIN]", err); }
     };
 
     document.addEventListener("click", function (e) {
