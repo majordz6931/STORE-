@@ -39,7 +39,7 @@
     el.insertBefore(document.createTextNode(v), el.firstChild);
   }
   function applyI18nToDOM() {
-    $("[data-i18n]").forEach(function (el) {
+    $$("[data-i18n]").forEach(function (el) {
       var k = el.getAttribute("data-i18n"); if (!k) return;
       safeI18n(el, ElectroDB.t(k));
     });
