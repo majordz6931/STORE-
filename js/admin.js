@@ -61,14 +61,19 @@
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (m) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m]; }); }
   /* ===== i18n: ترجمة كل نصوص لوحة التحكم ===== */
   function T(key) { return ElectroDB.t(key); }
+  /* آمن: يستبدل أول عقدة نصية فقط ولا يلمس العناصر الفرعية (الحقول داخل labels...) */
+  function safeAdminI18n(el, v) {
+    if (v == null) return;
+    for (var i = 0; i < el.childNodes.length; i++) {
+      var n = el.childNodes[i];
+      if (n.nodeType === 3) { n.nodeValue = v; return; }
+    }
+    el.insertBefore(document.createTextNode(v), el.firstChild);
+  }
   function applyAdminI18n() {
     all("[data-i18n]").forEach(function (el) {
       var k = el.getAttribute("data-i18n"); if (!k) return;
-      var v = T(k); if (v != null) {
-        if (el.tagName === "I18n" && el.parentNode) {
-          var c = el.parentNode.firstChild; if (c) c.nodeValue = v + " ";
-        } else el.textContent = v;
-      }
+      safeAdminI18n(el, T(k));
     });
     all("[data-i18n-ph]").forEach(function (el) {
       var k = el.getAttribute("data-i18n-ph"); if (!k) return;
@@ -242,14 +247,20 @@
       if (p.description) desc = (p.description.ar || "") + " " + (p.description.en || "");
       return !q || (ar + " " + en + " " + desc).toLowerCase().indexOf(q) >= 0;
     });
-    if (m === "low") list.sort(function (a, b) { return a.price - b.price; });
-    if (m === "high") list.sort(function (a, b) { return b.price - a.price; });
-    $("adminProductsGrid").innerHTML = list.map(function (p) {
-      var name = ElectroDB.localize(p.name);
-      var cname = ElectroDB.localize((db.categories.find(function (x) { return x.id === p.category; }) || {}).name);
-      return "<article class='admin-product-card'><div class='admin-product-art' style='background:" + esc(p.color) + "'>" + (p.image ? "<img src='" + esc(p.image) + "' alt='' />" : "<span>" + esc(p.icon) + "</span>") + (p.badge ? "<em>" + esc(ElectroDB.localize(p.badge)) + "</em>" : "") + "</div><div class='admin-product-body'><small>" + esc(cname) + "</small><h3>" + esc(name) + "</h3><p>" + esc(ElectroDB.localize(p.description).slice(0, 100)) + "</p><div class='admin-product-meta'><strong>" + money(p.price) + "</strong><span>stock: " + (p.stock || 0) + "</span></div><div class='card-actions'><button class='btn small outline' data-edit-product='" + esc(p.id) + "'>edit</button><button class='icon-danger' data-delete-product='" + esc(p.id) + "'>del</button></div></div></article>";
-    }).join("") || "<div class='empty-admin wide'>// no products matching your query.</div>";
+    if (m === "low") list.sort(function (a, b) { return (a.price || 0) - (b.price || 0); });
+    if (m === "high") list.sort(function (a, b) { return (b.price || 0) - (a.price || 0); });
+    var cards = [];
+    list.forEach(function (p) {
+      try {
+        var name = ElectroDB.localize(p.name) || p.id;
+        var cname = ElectroDB.localize((db.categories.find(function (x) { return x.id === p.category; }) || {}).name) || "";
+        var descTxt = (ElectroDB.localize(p.description) || "").slice(0, 100);
+        cards.push("<article class='admin-product-card'><div class='admin-product-art' style='background:" + esc(p.color || "#0d2235") + "'>" + (p.image ? "<img src='" + esc(p.image) + "' alt='' />" : "<span>" + esc(p.icon || "✦") + "</span>") + (p.badge ? "<em>" + esc(ElectroDB.localize(p.badge)) + "</em>" : "") + "</div><div class='admin-product-body'><small>" + esc(cname) + "</small><h3>" + esc(name) + "</h3><p>" + esc(descTxt) + "</p><div class='admin-product-meta'><strong>" + money(p.price) + "</strong><span>stock: " + (p.stock || 0) + "</span></div><div class='card-actions'><button class='btn small outline' data-edit-product='" + esc(p.id) + "'>edit</button><button class='icon-danger' data-delete-product='" + esc(p.id) + "'>del</button></div></div></article>");
+      } catch (err) { console.error("[MAJOR ADMIN] skip bad product:", p.id, err.message); }
+    });
+    $("adminProductsGrid").innerHTML = cards.join("") || "<div class='empty-admin wide'>// no products matching your query.</div>";
   }
+
   function renderCategories() {
     $("categoryCount").textContent = db.categories.length;
     $("adminCategoriesList").innerHTML = db.categories.map(function (c) {
@@ -354,7 +365,7 @@
     if (!db.orders.length) { rows.innerHTML = ""; empty.hidden = false; return; }
     empty.hidden = true;
     rows.innerHTML = db.orders.map(function (o) {
-      var items = (o.items || []).map(function (x) { return esc(ElectroDB.localize(x.name)) + " ×" + x.qty; }).join("<br />");
+      var items = (o.items || []).map(function (x) { return esc(ElectroDB.localize((x && x.name) || "?")) + " ×" + (x.qty || 1); }).join("<br />");
       var status = o.status || "pending";
       var couponTag = o.coupon ? "<small style='color:var(--cyan)'>" + esc(T("admPcHash")) + esc(o.coupon) + "</small>" : "";
       var noteTag = o.note ? "<small style='color:var(--ink-mid)'>" + esc(T("admPcNote")) + esc(o.note) + "</small>" : "";
@@ -486,34 +497,37 @@
     $("productForm").onsubmit = function (e) {
       e.preventDefault();
       try {
+        /* ==== helpers آمنة ==== */
+        function fval(id) { var el = $(id); return el ? (el.value != null ? String(el.value) : "") : ""; }
+        function nval(id, dflt) { var v = parseFloat(String(fval(id)).replace(",", ".")); return isNaN(v) ? (dflt || 0) : v; }
+
         var existing = editingId ? db.products.find(function (p) { return p.id === editingId; }) : null;
-        var price = Number(($("productPrice").value || "0").replace(",", "."));
-        var oldp = Number(($("productOldPrice").value || "0").replace(",", ".")) || 0;
-        var stock = Number($("productStock").value) || 0;
+        var price = nval("productPrice", 0);
+        var oldp = nval("productOldPrice", 0);
+        var stock = parseInt(fval("productStock"), 10) || 0;
+        var arName = fval("productNameAR").trim();
+        var enName = fval("productNameEN").trim() || arName;
+
+        if (!arName && !enName) return toast(T("admNameRequired"), true);
         if (!price || price < 0) return toast(T("admPriceRequired"), true);
-        if (!$("productNameAR").value.trim() && !$("productNameEN").value.trim()) return toast(T("admNameRequired"), true);
-        var pNameAR = $("productNameAR"), pNameEN = $("productNameEN");
-        var arName = pNameAR ? pNameAR.value.trim() : "", enName = pNameEN ? pNameEN.value.trim() : arName;
-        var pDescAR = $("productDescriptionAR"), pDescEN = $("productDescriptionEN");
-        var arDesc = pDescAR ? pDescAR.value.trim() : "", enDesc = pDescEN ? pDescEN.value.trim() : arDesc;
-        var pCat = $("productCategory");
+
         var data = {
           id: editingId || ElectroDB.uid("p"),
-          category: pCat ? pCat.value : "",
+          category: fval("productCategory"),
           name: { ar: arName, en: enName },
-          specs: { ar: ($("productSpecsAR")?$("productSpecsAR").value:"").trim(), en: ($("productSpecsEN")?$("productSpecsEN").value:"").trim() },
+          specs: { ar: fval("productSpecsAR").trim(), en: fval("productSpecsEN").trim() },
           price: price,
           oldPrice: oldp,
           stock: stock,
-          icon: $("productIcon") ? $("productIcon").value : "✦",
-          color: $("productColor") ? $("productColor").value : "#0d2235",
-          badge: { ar: ($("productBadgeAR")?$("productBadgeAR").value:"").trim(), en: ($("productBadgeEN")?$("productBadgeEN").value:"").trim() },
-          description: { ar: arDesc, en: enDesc },
-          image: ($("productImage")?$("productImage").value:"").trim(),
+          icon: fval("productIcon") || "✦",
+          color: fval("productColor") || "#0d2235",
+          badge: { ar: fval("productBadgeAR").trim(), en: fval("productBadgeEN").trim() },
+          description: { ar: fval("productDescriptionAR").trim(), en: fval("productDescriptionEN").trim() || fval("productDescriptionAR").trim() },
+          image: fval("productImage").trim(),
           rating: existing ? existing.rating || 4.8 : 4.8,
           reviews: existing ? existing.reviews || 0 : 0
         };
-        console.log("[MAJOR SAVE PRODUCT]", JSON.stringify(data));
+        console.log("[MAJOR SAVE PRODUCT]", JSON.stringify({ id: data.id, name: data.name, price: data.price }));
         var idx = db.products.findIndex(function (p) { return p.id === data.id; });
         if (idx >= 0) db.products[idx] = data; else db.products.unshift(data);
         save(); closeEditor(); renderAll();

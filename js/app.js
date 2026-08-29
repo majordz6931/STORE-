@@ -29,10 +29,19 @@
   function cartTotal() { return cart.reduce(function (s, x) { return s + x.price * x.qty; }, 0); }
   function updateCartCount() { var c = $("cartCount"); if (c) c.textContent = cartQty(); }
 
+  /* آمن: يستبدل أول عقدة نصية فقط ولا يلمس العناصر الفرعية (الحقول، الأيقونات...) */
+  function safeI18n(el, v) {
+    if (v == null) return;
+    for (var i = 0; i < el.childNodes.length; i++) {
+      var n = el.childNodes[i];
+      if (n.nodeType === 3) { n.nodeValue = v; return; }
+    }
+    el.insertBefore(document.createTextNode(v), el.firstChild);
+  }
   function applyI18nToDOM() {
-    $$("[data-i18n]").forEach(function (el) {
+    $("[data-i18n]").forEach(function (el) {
       var k = el.getAttribute("data-i18n"); if (!k) return;
-      var v = ElectroDB.t(k); if (v != null) el.textContent = v;
+      safeI18n(el, ElectroDB.t(k));
     });
     $$("[data-i18n-ph]").forEach(function (el) {
       var k = el.getAttribute("data-i18n-ph"); if (!k) return;
@@ -40,7 +49,7 @@
     });
     var search = $("searchInput"); if (search) search.setAttribute("placeholder", ElectroDB.t("searchPh"));
     var n = $("newsletterEmail"); if (n) n.setAttribute("placeholder", ElectroDB.t("newsletterPh"));
-    var nb = $("newsletterBtn"); if (nb) nb.firstChild.textContent = ElectroDB.t("newsletterBtn") + " ";
+    var nb = $("newsletterBtn"); if (nb) { var nbf = nb.firstChild; if (nbf) nbf.textContent = ElectroDB.t("newsletterBtn") + " "; }
     var cApply = $("couponApply"); if (cApply) cApply.textContent = ElectroDB.t("couponApply");
     if ($("orderCoupon")) $("orderCoupon").setAttribute("placeholder", ElectroDB.t("couponPlaceholder"));
     var ls = $("langSwitch"); if (ls && ls.value !== ElectroDB.getLang()) ls.value = ElectroDB.getLang();
@@ -89,12 +98,22 @@
       h1.textContent = title;
     }
     $("heroText").textContent = localizeField(s.heroText);
-    $("heroCta").childNodes[0].nodeValue = (localizeField(s.heroCta) || T("heroCta")) + " ";
+    var ctaEl = $("heroCta");
+    if (ctaEl) {
+      var txt = (localizeField(s.heroCta) || T("heroCta")) + " ";
+      if (ctaEl.firstChild && ctaEl.firstChild.nodeType === 3) ctaEl.firstChild.nodeValue = txt;
+      else ctaEl.textContent = txt;
+    }
     var stats = s.heroStats || [];
     $("heroStats").innerHTML = stats.map(function (x) {
       var v = localizeField(x); return "<div><strong>" + esc(v.value) + "</strong><span>" + esc(v.label) + "</span></div>";
     }).join("");
-    $("discordCta").childNodes[0].nodeValue = T("heroSecondary") + " ";
+    var discEl = $("discordCta");
+    if (discEl) {
+      var dtxt = T("heroSecondary") + " ";
+      if (discEl.firstChild && discEl.firstChild.nodeType === 3) discEl.firstChild.nodeValue = dtxt;
+      else discEl.textContent = dtxt;
+    }
     var bulletIcons = ["⚡", "🛡", "💬", "💎"];
     var bl = $("heroBullets");
     if (bl) bl.innerHTML = (s.heroBullets || []).map(function (b, i) {
@@ -113,8 +132,8 @@
       }).join("");
     }
     var at2 = $("aboutTitle2"), at = $("aboutText");
-    if (at2) at2.textContent = localizeField((s.about && s.about.title) || {});
-    if (at) at.textContent = localizeField((s.about && s.about.text) || {});
+    if (at2) { var at2v = localizeField((s.about && s.about.title) || {}); if (at2v) at2.textContent = at2v; }
+    if (at) { var atv = localizeField((s.about && s.about.text) || {}); if (atv) at.textContent = atv; }
     var secMap = { hero: "secHero", categories: "categories", shop: "shop", features: "features", about: "about", payments: "payments", contact: "contact" };
     var sec = s.sections || {};
     Object.keys(secMap).forEach(function (k) {
@@ -157,12 +176,16 @@
   function renderProducts() {
     var list = filteredProducts(), grid = $("productsGrid"), empty = $("emptyView");
     $("resultCount").innerHTML = list.length + " <span>" + esc(T("resultCount")) + "</span>";
-    grid.innerHTML = list.map(function (p) {
-      var inCart = cart.some(function (x) { return x.id === p.id; });
-      var badgeHtml = p.badge ? "<span class='product-badge'>" + esc(localizeField(p.badge)) + "</span>" : "";
-      var specs = p.specs ? "<div class='specs'><span>" + esc(localizeField(p.specs)) + "</span></div>" : "";
-      return "<article class='product-card' data-product='" + esc(p.id) + "'><div class='product-image' style='--product-color:" + esc(p.color || "#0d2235") + "'>" + badgeHtml + "<button class='quick-view' data-view='" + esc(p.id) + "'>" + esc(T("cartView")) + "</button>" + productVisual(p, false) + "</div><div class='product-info'><div class='product-category'>" + esc(categoryName(p.category)) + "</div><h3>" + esc(localizeField(p.name)) + "</h3>" + specs + "<p>" + esc((localizeField(p.description) || "").slice(0, 90)) + "</p><div class='rating'><span>[ " + Number(p.rating || 0).toFixed(1) + " ]</span> <small>(" + Number(p.reviews || 0) + ")</small></div><div class='product-bottom'><div><strong>" + money(p.price) + "</strong>" + (p.oldPrice ? "<del>" + money(p.oldPrice) + "</del>" : "") + "</div><button class='add-btn " + (inCart ? "added" : "") + "' data-add='" + esc(p.id) + "'>" + (inCart ? esc(T("cartIn")) : esc(T("cartAdd"))) + "</button></div></div></article>";
-    }).join("");
+    var cards = [];
+    list.forEach(function (p) {
+      try {
+        var inCart = cart.some(function (x) { return x.id === p.id; });
+        var badgeHtml = p.badge ? "<span class='product-badge'>" + esc(localizeField(p.badge)) + "</span>" : "";
+        var specs = p.specs ? "<div class='specs'><span>" + esc(localizeField(p.specs)) + "</span></div>" : "";
+        cards.push("<article class='product-card' data-product='" + esc(p.id) + "'><div class='product-image' style='--product-color:" + esc(p.color || "#0d2235") + "'>" + badgeHtml + "<button class='quick-view' data-view='" + esc(p.id) + "'>" + esc(T("cartView")) + "</button>" + productVisual(p, false) + "</div><div class='product-info'><div class='product-category'>" + esc(categoryName(p.category)) + "</div><h3>" + esc(localizeField(p.name)) + "</h3>" + specs + "<p>" + esc((localizeField(p.description) || "").slice(0, 90)) + "</p><div class='rating'><span>[ " + Number(p.rating || 0).toFixed(1) + " ]</span> <small>(" + Number(p.reviews || 0) + ")</small></div><div class='product-bottom'><div><strong>" + money(p.price) + "</strong>" + (p.oldPrice ? "<del>" + money(p.oldPrice) + "</del>" : "") + "</div><button class='add-btn " + (inCart ? "added" : "") + "' data-add='" + esc(p.id) + "'>" + (inCart ? esc(T("cartIn")) : esc(T("cartAdd"))) + "</button></div></div></article>");
+      } catch (err) { console.error("[MAJOR STORE] skip bad product:", p.id, err.message); }
+    });
+    grid.innerHTML = cards.join("");
     empty.hidden = list.length !== 0;
   }
 

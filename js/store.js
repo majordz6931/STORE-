@@ -456,6 +456,10 @@
       admAuthHintFull: "// لست بحاجة لإعداد؟ قم بتشغيل <b>create-admin-user.sql</b> في محرر SQL في Supabase، ثم سجل الدخول بـ <b>admin@majorstore.store</b>",
       admLivePreview: "معاينة حية ↗",
 
+            admAddCouponBtn: "إضافة كوبون",
+      admPdtImage: "رابط الصورة",
+      admPdtBadge: "الشارة",
+
       pillAll: "الكل",
       pillAll: "الكل",
       paySelectNetwork: "اختر الشبكة",
