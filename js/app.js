@@ -303,35 +303,31 @@
   }
 
   function updateCryptoPay() {
-    var box = $("cryptoPayBox"), sel = $("cryptoNetwork");
-    if (!box || !sel) return;
+    var box = $("cryptoPayBox");
+    if (!box) return;
     var method = $("orderPayment") ? $("orderPayment").value : "";
     window._orderPayment = method;
     window._cryptoNet = null;
     var cfg = (db.settings.cryptoConfig || {})[method] || bestCryptoConfig(method);
     var nets = (cfg && cfg.networks) || [];
     var isCrypto = /btc|eth|usdt|bnb|litecoin|ltc|xmr|monero|trx|tron|trc|erc|bep|bsc|sol|ton|crypto|coin|token|usd[ct]|digital|تحويل|مشفر|عملات|كريبتو|بيتكوين|إيثيريوم/i.test(method);
-    var pane = $("cryptoNetPane"), addrRow = $("cryptoAddrRow"), pend = $("cryptoPending"), qw = $("cryptoQrWrap");
+    var addrRow = $("cryptoAddrRow"), pend = $("cryptoPending"), qw = $("cryptoQrWrap");
     if (!nets.length) {
       if (isCrypto) {
         box.hidden = false;
-        if (sel) sel.innerHTML = "";
-        if (pane) pane.hidden = true;
         if (addrRow) addrRow.hidden = true;
         if (qw) qw.hidden = true;
         if (pend) pend.hidden = false;
-      } else if (box) box.hidden = true;
+      } else {
+        box.hidden = true;
+      }
       return;
     }
-    if (pane) pane.hidden = false;
     if (addrRow) addrRow.hidden = false;
     if (pend) pend.hidden = true;
-    var cur = (sel.getAttribute("data-cur") || nets[0].id);
-    sel.innerHTML = nets.map(function (n) {
-      return "<option value='" + esc(n.id) + "' " + (n.id === cur ? "selected" : "") + ">" + esc(n.label) + "</option>";
-    }).join("");
     box.hidden = false;
-    applyCryptoNet(cur);
+    /* بدون قائمة اختيار: تُختار أول شبكة مطابقة تلقائياً ويظهر عنوانها و QR */
+    applyCryptoNet(nets[0].id);
   }
 
   function applyCryptoNet(id) {
@@ -339,7 +335,6 @@
     var nets = ((db.settings.cryptoConfig || {})[method] || bestCryptoConfig(method) || {}).networks || [];
     var net = nets.find(function (n) { return n.id === id; }) || nets[0];
     if (!net) return;
-    var sel = $("cryptoNetwork"); if (sel) sel.setAttribute("data-cur", net.id);
     var addr = $("cryptoAddress"); if (addr) addr.textContent = net.address || "";
     var qw = $("cryptoQrWrap"), qi = $("cryptoQr"), pend = $("cryptoPending"), addrRow = $("cryptoAddrRow");
     var hasAddr = !!(net.address && String(net.address).trim());
