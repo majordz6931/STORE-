@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Hacking tools & cybersecurity programs</title>
-  <link rel="stylesheet" href="css/style.css?v=2026-major16" />
+  <link rel="stylesheet" href="css/style.css?v=2026-major17" />
 </head>
 <body>
   <!-- ===== البانر الثابت في الأعلى (دائم الظهور) ===== -->
@@ -269,14 +269,18 @@
           <label><span data-i18n="checkoutPhone">الهاتف</span><input id="orderPhone" required /></label>
         </div>
         <label><span data-i18n="checkoutEmail">البريد الإلكتروني</span><input id="orderEmail" type="email" required /></label>
-        <label><span data-i18n="checkoutAddress">العنوان / الولاية</span><input id="orderAddress" required /></label>
+        <div class="form-grid">
+          <label><span data-i18n="checkoutWilaya">الولاية</span><select id="orderWilaya" required><option value="">— اختر الولاية —</option></select></label>
+          <label><span data-i18n="checkoutCity">المدينة</span><input id="orderCity" required /></label>
+        </div>
+        <label><span data-i18n="checkoutAddress">العنوان الكامل</span><input id="orderAddress" data-i18n-ph="checkoutAddressPh" /></label>
         <label><span data-i18n="checkoutPayment">طريقة الدفع</span><select id="orderPayment" required></select></label>
         <div class="crypto-pay-box" id="cryptoPayBox" hidden>
-          <div class="pay-select-network">
+          <div class="pay-select-network" id="cryptoNetPane">
             <span data-i18n="paySelectNetwork">اختر الشبكة</span>
             <select id="cryptoNetwork"></select>
           </div>
-          <div class="pay-address-row">
+          <div class="pay-address-row" id="cryptoAddrRow">
             <span class="pay-addr-label" data-i18n="payAddressLabel">العنوان</span>
             <code id="cryptoAddress"></code>
             <button class="btn small outline" type="button" id="cryptoCopy"><span data-i18n="payCopy">نسخ</span></button>
@@ -286,6 +290,7 @@
             <small data-i18n="payScanQr">امسح رمز QR للدفع</small>
           </div>
           <p class="pay-note" data-i18n="paySendNote">أرسل المبلغ بالضبط ثم ضع رمز العملية في الملاحظات أدناه.</p>
+          <p class="pay-note" id="cryptoPending" data-i18n="payNoConfig" hidden>سيتم إرسال تفاصيل الدفع بعد تأكيد الطلب.</p>
         </div>
         <div class="coupon-line">
           <input id="orderCoupon" />
@@ -328,8 +333,8 @@
   <div class="toast" id="toast"></div>
   <button class="support-fab" id="supportFab" aria-label="تواصل معنا">✉</button>
 
-  <script src="js/store.js?v=2026-major16"></script>
-  <script src="js/cloud.js?v=2026-major16"></script>
-  <script src="js/app.js?v=2026-major16"></script>
+  <script src="js/store.js?v=2026-major17"></script>
+  <script src="js/cloud.js?v=2026-major17"></script>
+  <script src="js/app.js?v=2026-major17"></script>
 </body>
 </html>

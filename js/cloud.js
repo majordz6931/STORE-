@@ -114,8 +114,21 @@
   }
 
   async function createOrder(order) {
-    var rows = await request("/orders", { method: "POST", body: JSON.stringify(order) }, false);
-    return rows && rows[0] ? rows[0] : order;
+    var attempt = function (payload) {
+      return request("/orders", { method: "POST", body: JSON.stringify(payload) }, false);
+    };
+    try {
+      var rows = await attempt(order);
+      return rows && rows[0] ? rows[0] : order;
+    } catch (e) {
+      /* جدول الطلبات قد لا يحوي أعمدة wilaya/city بعد: أعد المحاولة بحقل أساسي فقط */
+      var slim = {};
+      ["id", "name", "phone", "email", "address", "payment", "crypto_network", "note", "items", "subtotal", "coupon", "total", "status"].forEach(function (k) {
+        if (order[k] !== undefined) slim[k] = order[k];
+      });
+      var rows2 = await attempt(slim);
+      return rows2 && rows2[0] ? rows2[0] : order;
+    }
   }
 
   async function getOrders() {
