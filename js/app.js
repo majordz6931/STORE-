@@ -7,22 +7,6 @@
   var search = "";
   var sort = "featured";
   var money = function (n) { return ElectroDB.formatMoney(n); };
-  /* الولايات الـ58 للجزائر: [كود, إنجليزي, عربي] */
-  var WILAYAS = [
-    ["01","Adrar","أدرار"],["02","Chlef","الشلف"],["03","Laghouat","الأغواط"],["04","Oum El Bouaghi","أم البواقي"],["05","Batna","باتنة"],["06","Béjaïa","بجاية"],["07","Biskra","بسكرة"],["08","Béchar","بشار"],["09","Blida","البليدة"],["10","Bouira","البويرة"],["11","Tamanrasset","تمنراست"],["12","Tébessa","تبسة"],["13","Tlemcen","تلمسان"],["14","Tiaret","تيارت"],["15","Tizi Ouzou","تيزي وزو"],["16","Alger","الجزائر"],["17","Djelfa","الجلفة"],["18","Jijel","جيجل"],["19","Sétif","سطيف"],["20","Saïda","سعيدة"],["21","Skikda","سكيكدة"],["22","Sidi Bel Abbès","سيدي بلعباس"],["23","Annaba","عنابة"],["24","Guelma","قالمة"],["25","Constantine","قسنطينة"],["26","Médéa","المدية"],["27","Mostaganem","مستغانم"],["28","M'Sila","المسيلة"],["29","Mascara","معسكر"],["30","Ouargla","ورقلة"],["31","Oran","وهران"],["32","El Bayadh","البيض"],["33","Illizi","إليزي"],["34","Bordj Bou Arréridj","برج بوعريريج"],["35","Boumerdès","بومرداس"],["36","El Tarf","الطارف"],["37","Tindouf","تندوف"],["38","Tissemsilt","تيسمسيلت"],["39","El Oued","الوادي"],["40","Khenchela","خنشلة"],["41","Souk Ahras","سوق أهراس"],["42","Tipaza","تيبازة"],["43","Mila","ميلة"],["44","Aïn Defla","عين الدفلى"],["45","Naâma","النعامة"],["46","Aïn Témouchent","عين تموشنت"],["47","Ghardaïa","غرداية"],["48","Relizane","غليزان"],["49","Timimoun","تيميمون"],["50","Bordj Badji Mokhtar","برج باجي مختار"],["51","Ouled Djellal","أولاد جلال"],["52","Béni Abbès","بني عباس"],["53","In Salah","عين صالح"],["54","In Guezzam","عين قزام"],["55","Touggourt","تقرت"],["56","Djanet","جانت"],["57","El M'Ghair","المغير"],["58","El Meniaa","المنيعة"]
-  ];
-  function fillWilayas() {
-    var sel = $("orderWilaya"); if (!sel) return;
-    var cur = sel.value || "";
-    var ph = (ElectroDB.getLang() === "ar") ? "— اختر الولاية —" : "— Select wilaya —";
-    var html = "<option value=''>" + esc(ph) + "</option>";
-    WILAYAS.forEach(function (w) {
-      var lbl = (ElectroDB.getLang() === "ar") ? w[2] : w[1];
-      html += "<option value='" + esc(w[0]) + "'>" + esc(w[0]) + " — " + esc(lbl) + "</option>";
-    });
-    sel.innerHTML = html;
-    if (cur) sel.value = cur;
-  }
   /* البحث عن أقرب إعداد كريبتو يطابق الطريقة المختارة: يطابق العملة/الشبكة (bep20, erc20, trc20, btc...) */
   function bestCryptoConfig(method) {
     var cc = (db.settings && db.settings.cryptoConfig) || {};
@@ -279,7 +263,6 @@
   }
 
   function fillCheckout() {
-    fillWilayas();
     var total = cartTotal();
     $("checkoutTotal").textContent = money(total);
     var prev = window._orderPayment || "";
@@ -364,10 +347,10 @@
   function submitOrder(ev) {
     ev.preventDefault();
     if (!cart.length) return toast(T("toastOrderEmpty"), true);
-    var nm = $("orderName").value.trim(), ph = $("orderPhone").value.trim(), em = $("orderEmail").value.trim();
-    var wlEl = $("orderWilaya"), ctEl = $("orderCity"), adEl = $("orderAddress");
-    var wl = wlEl ? wlEl.value : "", ct = ctEl ? ctEl.value.trim() : "", ad = adEl ? adEl.value.trim() : "";
-    if (!nm || !ph || !wl || !ct) return toast(T("toastRequired"), true);
+    var em = $("orderEmail").value.trim();
+    var coEl = $("orderCountry");
+    var co = coEl ? coEl.value.trim() : "";
+    if (!em || !co) return toast(T("toastRequired"), true);
     var t = cartTotal();
     if (appliedCoupon) {
       if (appliedCoupon.type === "percent") t = t * (1 - appliedCoupon.value / 100);
@@ -375,8 +358,7 @@
     }
     var order = {
       id: "MJR-" + Date.now().toString().slice(-6),
-      name: nm, phone: ph, email: em,
-      wilaya: wl, city: ct, address: ad,
+      name: (em.split("@")[0] || ""), phone: "", email: em, country: co,
       payment: $("orderPayment").value,
       cryptoNetwork: window._cryptoNet ? window._cryptoNet.label : null,
       note: $("orderNote").value.trim(),
@@ -395,7 +377,7 @@
     if (window.MajorCloud && typeof MajorCloud.createOrder === "function") {
       var cloudOrder = {
         id: order.id, name: order.name, phone: order.phone, email: order.email,
-        wilaya: order.wilaya || null, city: order.city || null, address: order.address,
+        country: order.country || null,
         payment: order.payment, crypto_network: order.cryptoNetwork || null,
         note: order.note, items: order.items, subtotal: order.subtotal, coupon: order.coupon,
         total: order.total, status: "pending"
@@ -442,7 +424,7 @@
   function refresh() {
     db = ElectroDB.load();
     applyI18nToDOM(); updateBrand(); updateHero(); updateSections(); renderCategories();
-    renderProducts(); renderPayments(); renderCart(); fillCheckout(); fillWilayas();
+    renderProducts(); renderPayments(); renderCart(); fillCheckout();
   }
 
   function typeLine(el, line) {
