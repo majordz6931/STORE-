@@ -153,6 +153,9 @@
       (db.orders || []).forEach(function (o) { map[o.id] = o; });
       (rows || []).forEach(function (o) {
         if (!o.date) { try { o.date = new Date(o.created_at).toLocaleString(); } catch (e) { o.date = o.created_at || ""; } }
+        var prev = map[o.id];
+        /* احفظ إثبات الدفع المحلي إذا كانت نسخة السحابة بلا إثبات (العمود قد لا يوجد بعد) */
+        if (prev && prev.proof_image && !o.proof_image) o.proof_image = prev.proof_image;
         map[o.id] = o;
       });
       db.orders = Object.keys(map).map(function (k) { return map[k]; })
@@ -371,10 +374,25 @@
       var noteTag = o.note ? "<small style='color:var(--ink-mid)'>" + esc(T("admPcNote")) + esc(o.note) + "</small>" : "";
       var fromTag = o.coupon ? "<small style='color:var(--cyan)'>" + esc(T("admPcFrom1")) + money(o.subtotal || 0) + "</small>" : "";
       var payCell = esc(o.payment) + (((o.cryptoNetwork || o.crypto_network)) ? "<small style='color:var(--purple)'>" + esc(o.cryptoNetwork || o.crypto_network) + "</small>" : "");
-      return "<tr><td><b>" + esc(o.id) + "</b><small>" + esc(o.date) + "</small></td><td><b>" + esc(o.name || o.email || "—") + "</b>" + (o.phone ? "<small>" + esc(o.phone) + "</small>" : "") + (o.email ? "<small>" + esc(o.email) + "</small>" : "") + "</td><td>" + (o.country ? "<b>" + esc(o.country) + "</b>" : "") + couponTag + noteTag + "</td><td><b>" + money(o.total) + "</b>" + fromTag + "<small>" + items + "</small></td><td>" + payCell + "</td><td><select class='status-select status-" + esc(status) + "' data-order-status='" + esc(o.id) + "'>" + orderStatusOptions(status) + "</select></td><td><button class='icon-danger' data-delete-order='" + esc(o.id) + "'>×</button></td></tr>";
+      var proofCell = o.proof_image
+        ? "<button class='btn small outline proof-view' data-proof-order='" + esc(o.id) + "' title='" + esc(T("admProof")) + "'>🖼</button>"
+        : "<span style='opacity:.25'>—</span>";
+      return "<tr><td><b>" + esc(o.id) + "</b><small>" + esc(o.date) + "</small></td><td><b>" + esc(o.name || o.email || "—") + "</b>" + (o.phone ? "<small>" + esc(o.phone) + "</small>" : "") + (o.email ? "<small>" + esc(o.email) + "</small>" : "") + "</td><td>" + (o.country ? "<b>" + esc(o.country) + "</b>" : "") + couponTag + noteTag + "</td><td><b>" + money(o.total) + "</b>" + fromTag + "<small>" + items + "</small></td><td>" + payCell + "</td><td>" + proofCell + "</td><td><select class='status-select status-" + esc(status) + "' data-order-status='" + esc(o.id) + "'>" + orderStatusOptions(status) + "</select></td><td><button class='icon-danger' data-delete-order='" + esc(o.id) + "'>×</button></td></tr>";
     }).join("");
   }
 
+  function openProof(id) {
+    var o = (db.orders || []).find(function (x) { return x.id === id; });
+    if (!o || !o.proof_image) return;
+    var im = $("proofModalImg"), mt = $("proofModalMeta"), m = $("proofModal");
+    if (im) im.src = o.proof_image;
+    if (mt) mt.textContent = o.id + " — " + (o.email || o.name || "") + " — " + money(o.total || 0);
+    if (m) { m.classList.add("show"); document.body.classList.add("locked"); }
+  }
+  function closeProof() {
+    var m = $("proofModal");
+    if (m) { m.classList.remove("show"); document.body.classList.remove("locked"); }
+  }
   function renderAll() {
     db = ElectroDB.load();
     renderBrand(); renderOverview(); renderProducts(); renderCategories();
@@ -545,6 +563,10 @@
         if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteMessage(mdel.getAttribute("data-msg-delete")).then(syncMessages).catch(function () { toast(T("admDeleteFailed"), true); });
         return;
       }
+      var pv = e.target.closest("[data-proof-order]");
+      if (pv) { openProof(pv.getAttribute("data-proof-order")); return; }
+      var pc = e.target.closest("[data-proof-close]");
+      if (pc || (e.target && e.target.id === "proofModal")) { closeProof(); return; }
       var dcoup = e.target.closest("[data-delete-coupon]");
       if (dcoup && confirm(T("admCouponDel").replace("✓ ",""))) {
         db.coupons.splice(Number(dcoup.getAttribute("data-delete-coupon")), 1); save(); renderAll(); toast(T("admCouponDel"));

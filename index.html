@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
   <title>MAJOR STORE — Hacking tools & cybersecurity programs</title>
-  <link rel="stylesheet" href="css/style.css?v=2026-major20" />
+  <link rel="stylesheet" href="css/style.css?v=2026-major21" />
 </head>
 <body>
   <!-- ===== البانر الثابت في الأعلى (دائم الظهور) ===== -->
@@ -289,6 +289,15 @@
           <button class="btn small outline" type="button" id="couponApply"></button>
           <small id="couponMsg"></small>
         </div>
+        <div class="proof-box" id="proofBox">
+          <span class="proof-label" data-i18n="proofLabel">إثبات الدفع (سكرين شوت / صورة العملية)</span>
+          <p class="pay-note" data-i18n="proofHint">بعد إتمام الدفع، التقط صورة أو سكرين شوت للعملية وأرفقها هنا — يستلمها صاحب المتجر للتأكد.</p>
+          <div class="proof-actions">
+            <label class="btn small outline" id="proofPick"><span data-i18n="proofUpload">📷 إرفاق صورة</span><input type="file" id="proofFile" accept="image/*" hidden /></label>
+            <button class="btn small outline" type="button" id="proofRemove" hidden><span data-i18n="proofRemove">إزالة</span></button>
+          </div>
+          <div class="proof-preview" id="proofPreview" hidden><img id="proofPreviewImg" alt="payment proof" /></div>
+        </div>
         <label><span data-i18n="checkoutNote">ملاحظات</span><textarea id="orderNote" rows="3"></textarea></label>
         <div class="checkout-summary">
           <span class="total-label" data-i18n="checkoutTot">المجموع</span>
@@ -325,8 +334,8 @@
   <div class="toast" id="toast"></div>
   <button class="support-fab" id="supportFab" aria-label="تواصل معنا">✉</button>
 
-  <script src="js/store.js?v=2026-major20"></script>
-  <script src="js/cloud.js?v=2026-major20"></script>
-  <script src="js/app.js?v=2026-major20"></script>
+  <script src="js/store.js?v=2026-major21"></script>
+  <script src="js/cloud.js?v=2026-major21"></script>
+  <script src="js/app.js?v=2026-major21"></script>
 </body>
 </html>

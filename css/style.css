@@ -452,3 +452,11 @@ section{padding:60px 0;position:relative}
   [dir="rtl"] .site-header .lang-switch{background-position:12px 50%,7px 50%}
   .header-actions{gap:8px}
 }
+
+/* ===== payment proof (checkout) ===== */
+.proof-box{margin:14px 0;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.proof-label{display:block;font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px}
+.proof-actions{display:flex;gap:8px;align-items:center;margin-top:8px}
+.proof-actions label{cursor:pointer}
+.proof-preview{margin-top:10px}
+.proof-preview img{max-width:140px;max-height:140px;border-radius:10px;border:1px solid var(--line)}

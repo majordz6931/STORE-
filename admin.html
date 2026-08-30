@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/admin.css?v=2026-major20" />
+  <link rel="stylesheet" href="css/admin.css?v=2026-major21" />
 </head>
 <body>
 
@@ -368,6 +368,14 @@
           </div>
           <button class="btn outline" id="clearOrdersBtn" data-i18n="admClearOrders">clear all</button>
         </div>
+        <div class="modal" id="proofModal">
+          <div class="modal-card proof-card">
+            <button class="close-btn modal-close" data-proof-close>×</button>
+            <div class="modal-heading"><h2 data-i18n="admProof">إثبات الدفع</h2></div>
+            <img id="proofModalImg" alt="payment proof" />
+            <div id="proofModalMeta" class="form-note"></div>
+          </div>
+        </div>
         <div class="orders-table-wrap">
           <table class="orders-table">
             <thead><tr>
@@ -376,6 +384,7 @@
               <th data-i18n="admOrderDetails">Details</th>
               <th data-i18n="admOrderTotal">Total</th>
               <th data-i18n="admOrderPayment">Payment</th>
+              <th data-i18n="admOrderProof">Proof</th>
               <th data-i18n="admOrderStatus">Status</th>
               <th></th>
             </tr></thead>
@@ -508,8 +517,8 @@
   <!-- ===== TOAST ===== -->
   <div class="toast" id="adminToast"></div>
 
-<script src="js/store.js?v=2026-major20"></script>
-<script src="js/cloud.js?v=2026-major20"></script>
-<script src="js/admin.js?v=2026-major20"></script>
+<script src="js/store.js?v=2026-major21"></script>
+<script src="js/cloud.js?v=2026-major21"></script>
+<script src="js/admin.js?v=2026-major21"></script>
 </body>
 </html>

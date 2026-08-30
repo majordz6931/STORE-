@@ -3,6 +3,7 @@
   var db = ElectroDB.load();
   var cart = ElectroDB.loadCart();
   var appliedCoupon = null;
+  var proofImage = null;
   var activeCategory = "all";
   var search = "";
   var sort = "featured";
@@ -262,6 +263,27 @@
     $("productModal").classList.add("show");
   }
 
+  /* ضغط صورة الإثبات لتصل بأحجام صغيرة (max 1000px, JPEG) */
+  function fitImage(file, cb) {
+    var r = new FileReader();
+    r.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var MAX = 1000;
+        if (img.width > MAX || img.height > MAX) {
+          var scale = Math.min(MAX / img.width, MAX / img.height);
+          var cv = document.createElement("canvas");
+          cv.width = Math.round(img.width * scale);
+          cv.height = Math.round(img.height * scale);
+          cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+          try { cb(cv.toDataURL("image/jpeg", 0.72)); } catch (e) { cb(""); }
+        } else { cb(img.src); }
+      };
+      img.onerror = function () { cb(""); };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
   function fillCheckout() {
     var total = cartTotal();
     $("checkoutTotal").textContent = money(total);
@@ -359,6 +381,7 @@
     var order = {
       id: "MJR-" + Date.now().toString().slice(-6),
       name: (em.split("@")[0] || ""), phone: "", email: em, country: co,
+      proof_image: proofImage || null,
       payment: $("orderPayment").value,
       cryptoNetwork: window._cryptoNet ? window._cryptoNet.label : null,
       note: $("orderNote").value.trim(),
@@ -371,6 +394,9 @@
     };
     db.orders.unshift(order); ElectroDB.save(db);
     cart = []; ElectroDB.saveCart(cart); appliedCoupon = null;
+    proofImage = null;
+    var piPv = $("proofPreview"), piIm = $("proofPreviewImg"), piRm = $("proofRemove");
+    if (piIm) piIm.src = ""; if (piPv) piPv.hidden = true; if (piRm) piRm.hidden = true;
     $("checkoutForm").reset(); closeOverlays(); renderCart(); renderProducts();
     $("couponMsg").textContent = "";
     toast(T("toastOrderOk").replace("{id}", order.id));
@@ -378,6 +404,7 @@
       var cloudOrder = {
         id: order.id, name: order.name, phone: order.phone, email: order.email,
         country: order.country || null,
+        proof_image: order.proof_image || null,
         payment: order.payment, crypto_network: order.cryptoNetwork || null,
         note: order.note, items: order.items, subtotal: order.subtotal, coupon: order.coupon,
         total: order.total, status: "pending"
@@ -480,6 +507,28 @@
   });
   $("checkoutOpen").onclick = function () { if (!cart.length) return toast(T("toastOrderEmpty"), true); fillCheckout(); appliedCoupon = null; recomputeTotal(); $("couponMsg").textContent = ""; $("checkoutModal").classList.add("show"); };
   $("checkoutForm").onsubmit = submitOrder;
+  if ($("proofFile")) $("proofFile").onchange = function () {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    if (!/^image\//.test(f.type)) { toast(T("proofInvalid"), true); this.value = ""; return; }
+    fitImage(f, function (dataUrl) {
+      if (!dataUrl) { toast(T("proofInvalid"), true); proofImage = null; this && (this.value = ""); return; }
+      proofImage = dataUrl;
+      var pv = $("proofPreview"), pi = $("proofPreviewImg"), rm = $("proofRemove");
+      if (pi) pi.src = dataUrl;
+      if (pv) pv.hidden = false;
+      if (rm) rm.hidden = false;
+      toast("✓ " + T("proofAttached"));
+    });
+  };
+  if ($("proofRemove")) $("proofRemove").onclick = function () {
+    proofImage = null;
+    var pv = $("proofPreview"), pi = $("proofPreviewImg"), pf = $("proofFile"), rm = $("proofRemove");
+    if (pi) pi.src = "";
+    if (pv) pv.hidden = true;
+    if (rm) rm.hidden = true;
+    if (pf) pf.value = "";
+  };
   $("clearSearch").onclick = function () { search = ""; activeCategory = "all"; $("searchInput").value = ""; renderCategories(); renderProducts(); };
   $("newsletterForm").onsubmit = function (e) { e.preventDefault(); $("newsletterMessage").textContent = T("newsletterMsg"); e.target.reset(); };
   if ($("contactForm")) $("contactForm").onsubmit = function (e) {
