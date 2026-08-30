@@ -6,6 +6,8 @@
 
 -- 1) عمود إثبات الدفع (صورة/سكرين شوت يرفعه الزبون عند الشراء)
 alter table public.orders
+  add column if not exists country text;
+alter table public.orders
   add column if not exists proof_image text;
 
 -- 2) الزبون المجهول (anon) يستطيع إنشاء طلب جديد فقط

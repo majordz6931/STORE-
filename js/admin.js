@@ -22,7 +22,7 @@
     if (/PGRST205|Could not find the table|relation.*does not exist|does not exist in schema/i.test(raw))
       return "Supabase tables don't exist yet! You must run supabase-setup.sql in Supabase → SQL Editor first.";
     if (/401|403|jwt|policy|permission/i.test(raw) || /new row violates row-level security/i.test(raw))
-      return "RLS rejected the write — re-run supabase-setup.sql (it relaxes the policies).";
+      return "RLS rejected the write — run supabase-repair-publish.sql in Supabase SQL Editor, then log out and log in again.";
     if (/jwt expired|token.*expir/i.test(raw))
       return "Your login session expired — click logout and log in again.";
     if (/401/i.test(raw))
