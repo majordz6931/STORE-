@@ -331,15 +331,20 @@
 
   function applyCryptoNet(id) {
     var method = $("orderPayment").value;
-    var nets = ((db.settings.cryptoConfig || {})[method] || {}).networks || [];
+    var nets = ((db.settings.cryptoConfig || {})[method] || bestCryptoConfig(method) || {}).networks || [];
     var net = nets.find(function (n) { return n.id === id; }) || nets[0];
     if (!net) return;
     var sel = $("cryptoNetwork"); if (sel) sel.setAttribute("data-cur", net.id);
     var addr = $("cryptoAddress"); if (addr) addr.textContent = net.address || "";
-    var qw = $("cryptoQrWrap"), qi = $("cryptoQr");
+    var qw = $("cryptoQrWrap"), qi = $("cryptoQr"), pend = $("cryptoPending"), addrRow = $("cryptoAddrRow");
+    var hasAddr = !!(net.address && String(net.address).trim());
+    var hasQr = !!net.qr;
+    if (addrRow) addrRow.hidden = !hasAddr;
     if (net.qr && qw && qi) { qi.src = net.qr; qw.hidden = false; }
     else if (qw) { qw.hidden = true; if (qi) qi.src = ""; }
-    window._cryptoNet = net;
+    /* إذا لا يوجد عنوان ولا QR: أظهر رسالة "التفاصيل تُرسل بعد التأكيد" بدل فراغ */
+    if (pend) pend.hidden = !( !hasAddr && !hasQr );
+    window._cryptoNet = (hasAddr || hasQr) ? net : null;
   }
 
   function applyCoupon(code) {
