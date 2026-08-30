@@ -191,7 +191,8 @@
         "<div class='msg-actions'><input data-msg-input='" + esc(m.id) + "' placeholder='" + esc(T("admWriteReply")) + "' value='" + (m.reply ? esc(m.reply) : "") + "' />" +
         "<button class='btn small primary' data-msg-send='" + esc(m.id) + "'>" + esc(T("admReplyBtn")) + " ⇥</button>" +
         "<button class='btn small outline' data-msg-done='" + esc(m.id) + "'>" + esc(T("admDone")) + "</button>" +
-        "<button class='icon-danger' data-msg-delete='" + esc(m.id) + "'>×</button></div>" +
+        "<button class='btn small outline contact-msg' data-msg-contact='" + esc(m.id) + "' title='" + esc(T("admContactMsg")) + "'>✉ " + esc(T("admContactMsg")) + "</button>" +
+        "<button class='icon-danger' data-msg-delete='" + esc(m.id) + "' title='" + esc(T("admDeleteMsg")) + "'>🗑</button></div>" +
       "</article>";
     }).join("");
   }
@@ -206,6 +207,26 @@
     if (!window.MajorCloud || !MajorCloud.isAdmin()) return;
     MajorCloud.updateMessage(id, { status: "done" })
       .then(syncMessages).catch(function () { toast(T("admUpdateFailed"), true); });
+  }
+  function contactMessage(id) {
+    var m = cloudMessages.find(function (x) { return String(x.id) === String(id); });
+    if (!m) return;
+    var email = String(m.visitor_email || m.email || "").trim();
+    if (!email) { toast(T("admNoContact"), true); return; }
+    var subject = encodeURIComponent("MAJOR STORE — " + (m.subject || T("admReply")));
+    var body = encodeURIComponent("\n\n--- Original message ---\n" + String(m.message || ""));
+    window.location.href = "mailto:" + encodeURIComponent(email) + "?subject=" + subject + "&body=" + body;
+  }
+  function deleteMessageFromInbox(id) {
+    if (!window.MajorCloud || !MajorCloud.isAdmin()) { toast(T("admErr401"), true); return; }
+    if (!confirm(T("admDeleteConfirm"))) return;
+    MajorCloud.deleteMessage(id).then(function () {
+      cloudMessages = cloudMessages.filter(function (m) { return String(m.id) !== String(id); });
+      renderMessages();
+      toast(T("admMessageDeleted"));
+    }).catch(function (e) {
+      toast(T("admDeleteFailed") + ": " + ((e && e.message) || ""), true);
+    });
   }
   function toast(msg, bad) {
     try {
@@ -558,11 +579,10 @@
       if (ms) { sendMessageReply(ms.getAttribute("data-msg-send")); return; }
       var md = e.target.closest("[data-msg-done]");
       if (md) { markMessageDone(md.getAttribute("data-msg-done")); return; }
+      var mc = e.target.closest("[data-msg-contact]");
+      if (mc) { contactMessage(mc.getAttribute("data-msg-contact")); return; }
       var mdel = e.target.closest("[data-msg-delete]");
-      if (mdel && confirm("delete message?")) {
-        if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.deleteMessage(mdel.getAttribute("data-msg-delete")).then(syncMessages).catch(function () { toast(T("admDeleteFailed"), true); });
-        return;
-      }
+      if (mdel) { deleteMessageFromInbox(mdel.getAttribute("data-msg-delete")); return; }
       var pv = e.target.closest("[data-proof-order]");
       if (pv) { openProof(pv.getAttribute("data-proof-order")); return; }
       var pc = e.target.closest("[data-proof-close]");
