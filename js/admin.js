@@ -48,7 +48,7 @@
   function request(path, options, authenticated) {
     options = options || {};
     options.headers = Object.assign({ apikey: window.MajorCloud.CONFIG.anonKey, Accept:"application/json", "Content-Type":"application/json", Prefer:"return=representation" }, options.headers || {});
-    var token = authenticated && window.MajorCloud.isAdmin() ? (JSON.parse(localStorage.getItem("major_supabase_session")||"null")||{}).access_token : window.MajorCloud.CONFIG.anonKey;
+    var token = authenticated && window.MajorCloud.isAdmin() ? (JSON.parse(sessionStorage.getItem("major_supabase_session")||"null")||{}).access_token : window.MajorCloud.CONFIG.anonKey;
     options.headers.Authorization = "Bearer " + token;
     return fetch(window.MajorCloud.CONFIG.url + "/rest/v1" + path, options).then(async function (r) {
       var t = await r.text(); var d = null; try { d = t?JSON.parse(t):null } catch (e) { d = t; }
@@ -105,6 +105,23 @@
     /* تحديث عداد المنتجات في الشريط الجانبي */
     var pb = $("productBadge"); if (pb) pb.textContent = db.products.length;
   }
+  function mergeCloudStore(cloud) {
+    if (!cloud || typeof cloud !== "object") return false;
+    var changed = false;
+    if (Array.isArray(cloud.products)) { db.products = cloud.products; changed = true; }
+    if (Array.isArray(cloud.categories)) { db.categories = cloud.categories; changed = true; }
+    if (Array.isArray(cloud.coupons)) { db.coupons = cloud.coupons; changed = true; }
+    if (cloud.settings && typeof cloud.settings === "object") { db.settings = Object.assign({}, db.settings, cloud.settings); changed = true; }
+    if (changed) ElectroDB.save(db);
+    return changed;
+  }
+  function pullCloudStore() {
+    if (!window.MajorCloud || !MajorCloud.isAdmin() || typeof MajorCloud.getStore !== "function") return Promise.resolve(false);
+    return MajorCloud.getStore().then(function (cloud) {
+      if (!cloud) return false;
+      return mergeCloudStore(cloud);
+    }).catch(function () { return false; });
+  }
   /* دفع بيانات المتجر (منتجات/أقسام/إعدادات/كوبونات) إلى Supabase — يتطلب تسجيل دخول الإدارة */
   function pushCloudStore() {
     try {
@@ -132,7 +149,7 @@
         updateCloudBadge();
         var pr = $("publishReminder"); if (pr) pr.hidden = true;
         toast("✓ " + T("admToastSyncOk").replace("{n}", payload.products.length).replace("{c}", payload.categories.length));
-        try { if (bc) bc.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
+        try { if (window._majorCloudChannel) window._majorCloudChannel.postMessage({ type: "store-updated", products: payload.products.length }); } catch (e) {}
       }).catch(function (e) {
         clearTimeout(timeout);
         cloudStatus.state = "error";
@@ -255,7 +272,10 @@
       var initials = String(o.name || "?").trim().split(/\s+/).slice(0, 2).map(function (x) { return x.charAt(0); }).join("").toUpperCase() || "?";
       return "<div class='mini-order'><span class='order-avatar'>" + esc(initials) + "</span><div><b>" + esc(o.name) + "</b><small>" + esc(o.id) + " · " + esc(o.date) + "</small></div><strong>" + money(o.total) + "</strong></div>";
     }).join("");
-    var profile = $("profileName"); if (profile) profile.textContent = sessionStorage.getItem("major_admin_user") || "admin";
+    var currentUser = sessionStorage.getItem("major_admin_user") || "admin";
+    var initials = String(currentUser).replace(/@.*$/, '').split(/\s+/).slice(0, 2).map(function (x) { return x.charAt(0); }).join('').toUpperCase() || 'A';
+    var profile = $("profileName"); if (profile) profile.textContent = initials;
+    var profileEmail = $("profileEmail"); if (profileEmail) profileEmail.textContent = currentUser;
   }
   function renderProductCategoriesAdmin() {
     $("productCategory").innerHTML = db.categories.map(function (c) {
@@ -421,8 +441,6 @@
     renderCoupons(); renderSectionsForm(); renderCryptoConfig();
     applyAdminI18n();
     syncCloudOrders(); syncMessages();
-    /* إخفاء تذكير النشر بعد التحديث */
-    var pr = $("publishReminder"); if (pr) pr.hidden = true;
   }
 
   function openEditor(id) {
@@ -468,9 +486,11 @@
         if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
         $("loginScreen").hidden = true;
         updateCloudBadge();
-        renderAll();
-        /* أول دخول: مزامنة فورية لاختبار الاتصال */
-        pushCloudStore();
+        pullCloudStore().finally(function () {
+          renderAll();
+          setPanel("overview");
+          toast("✓ dashboard ready — publish manually when you want to update the live store");
+        });
       } catch(err) { toast("enterDashboard error: " + err.message, true); }
     }
     /* BroadcastChannel: عند النشر، أي تبويب آخر مفتوح (متجر زائر) يتحدث فوراً */
@@ -515,7 +535,9 @@
       return raw || "unknown error — check Supabase Authentication settings";
     }
     function doLogout() {
-      sessionStorage.removeItem("major_admin_v4"); sessionStorage.removeItem("major_admin_user");
+      sessionStorage.removeItem("major_admin_v4");
+      sessionStorage.removeItem("major_admin_user");
+      sessionStorage.removeItem("major_supabase_session");
       if (window.MajorCloud && MajorCloud.isAdmin()) MajorCloud.signOut().catch(function () {});
       location.reload();
     }
@@ -523,6 +545,8 @@
     var topLogout = $("topLogoutBtn"); if (topLogout) topLogout.onclick = doLogout;
     var pubBtn = $("publishNowBtn");
     if (pubBtn) pubBtn.onclick = function () { pushCloudStore(); };
+    var pubProductsBtn = $("publishProductsBtn");
+    if (pubProductsBtn) pubProductsBtn.onclick = function () { pushCloudStore(); };
     all(".nav-item").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all(".tnav").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-panel")); }; });
     all("[data-go]").forEach(function (x) { x.onclick = function () { setPanel(x.getAttribute("data-go")); }; });
@@ -775,9 +799,11 @@
   if (logged && window.MajorCloud && MajorCloud.isAdmin()) {
     var dash = $("dashboard");
     if (dash) { dash.hidden = false; dash.setAttribute("data-auth", "ok"); }
-    $("loginScreen").hidden = true; renderAll();
+    $("loginScreen").hidden = true;
+    pullCloudStore().finally(function () { renderAll(); setPanel("overview"); });
   } else {
     sessionStorage.removeItem("major_admin_v4");
+    sessionStorage.removeItem("major_supabase_session");
     $("loginScreen").hidden = false;
     var dash2 = $("dashboard"); if (dash2) { dash2.hidden = true; dash2.removeAttribute("data-auth"); }
   }

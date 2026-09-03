@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
-  <title>MAJOR STORE — Hacking tools & cybersecurity programs</title>
+  <title>MAJOR STORE — Digital products & software resources</title>
   <link rel="stylesheet" href="css/style.css?v=2026-major24" />
 </head>
 <body>
@@ -33,7 +33,7 @@
         <span class="brand-mark" id="brandMark"></span>
         <span class="brand-text">
           <b id="brandName">MAJOR STORE</b>
-          <small id="brandSub">Hacking tools & electronic programs</small>
+          <small id="brandSub">Digital products, software & practical tools</small>
         </span>
       </a>
       <nav class="main-nav" id="mainNav">
@@ -73,12 +73,12 @@
       <div class="container hero-inner">
         <div class="hero-copy">
           <div class="hero-terminal">
-            <div class="terminal-head"><span></span><span></span><span></span><span class="t-id">root@major:~#</span></div>
+            <div class="terminal-head"><span></span><span></span><span></span><span class="t-id">store@major:~#</span></div>
             <div class="terminal-body">
               <p>$ <span class="typed" id="typedLine"></span><span class="cursor">█</span></p>
             </div>
           </div>
-          <span class="eyebrow" id="heroBadge">Ethical Hacking · Penetration Testing</span>
+          <span class="eyebrow" id="heroBadge">Digital Products · Templates · Courses</span>
           <h1 id="heroTitle"></h1>
           <p class="hero-text" id="heroText"></p>
           <div class="hero-actions">
@@ -91,22 +91,22 @@
           <div class="visual-frame">
             <div class="visual-frame-head">
               <span class="vf-dot r"></span><span class="vf-dot y"></span><span class="vf-dot g"></span>
-              <span class="vf-title">MAJOR/CYBER—01.root</span>
+              <span class="vf-title">MAJOR/STORE—01.live</span>
             </div>
             <div class="visual-frame-body">
-              <pre><code><span class="c-mut">$ </span>scan<span class="c-key"> -t</span> target.com
-<span class="c-mut">→</span> scanning <span class="c-ok">5</span> hosts...
-<span class="c-ok">✓</span> ports: <span class="c-key">22, 80, 443, 8080</span>
-<span class="c-warn">!</span> vuln: <span class="c-bad">SQLi · XSS · CVE-2026-1337</span>
-<span class="c-mut">►</span> payload ready
+              <pre><code><span class="c-mut">$ </span>load<span class="c-key"> --catalog</span> digital-products.json
+<span class="c-mut">→</span> synced <span class="c-ok">12</span> items...
+<span class="c-ok">✓</span> payments: <span class="c-key">crypto, cards, paypal</span>
+<span class="c-warn">!</span> support: <span class="c-bad">24/7 delivery queue active</span>
+<span class="c-mut">►</span> storefront ready
 <span class="c-mut">$ </span><span class="cursor-blink">█</span></code></pre>
             </div>
           </div>
           <div class="visual-tags">
-            <span class="vtag">▸ Kali Linux</span>
-            <span class="vtag">▸ Burp Suite Pro</span>
-            <span class="vtag">▸ OWASP ZAP</span>
-            <span class="vtag">▸ John the Ripper</span>
+            <span class="vtag">▸ React Template</span>
+            <span class="vtag">▸ Brand Identity Pack</span>
+            <span class="vtag">▸ Notion Planner</span>
+            <span class="vtag">▸ AI Prompt Library</span>
           </div>
         </div>
       </div>
@@ -169,9 +169,9 @@
       <div class="container about-card" id="aboutContent">
         <div>
           <span class="eyebrow small">// about</span>
-          <h2><span data-i18n="aboutTitle1">MAJOR STORE</span><br /><em class="green"><span id="aboutTitle2">أدوات الاختراق الأخلاقي</span></em></h2>
+          <h2><span data-i18n="aboutTitle1">MAJOR STORE</span><br /><em class="green"><span id="aboutTitle2">حلول رقمية جاهزة</span></em></h2>
         </div>
-        <p id="aboutText">متجر متخصص في بيع أدوات اختبار الاختراق، توزيعات لينكس احترافية، بيئات تدريب افتراضية، وكتب منهجية.</p>
+        <p id="aboutText">متجر متخصص في بيع المنتجات الرقمية القانونية مثل القوالب، البرامج المرخصة، والدورات العملية.</p>
         <a href="#contact" class="btn btn-primary"><span data-i18n="aboutCta">تواصل معنا</span> <span>⟩⟩</span></a>
       </div>
     </section>
@@ -212,10 +212,10 @@
         <span class="brand-mark" id="footerMark"></span>
         <span class="brand-text">
           <b id="footerBrand">MAJOR STORE</b>
-          <small id="footerSub">Hacking tools & electronic programs</small>
+          <small id="footerSub">Digital products, software & practical tools</small>
         </span>
       </a>
-      <p id="footerText">Cybersecurity tools for professionals.</p>
+      <p id="footerText">Reliable digital products to help your business move faster.</p>
       <div class="socials">
         <a id="discordLink" href="#" target="_blank" title="Discord">dc</a>
         <a id="instagramLink" href="#" target="_blank" title="Instagram">ig</a>
@@ -264,10 +264,13 @@
         <button class="close-btn" data-close="checkoutModal">×</button>
       </div>
       <form id="checkoutForm">
+        <label><span data-i18n="checkoutName">الاسم الكامل</span><input id="orderName" required data-i18n-ph="checkoutNamePh" /></label>
+        <label><span data-i18n="checkoutPhone">رقم الهاتف</span><input id="orderPhone" type="tel" data-i18n-ph="checkoutPhonePh" /></label>
         <label><span data-i18n="checkoutEmail">البريد الإلكتروني</span><input id="orderEmail" type="email" required data-i18n-ph="checkoutEmailPh" /></label>
         <label><span data-i18n="checkoutCountry">البلد</span><input id="orderCountry" required data-i18n-ph="checkoutCountryPh" /></label>
         <label><span data-i18n="checkoutPayment">طريقة الدفع</span><select id="orderPayment" required></select></label>
         <div class="crypto-pay-box" id="cryptoPayBox" hidden>
+          <label id="cryptoNetworkRow" hidden><span data-i18n="payNetwork">الشبكة</span><select id="cryptoNetwork"></select></label>
           <div class="pay-address-row" id="cryptoAddrRow">
             <span class="pay-addr-label" data-i18n="payAddressLabel">العنوان</span>
             <code id="cryptoAddress"></code>

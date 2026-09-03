@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="theme-color" content="#060b16" />
-  <title>MAJOR STORE — Admin</title>
+  <title>MAJOR STORE — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -35,7 +35,7 @@
     <h2 data-i18n="admAuthLogin">login</h2>
     <p data-i18n="admAuthEnter">Enter your credentials to access the dashboard</p>
     <form id="loginForm">
-      <label data-i18n="admAuthEmail">Email<input id="loginUser" type="email" autocomplete="email" placeholder="admin@majorstore.store" data-i18n-ph="admAuthEmailPh" /></label>
+      <label data-i18n="admAuthEmail">Email<input id="loginUser" type="text" autocomplete="username" placeholder="admin@majorstore.store" data-i18n-ph="admAuthEmailPh" /></label>
       <label data-i18n="admAuthPass">Password
         <div class="pass-wrap">
           <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" data-i18n-ph="admAuthPassPh" />
@@ -220,7 +220,7 @@
               <div class="bi-head"><span>🇸🇦 AR</span><span>🇬🇧 EN</span></div>
               <div class="bi">
                 <label data-i18n="admPdtName">name<input id="categoryNameAR" dir="rtl" required placeholder="اختبار تطبيقات الويب" /></label>
-                <label data-i18n="admPdtName">name<input id="categoryNameEN" required placeholder="Web pentesting" /></label>
+                <label data-i18n="admPdtName">name<input id="categoryNameEN" required placeholder="Website templates" /></label>
               </div>
               <div class="two-fields">
                 <label data-i18n="admIconLabel">icon<input id="categoryIcon" value="✦" maxlength="3" /></label>
@@ -275,11 +275,11 @@
             <div class="card-title"><h3 data-i18n="admPayMethodsLabel">payment methods</h3></div>
             <p class="hint" data-i18n="admPayMethodsHint">One per line, e.g. Bitcoin (BTC), PayPal, USDT (BEP20)</p>
             <div class="admin-form">
-              <textarea id="paymentMethods" rows="5" placeholder="Bitcoin (BTC)&#10;USDT (BEP20)&#10;PayPal"></textarea>
-            <button class="btn primary" id="savePayMethods" type="submit" data-i18n="admSavePays">save payment methods</button>
-          </form>
+              <textarea id="paymentMethods" rows="5" placeholder="USDT (TRC20)&#10;Bank Transfer&#10;PayPal"></textarea>
+              <button class="btn primary" id="savePayMethods" type="submit" data-i18n="admSavePays">save payment methods</button>
+            </div>
           </div>
-        </div>
+        </form>
 
         <div class="panel-card" style="margin-top:14px">
           <div class="card-title"><h3 data-i18n="admCryptoTitle">crypto networks + QR</h3></div>
@@ -305,7 +305,7 @@
           <div class="panel-card">
             <div class="card-title"><h3 data-i18n="admHomeAR">🇸🇦 Arabic</h3></div>
             <label data-i18n="admHomeBadge">Badge<input id="homeBadge" placeholder="⚡ NEW" /></label>
-            <label data-i18n="admHomeTitle">Title<input id="homeTitle" placeholder="أدوات اختراق أخلاقي" /></label>
+            <label data-i18n="admHomeTitle">Title<input id="homeTitle" placeholder="منتجات رقمية عملية" /></label>
             <label data-i18n="admHomeText">Text<textarea id="homeText" rows="3" placeholder="وصف قصير..."></textarea></label>
             <div class="two-fields">
               <label data-i18n="admHomeCta">CTA button<input id="homeCta" placeholder="تسوق الآن" /></label>
@@ -315,7 +315,7 @@
           <div class="panel-card">
             <div class="card-title"><h3 data-i18n="admHomeEN">🇬🇧 English</h3></div>
             <label data-i18n="admHomeBadge">Badge<input id="homeBadgeEn" placeholder="⚡ NEW" /></label>
-            <label data-i18n="admHomeTitle">Title<input id="homeTitleEn" placeholder="Ethical Hacking Tools" /></label>
+            <label data-i18n="admHomeTitle">Title<input id="homeTitleEn" placeholder="Digital Product Tools" /></label>
             <label data-i18n="admHomeText">Text<textarea id="homeTextEn" rows="3" placeholder="Short description..."></textarea></label>
             <div class="two-fields">
               <label data-i18n="admHomeCta">CTA button<input id="homeCtaEn" placeholder="Shop Now" /></label>
@@ -423,8 +423,8 @@
               <div class="card-title"><h3 data-i18n="admSetBrand">brand</h3></div>
               <label data-i18n="admSetStoreName">Store name<input id="settingBrand" placeholder="MAJOR STORE" /></label>
               <div class="bi">
-                <label data-i18n="admSetSubtitle">Subtitle AR<input id="settingSubAR" placeholder="أدوات اختراق أخلاقي" /></label>
-                <label data-i18n="admSetSubtitle">Subtitle EN<input id="settingSubEN" placeholder="Hacking tools & cybersecurity" /></label>
+                <label data-i18n="admSetSubtitle">Subtitle AR<input id="settingSubAR" placeholder="منتجات رقمية عملية" /></label>
+                <label data-i18n="admSetSubtitle">Subtitle EN<input id="settingSubEN" placeholder="Digital products & software" /></label>
               </div>
               <div class="bi">
                 <label data-i18n="admSetFooter">Footer AR<input id="settingFooterAR" placeholder="جميع الحقوق محفوظة" /></label>
@@ -508,7 +508,7 @@
 
         <div class="editor-actions">
           <button class="btn primary full" type="submit" id="saveProductBtn" data-i18n="admEditorSave">save product</button>
-          <button class="btn outline full" data-editor-close data-i18n="admEditorCancel">cancel</button>
+          <button class="btn outline full" type="button" data-editor-close data-i18n="admEditorCancel">cancel</button>
         </div>
       </form>
     </div>

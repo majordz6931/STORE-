@@ -62,15 +62,15 @@
   }
 
   function restoreSession() {
-    try { session = JSON.parse(localStorage.getItem("major_supabase_session") || "null"); } catch (e) { session = null; }
+    try { session = JSON.parse(sessionStorage.getItem("major_supabase_session") || "null"); } catch (e) { session = null; }
     return session;
   }
   restoreSession();
 
   function persistSession(value) {
     session = value || null;
-    if (session) localStorage.setItem("major_supabase_session", JSON.stringify(session));
-    else localStorage.removeItem("major_supabase_session");
+    if (session) sessionStorage.setItem("major_supabase_session", JSON.stringify(session));
+    else sessionStorage.removeItem("major_supabase_session");
     window.dispatchEvent(new CustomEvent("major-auth-changed"));
   }
 
@@ -123,7 +123,7 @@
     } catch (e) {
       /* جدول الطلبات قد لا يحوي أعمدة wilaya/city بعد: أعد المحاولة بحقل أساسي فقط */
       var slim = {};
-      ["id", "name", "phone", "email", "address", "payment", "crypto_network", "note", "items", "subtotal", "coupon", "total", "status"].forEach(function (k) {
+      ["id", "name", "phone", "email", "country", "address", "proof_image", "payment", "crypto_network", "note", "items", "subtotal", "coupon", "total", "status"].forEach(function (k) {
         if (order[k] !== undefined) slim[k] = order[k];
       });
       var rows2 = await attempt(slim);

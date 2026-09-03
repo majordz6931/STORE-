@@ -77,7 +77,7 @@
     var s = db.settings;
     document.title = "MAJOR STORE — " + localizeField(s.brandSubtitle);
     $("brandName").textContent = s.brand || "MAJOR STORE";
-    $("brandSub").textContent = localizeField(s.brandSubtitle) || "Hacking tools & electronic programs";
+    $("brandSub").textContent = localizeField(s.brandSubtitle) || "Digital products, software & practical tools";
     $("footerBrand").textContent = s.brand || "MAJOR STORE";
     $("footerSub").textContent = localizeField(s.brandSubtitle);
     $("footerAddress").textContent = localizeField(s.address);
@@ -125,7 +125,7 @@
     }).join("");
     var discEl = $("discordCta");
     if (discEl) {
-      var dtxt = T("heroSecondary") + " ";
+      var dtxt = (localizeField(s.heroSecondary) || T("heroSecondary")) + " ";
       if (discEl.firstChild && discEl.firstChild.nodeType === 3) discEl.firstChild.nodeValue = dtxt;
       else discEl.textContent = dtxt;
     }
@@ -209,9 +209,9 @@
     var list = db.settings.paymentMethods || [];
     var icons = {
       "Bitcoin (BTC)": "₿", "Ethereum (ETH)": "Ξ", "USDT (TRC20)": "₮",
-      "USDT (ERC20)": "₮", "Litecoin (LTC)": "Ł", "Monero (XMR)": "✕",
-      "PayPal": "P", "Visa / Mastercard": "▭", "Western Union": "w",
-      "Wise (TransferWise)": "w", "BaridiMob / CCP": "B", "الدفع عند الاستلام": "@"
+      "USDT (ERC20)": "₮", "USDT (BEP20)": "₮", "BNB (BEP20)": "◇",
+      "PayPal": "P", "Visa / Mastercard": "▭", "Bank Transfer": "⇄",
+      "Wise": "w", "Wise (TransferWise)": "w", "Cash on Delivery": "@"
     };
     grid.innerHTML = list.map(function (m) {
       var ico = icons[m] || "$";
@@ -312,9 +312,11 @@
     var nets = (cfg && cfg.networks) || [];
     var isCrypto = /btc|eth|usdt|bnb|litecoin|ltc|xmr|monero|trx|tron|trc|erc|bep|bsc|sol|ton|crypto|coin|token|usd[ct]|digital|تحويل|مشفر|عملات|كريبتو|بيتكوين|إيثيريوم/i.test(method);
     var addrRow = $("cryptoAddrRow"), pend = $("cryptoPending"), qw = $("cryptoQrWrap");
+    var netRow = $("cryptoNetworkRow"), netSel = $("cryptoNetwork");
     if (!nets.length) {
       if (isCrypto) {
         box.hidden = false;
+        if (netRow) netRow.hidden = true;
         if (addrRow) addrRow.hidden = true;
         if (qw) qw.hidden = true;
         if (pend) pend.hidden = false;
@@ -323,11 +325,17 @@
       }
       return;
     }
-    if (addrRow) addrRow.hidden = false;
-    if (pend) pend.hidden = true;
     box.hidden = false;
-    /* بدون قائمة اختيار: تُختار أول شبكة مطابقة تلقائياً ويظهر عنوانها و QR */
-    applyCryptoNet(nets[0].id);
+    if (pend) pend.hidden = true;
+    if (netSel) {
+      netSel.innerHTML = nets.map(function (n) {
+        return "<option value='" + esc(n.id) + "'>" + esc(n.label || n.id) + "</option>";
+      }).join("");
+      netSel.value = nets[0].id;
+    }
+    if (netRow) netRow.hidden = nets.length <= 1;
+    if (addrRow) addrRow.hidden = false;
+    applyCryptoNet((netSel && netSel.value) || nets[0].id);
   }
 
   function applyCryptoNet(id) {
@@ -335,6 +343,8 @@
     var nets = ((db.settings.cryptoConfig || {})[method] || bestCryptoConfig(method) || {}).networks || [];
     var net = nets.find(function (n) { return n.id === id; }) || nets[0];
     if (!net) return;
+    var selector = $("cryptoNetwork");
+    if (selector && selector.value !== net.id) selector.value = net.id;
     var addr = $("cryptoAddress"); if (addr) addr.textContent = net.address || "";
     var qw = $("cryptoQrWrap"), qi = $("cryptoQr"), pend = $("cryptoPending"), addrRow = $("cryptoAddrRow");
     var hasAddr = !!(net.address && String(net.address).trim());
@@ -342,48 +352,58 @@
     if (addrRow) addrRow.hidden = !hasAddr;
     if (net.qr && qw && qi) { qi.src = net.qr; qw.hidden = false; }
     else if (qw) { qw.hidden = true; if (qi) qi.src = ""; }
-    /* إذا لا يوجد عنوان ولا QR: أظهر رسالة "التفاصيل تُرسل بعد التأكيد" بدل فراغ */
     if (pend) pend.hidden = !( !hasAddr && !hasQr );
-    window._cryptoNet = (hasAddr || hasQr) ? net : null;
+    window._cryptoNet = net;
   }
 
   function applyCoupon(code) {
-    var c = (db.coupons || []).find(function (x) { return (x.code || "").toLowerCase() === String(code || "").trim().toLowerCase(); });
+    var needle = String(code || "").trim().toLowerCase();
+    if (!needle) return null;
+    var c = (db.coupons || []).find(function (x) {
+      return (x.code || "").toLowerCase() === needle && x.active !== false;
+    });
     return c || null;
   }
 
-  function recomputeTotal() {
-    var t = cartTotal();
-    if (appliedCoupon) {
-      if (appliedCoupon.type === "percent") t = t * (1 - appliedCoupon.value / 100);
-      else t = Math.max(0, t - appliedCoupon.value);
+  function discountedTotal(base) {
+    var t = Number(base || 0);
+    if (!appliedCoupon) return t;
+    if (appliedCoupon.type === "percent") {
+      var pct = Math.max(0, Math.min(100, Number(appliedCoupon.value || 0)));
+      return t * (1 - pct / 100);
     }
-    $("checkoutTotal").textContent = money(t);
+    return Math.max(0, t - Number(appliedCoupon.value || 0));
+  }
+
+  function recomputeTotal() {
+    $("checkoutTotal").textContent = money(discountedTotal(cartTotal()));
   }
 
   function submitOrder(ev) {
     ev.preventDefault();
     if (!cart.length) return toast(T("toastOrderEmpty"), true);
+    var nm = $("orderName").value.trim();
+    var ph = $("orderPhone").value.trim();
     var em = $("orderEmail").value.trim();
     var coEl = $("orderCountry");
     var co = coEl ? coEl.value.trim() : "";
-    if (!em || !co) return toast(T("toastRequired"), true);
-    var t = cartTotal();
-    if (appliedCoupon) {
-      if (appliedCoupon.type === "percent") t = t * (1 - appliedCoupon.value / 100);
-      else t = Math.max(0, t - appliedCoupon.value);
-    }
+    if (!nm || !em || !co) return toast(T("toastRequired"), true);
+    var subtotal = cartTotal();
+    var total = discountedTotal(subtotal);
     var order = {
       id: "MJR-" + Date.now().toString().slice(-6),
-      name: (em.split("@")[0] || ""), phone: "", email: em, country: co,
+      name: nm,
+      phone: ph,
+      email: em,
+      country: co,
       proof_image: proofImage || null,
       payment: $("orderPayment").value,
       cryptoNetwork: window._cryptoNet ? window._cryptoNet.label : null,
       note: $("orderNote").value.trim(),
       items: cart.slice(),
-      subtotal: cartTotal(),
+      subtotal: subtotal,
       coupon: appliedCoupon ? appliedCoupon.code : null,
-      total: t,
+      total: total,
       status: "pending",
       date: new Date().toLocaleString("ar-DZ")
     };
@@ -392,19 +412,22 @@
     proofImage = null;
     var piPv = $("proofPreview"), piIm = $("proofPreviewImg"), piRm = $("proofRemove");
     if (piIm) piIm.src = ""; if (piPv) piPv.hidden = true; if (piRm) piRm.hidden = true;
-    $("checkoutForm").reset(); closeOverlays(); renderCart(); renderProducts();
+    $("checkoutForm").reset();
+    window._cryptoNet = null;
+    window._orderPayment = "";
+    closeOverlays(); renderCart(); renderProducts();
     $("couponMsg").textContent = "";
     toast(T("toastOrderOk").replace("{id}", order.id));
     if (window.MajorCloud && typeof MajorCloud.createOrder === "function") {
       var cloudOrder = {
-        id: order.id, name: order.name, phone: order.phone, email: order.email,
+        id: order.id, name: order.name, phone: order.phone || "", email: order.email,
         country: order.country || null,
         proof_image: order.proof_image || null,
         payment: order.payment, crypto_network: order.cryptoNetwork || null,
         note: order.note, items: order.items, subtotal: order.subtotal, coupon: order.coupon,
         total: order.total, status: "pending"
       };
-      MajorCloud.createOrder(cloudOrder).catch(function (e) { toast(T("toastCloudFail"), true); });
+      MajorCloud.createOrder(cloudOrder).catch(function () { toast(T("toastCloudFail"), true); });
     }
   }
 
@@ -459,7 +482,7 @@
   $("footerYear").textContent = new Date().getFullYear();
   if ($("typedLine")) {
     ElectroDB.setLang(ElectroDB.getLang());
-    var txt = ElectroDB.getLang() === "ar" ? "scan --target ethical-tools --depth all" : "scan --target ethical-tools --depth all";
+    var txt = ElectroDB.getLang() === "ar" ? "load --catalog digital-products --sync live" : "load --catalog digital-products --sync live";
     typeLine($("typedLine"), txt);
   }
 
